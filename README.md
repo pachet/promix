@@ -828,9 +828,3 @@ promix.when(foo).and(bar).and(baz).then(wat);
 `````
 The `.then(wat)` step is a breakpoint, because it requires everything before it to be completed before it will execute.
 
-<br />
-###Special Thanks
-
-I'd like to extend a special thank you to everyone who lent advice and helped me create this module.
-
-A special thank you to [domenic](https://github.com/domenic) for his work, on Promises/A+ in particular and towards an inclusion of promises in ES in general.
