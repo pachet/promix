@@ -90,7 +90,7 @@ You can pass in your own promises, too, if that's your style. promix lets you ea
 <br />
 ##API
 
-NOTE: The API examples in this section use the following functions in order to illustrate asynchronous behavior:
+**NOTE:** The API examples in this section use the following functions in order to illustrate asynchronous behavior:
 
 `````javascript
 function asyncOne ( a, b, callback ) {
@@ -833,4 +833,4 @@ The `.then(wat)` step is a breakpoint, because it requires everything before it 
 
 I'd like to extend a special thank you to everyone who lent advice and helped me create this module.
 
-A special thank you to [domenic](https://github.com/domenic) for his work, on Promises/A+ in particular and towards an inclusion of promises in ECMA in general.
+A special thank you to [domenic](https://github.com/domenic) for his work, on Promises/A+ in particular and towards an inclusion of promises in ES in general.
