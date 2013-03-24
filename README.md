@@ -22,6 +22,8 @@
 	* [chain.unsuppress](#chainunsuppress)
 	* [chain.bind](#chainbind)
 	* [chain.name](#chainname)
+	* [promix.handler](#promixhandler)
+	* [promix.promise](#promixpromise)
 4. [Examples](#examples)
 	* [In the browser](#in-the-browser)
 	* [In a service](#in-a-service)
@@ -47,7 +49,7 @@ npm install promix
 <br />
 ##Introduction
 
-With promix, you can turn this:
+With Promix, you can turn this:
 
 `````javascript
 
@@ -83,9 +85,9 @@ function doAsyncStuff ( a, b, c, callback ) {
 }
 `````
 
-promix is a control flow library for JavaScript that makes it easy to chain asynchronous operations together.
-If you pass in a function that accepts a trailing callback argument, promix will transform it into a promise and add it to the chain.
-You can pass in your own promises, too, if that's your style. promix lets you easily mix the two, and make it out of callback hell in one piece.
+Promix is a control flow library for JavaScript that makes it easy to chain asynchronous operations together.
+If you pass in a function that accepts a trailing callback argument, Promix will transform it into a promise and add it to the chain.
+You can pass in your own promises, too, if that's your style. Promix lets you easily mix the two, and make it out of callback hell in one piece.
 
 <br />
 ##API
@@ -122,7 +124,7 @@ Usage:
 
 > **promix.when( function [, arguments ] )**
 
-Pass a callback-accepting function, with whatever arguments you want to supply (promix creates the trailing callback argument for you):
+Pass a callback-accepting function, with whatever arguments you want to supply (Promix creates the trailing callback argument for you):
 `````javascript
 var chain = when(asyncOne, 1, 2);
 `````
@@ -275,7 +277,7 @@ Usage:
 
 Callbacks often take the form `function ( error, result ) { }`.
 `chain.end()` allows you to pass a single function of this type into the chain;
-promix will fork it into a `.then ( results ) { }` success handler and a `.otherwise ( error ) { }` error handler behind the scenes:
+Promix will fork it into a `.then ( results ) { }` success handler and a `.otherwise ( error ) { }` error handler behind the scenes:
 
 `````javascript
 function typicalCallback ( error, result ) {
@@ -404,7 +406,7 @@ chain.then(function ( results ) {
 `````
 
 If you call `chain.as()` after an `.assert()`, you will label that assertion.
-If the assertion returns false, the error that promix creates from the failed assertion will be given the label that you passed into `.as()`:
+If the assertion returns false, the error that Promix creates from the failed assertion will be given the label that you passed into `.as()`:
 
 `````javascript
 var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4);
@@ -476,7 +478,7 @@ Usage:
 
 Explicitly rejects the current chain with the supplied error.
 
-You can pass a string, and promix will create an error for you:
+You can pass a string, and Promix will create an error for you:
 
 `````javascript
 var chain = promix.when(asyncOne, 1, 2);
@@ -719,7 +721,90 @@ chain.then(function ( results ) {
 	//1000
 	//2000
 });
+`````
 
+<br />
+###promix.promise()
+Create a new promise.
+
+Usage:
+> **promix.promise( [base object] )**
+
+This promise is Promises/A+ compliant, meaning it exposes a `.then()` method that can be used to attach success and error handlers:
+`````javascript
+var promise = promix.promise();
+
+function success ( result ) {
+	console.log(result);
+
+	//vaporeon
+}
+
+function failure ( error ) {
+	//our promise wasn't rejected,
+	//so we won't reach this
+}
+
+promise.then(success, failure);
+promise.fulfill('vaporeon');
+`````
+
+You can pass an optional object to `.promise()`, and that object will inherit the `.then()`, `.fulfill()`, and `.reject()` methods.
+`````javascript
+var promise = promix.promise({
+	foo : 'foo',
+	bar : 'bar',
+	baz : 'baz'
+});
+
+console.log(promise);
+
+//	{
+//		foo : 'foo',
+//		bar : 'bar',
+//		baz : 'baz',
+//		then : [function then],
+//		fulfill : [function fulfill],
+//		reject : [function reject]
+//	}
+`````
+
+<br />
+###promix.handler()
+Set the global error handler for uncaught promise/chain errors.
+
+Usage:
+> **promix.handler( function )**
+
+If a promise is rejected with an error and has no error handler of its own to receive it, Promix will pass that error into the global handler specified with `.handler()`, if it exists. This will keep the error from being thrown:
+
+`````javascript
+var promise = promix.promise();
+promix.handler(function ( error ) {
+	console.log(error);
+
+	//Error: An arbitrary error
+});
+
+//only supply a success handler:
+promise.then(function ( result )  {
+	//we will never reach this
+});
+
+promise.reject(new Error('An arbitrary error'));
+`````
+
+ Any uncaught errors within chains created with `promix.when()` will pass to the global handler, as well:
+`````javascript
+promix.handler(function ( error ) {
+	console.log(error);
+
+	//Error: This function throws errors (foo)
+});
+
+var chain = when(errorFn, 'foo').then(function ( results ) {
+	//we will never reach this
+});
 `````
 
 <br />
@@ -810,7 +895,7 @@ $window.on('scroll', function ( event ) {
 <br />
 ##License
 
-This module is MIT licensed. You can read the license [here](https://raw.github.com/reflex/promix/master/license).
+Promix is MIT licensed. You can read the license [here](https://raw.github.com/reflex/promix/master/license).
 
 <br />
 ##Notes
@@ -818,7 +903,7 @@ This module is MIT licensed. You can read the license [here](https://raw.github.
 <br />
 ###Breakpoints
 
-Certain promix chain methods act as chain breakpoints. 
+Certain Promix chain methods act as chain breakpoints. 
 These methods are designated with an asterisk (\*) throughout this documentation.
 A breakpoint is a step in the execution of a chain that necessarily introduces sequential behavior.
 
@@ -827,4 +912,6 @@ For instance, in the following example:
 promix.when(foo).and(bar).and(baz).then(wat);
 `````
 The `.then(wat)` step is a breakpoint, because it requires everything before it to be completed before it will execute.
+
+
 
