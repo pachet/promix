@@ -1,10 +1,13 @@
 {
 	"author" : "Pachet <pachet@burninggarden.com>",
-	"name" : "promix",
+	"name" : "Promix",
 	"description" : "Mix promises with Node-style callbacks for improved flow control",
 	"version" : "0.0.1",
 	"main" : "./index",
 	"engines" : {
 		"node" : "*"
+	},
+	"devDependencies" : {
+		"nodeunit" : "0.7.x"
 	}
 }
