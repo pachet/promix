@@ -145,7 +145,7 @@ Usage:
 
 `````javascript
 var promise = promix.promise();
-var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).and(promix) //---> continue adding things as need be!
+var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).and(promise) //---> continue adding things as need be!
 `````
 
 <br />
@@ -169,7 +169,7 @@ var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function ( resu
 });
 `````
 
-If you supply additional arguments to `.then()`, those arguments, as well as a trailing callback created by promix, will be passed to the function instead of the results object:
+If you supply additional arguments to `.then()`, those arguments, as well as a trailing callback created by promix, will be passed to the function **instead of** the results object:
 
 `````javascript
 function someFn ( v1, v2, callback ) {
@@ -261,11 +261,11 @@ var chain = promix.when(asyncOne, 1, 2).and(errorFn, 'foo').then(function ( resu
 
 	//Error: This function throws errors (foo)
 });
+`````
 
 *NOTE* If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](#end)),
 the error will be thrown.
 You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress]('#suppress)).
-`````
 
 <br />
 ###chain.end() [\*](#breakpoints)
