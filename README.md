@@ -32,7 +32,6 @@
 5. [License](#license)
 6. [Notes](#notes)
 	* [Breakpoints](#breakpoints)
-	* [Special Thanks](#special-thanks)
 
 \* will introduce a sequential breakpoint. See [Breakpoints](#breakpoints) below.
 
