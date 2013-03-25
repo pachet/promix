@@ -1,5 +1,3 @@
-
-console.log(__dirname);
 var
 	Chain = require('./lib/Chain'),
 	Promise = require('./lib/Promise'),
@@ -17,5 +15,5 @@ module.exports = {
 		return result;
 	},
 	promise : Promise,
-	handler : Handler.set
+	handle : Handler.set
 };
