@@ -10,6 +10,24 @@ function async ( label, time, callback ) {
 	}, time || 0);
 }
 
+function asyncOne ( a, b, callback ) {
+	setTimeout(function ( ) {
+		return callback(null, a + b);
+	}, 1);
+}
+
+function asyncTwo ( c, d, callback ) {
+	setTimeout(function ( ) {
+		return callback(null, c * d);
+	}, 2);
+}
+
+function errorFn ( label, callback ) {
+	setTimeout(function ( ) {
+		return callback(new Error('This function throws errors (' + label + ')'));
+	}, 30);
+}
+
 function and ( test ) {
 	var
 		chain = promix.when();
@@ -135,6 +153,20 @@ function stop ( test ) {
 	test.done();
 }
 
+function start ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2).stop();
+
+	test.expect(2);
+	chain.and(asyncTwo, 3, 4).then(function ( results ) {
+		test.equal(results [0], 3);
+		test.equal(results [1], 12);
+		test.done();
+	});
+
+	setTimeout(chain.start, 0);
+}
+
 function suppress ( test ) {
 	var
 		chain_one = promix.when(),
@@ -143,7 +175,11 @@ function suppress ( test ) {
 	chain_one.and(async, 'foo', 1).as('foo');
 	chain_one.and(async, 'bad', 2).as('bad');
 	chain_one.suppress();
+	test.expect(5);
 	chain_one.then(function ( results ) {
+		var
+			chain_three;
+
 		test.equal(results [0], 'pass: foo');
 		test.equal(results.foo, 'pass: foo');
 		chain_two.and(async, 'bar', 1).as('bar');
@@ -159,11 +195,70 @@ function suppress ( test ) {
 		});
 		chain_two.otherwise(function ( error ) {
 			test.equal(error.toString(), 'Error: fail: worse');
-			test.done();
+			chain_three = promix.when(async, 'bar', 1).as('bar');
+			chain_three.and(async, 'bad', 2).as('bad');
+			chain_three.suppress('bad');
+			chain_three.then(function ( results ) {
+				test.equal(results.bar, 'pass: bar');
+				test.done();
+			});
+			chain_three.otherwise(function ( error ) {
+				test.ok(false, 'We should not be here');
+			});
 		});
 	});
 	chain_one.otherwise(function ( error ) {
 		test.ok(false, 'We should not be here.');
+		test.done();
+	});
+}
+
+function reject ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2).as('foo');
+	
+	test.expect(1);
+	chain.then(function ( results ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+	chain.otherwise(function ( error ) {
+		test.equal(error.toString(), 'Error: This is a test error');
+		test.done();
+	});
+	chain.reject(new Error('This is a test error'));
+}
+
+function unsuppress ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2).and(errorFn, 'foo').suppress();
+
+	test.expect(1);
+	chain.then(function ( results ) {
+		chain.and(asyncTwo, 3, 4).and(errorFn, 'bar');
+		chain.unsuppress();
+		chain.otherwise(function ( error ) {
+			test.equal(error.toString(), 'Error: This function throws errors (bar)');
+			test.done();
+		});
+	});
+}
+
+function _break ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2);
+
+	test.expect(1);
+	chain.then(function ( results ) {
+		test.equal(results [0], 3);
+		chain.break();
+		setTimeout(function ( ) {
+			test.done();
+		});
+	});
+
+	chain.then(function ( results ) {
+		test.ok(false, 'We should not be here');
 		test.done();
 	});
 }
@@ -196,6 +291,84 @@ function assert ( test ) {
 	});
 	chain_one.otherwise(function ( results ) {
 		test.ok(false, 'We should not be here.');
+		test.done();
+	});
+}
+
+function time ( test ) {
+	var
+		chain = promix.when();
+
+	test.expect(5);
+	chain.and(async, 'pikachu', 350).as('pikachu');
+	chain.and(async, 'charizard', 250).as('charizard');
+	test.equal(chain.time('pikachu'), 0);
+	test.equal(chain.time('charizard'), 0);
+	chain.then(function ( results ) {
+		var
+			pikachu_check = chain.time('pikachu') >= 350,
+			charizard_check = chain.time('charizard') >= 250,
+			total_check = chain.time() >= 350;
+
+		test.equal(pikachu_check, true);
+		test.equal(charizard_check, true);
+		test.equal(total_check, true);
+		test.done();
+	});
+}
+
+function until ( test ) {
+	var i = 0;
+
+	function loop ( callback ) {
+		i ++;
+		setTimeout(function ( ) {
+			return callback(null, i);
+		}, 100);
+	}
+
+	test.expect(2);
+	promix.when(loop).as('loop1').until(5).then(function ( results ) {
+		var
+			promise = promix.promise();
+
+		test.equal(results.loop1, 5);
+		promix.when(loop).as('loop2').until(promise).then(function ( results ) {
+			test.equal(results.loop2, 7);
+			test.done();
+		});
+		setTimeout(function ( ) {
+			promise.fulfill(true);
+		}, 200);
+	});
+
+	
+}
+
+function bind ( test ) {
+	var
+		chain = promix.when(),
+		object = {
+			create_name : function ( ) {
+				return 'foo';
+			},
+			get_name : function ( callback ) {
+				var
+					resolved_name = this.create_name();
+
+				setTimeout(function ( ) {
+					return void callback(null, resolved_name);
+				}, 10);
+			}
+		};
+
+	chain.and(object.get_name).as('object').bind(object);
+	chain.then(function ( results ) {
+		test.equal(results.object, 'foo');
+		test.done();
+	});
+	chain.otherwise(function ( error ) {
+		test.ok(false, 'We should not be here');
 		test.done();
 	});
 }
@@ -343,19 +516,22 @@ function introspect_success ( test ) {
 	});
 }
 
-
-
 module.exports = {
 	and : and,
 	or : or,
 	then : then,
 	end : end,
+	'break' : _break,
 	stop : stop,
+	start : start,
 	suppress : suppress,
+	unsuppress : unsuppress,
+	reject : reject,
 	assert : assert,
+	time : time,
+	until : until,
+	bind : bind,
 	promise_compose_success : promise_compose_success,
 	promise_compose_failure : promise_compose_failure,
 	introspect_success : introspect_success
 };
-
-
