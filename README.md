@@ -367,6 +367,7 @@ promix.when(asyncOne, 1, 2).assert(function ( results ) {
 `````
 
 If your assert function returns `false`, the chain will break, and an error will be passed to the nearest error handler:
+`````javascript
 var chain = promix.when(asyncOne, 1, 2);
 
 chain.assert(function ( results ) {
@@ -380,6 +381,7 @@ chain.otherwise(function ( error ) {
 
 	//Error: Chain failed assertion
 });
+`````
 
 <br />
 ###chain.as()
