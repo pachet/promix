@@ -696,9 +696,10 @@ function twoSeconds ( callback ) {
 }
 
 var chain = promix.when(oneSecond).and(twoSeconds).then(function ( results ) {
+	//notice that the requests are in parallel, and therefore overlap:
 	console.log(chain.time());
 		
-	//3000
+	//2000
 });
 `````
 
