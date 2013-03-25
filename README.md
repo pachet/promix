@@ -22,7 +22,7 @@
 	* [chain.unsuppress](#chainunsuppress)
 	* [chain.bind](#chainbind)
 	* [chain.name](#chainname)
-	* [promix.handler](#promixhandler)
+	* [promix.handle](#promixhandle)
 	* [promix.promise](#promixpromise)
 4. [Examples](#examples)
 	* [In the browser](#in-the-browser)
@@ -770,17 +770,17 @@ console.log(promise);
 `````
 
 <br />
-###promix.handler()
+###promix.handle()
 Set the global error handler for uncaught promise/chain errors.
 
 Usage:
-> **promix.handler( function )**
+> **promix.handle( function )**
 
 If a promise is rejected with an error and has no error handler of its own to receive it, Promix will pass that error into the global handler specified with `.handler()`, if it exists. This will keep the error from being thrown:
 
 `````javascript
 var promise = promix.promise();
-promix.handler(function ( error ) {
+promix.handle(function ( error ) {
 	console.log(error);
 
 	//Error: An arbitrary error
@@ -796,7 +796,7 @@ promise.reject(new Error('An arbitrary error'));
 
  Any uncaught errors within chains created with `promix.when()` will pass to the global handler, as well:
 `````javascript
-promix.handler(function ( error ) {
+promix.handle(function ( error ) {
 	console.log(error);
 
 	//Error: This function throws errors (foo)
