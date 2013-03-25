@@ -263,9 +263,9 @@ var chain = promix.when(asyncOne, 1, 2).and(errorFn, 'foo').then(function ( resu
 });
 `````
 
-*NOTE* If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](#end)),
+*NOTE* If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](#chainend-)),
 the error will be thrown.
-You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress]('#suppress)).
+You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress](#chainsuppress)).
 
 <br />
 ###chain.end() [\*](#breakpoints)
