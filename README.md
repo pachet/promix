@@ -103,7 +103,7 @@ function asyncOne ( a, b, callback ) {
 
 function asyncTwo ( c, d, callback ) {
 	setTimeout(function ( ) {
-		return callback(null, a * b);
+		return callback(null, c * d);
 	}, 20);
 }
 
@@ -126,7 +126,7 @@ Usage:
 
 Pass a callback-accepting function, with whatever arguments you want to supply (Promix creates the trailing callback argument for you):
 `````javascript
-var chain = when(asyncOne, 1, 2);
+var chain = promix.when(asyncOne, 1, 2);
 `````
 
 Or just pass in a preexisting promise:
@@ -146,7 +146,7 @@ Usage:
 
 `````javascript
 var promise = promix.promise();
-var chain = when(asyncOne, 1, 2).and(asyncTwo, 3, 4).and(promix) //---> continue adding things as need be!
+var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).and(promix) //---> continue adding things as need be!
 `````
 
 <br />
@@ -163,7 +163,7 @@ If you pass a function to `chain.then()` as the only argument,
 the function will be passed an array of results from all earlier steps in the chain:
 
 `````javascript
-var chain = when(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function ( results ) {
+var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function ( results ) {
 	console.log(results);
 
 	//[3, 12]
@@ -196,7 +196,7 @@ setTimeout(function ( ) {
 	promise.fulfill(5000);
 }, 40);
 
-var chain = when(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(promise).then(function ( results ) {
+var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(promise).then(function ( results ) {
 	console.log(results);
 	
 	//[3, 12, 5000]
@@ -235,7 +235,7 @@ Usage:
 
 Only the first sibling to complete will be added to the list of results:
 `````javascript
-var chain = when(asyncTwo, 3, 4).or(asyncTwo, 1, 2).then(function ( results ) {
+var chain = promix.when(asyncTwo, 3, 4).or(asyncTwo, 1, 2).then(function ( results ) {
 	//asyncOne completes first (see above);
 	//we only receive asyncOne's result:
 	console.log(results [0]);
@@ -255,7 +255,7 @@ Usage:
 
 Any errors that occur will break the chain, preventing execution of further steps, and pass to the nearest handler.
 `````javascript
-var chain = when(asyncOne, 1, 2).and(errorFn, 'foo').then(function ( results ) {
+var chain = promix.when(asyncOne, 1, 2).and(errorFn, 'foo').then(function ( results ) {
 	//we will never reach this point, because errorFn threw an error
 }).otherwise(function ( error ) {
 	console.log(error);
@@ -523,7 +523,7 @@ Restart a chain that has been stopped. If `chain.stop()` has not been called, th
 
 This method is useful for controlling when sequential steps are executed:
 `````javascript
-var chain = when(asyncOne, 1, 2).stop();
+var chain = promix.when(asyncOne, 1, 2).stop();
 chain.and(asyncTwo, 3, 4).then(function ( results ) {
 	console.log(results);
 
@@ -802,7 +802,7 @@ promix.handle(function ( error ) {
 	//Error: This function throws errors (foo)
 });
 
-var chain = when(errorFn, 'foo').then(function ( results ) {
+var chain = promix.when(errorFn, 'foo').then(function ( results ) {
 	//we will never reach this
 });
 `````
@@ -829,7 +829,7 @@ function loadImageFor ( entry ) {
 	image.onload = function ( ) {
 		promise.fulfill();
 	};
-	image.src = '/images/' + entry.thumbnail';
+	image.src = '/images/' + entry.thumbnail;
 
 	return promise;
 }
