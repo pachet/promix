@@ -1,4 +1,4 @@
-#Promix - Mix promises with Node-style callbacks for improved flow control
+#Promix - Mix promises with callbacks for improved flow control
 ##Contents
 
 1. [Install](#install)
