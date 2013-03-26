@@ -3,17 +3,20 @@ var
 	Promise = require('./lib/Promise'),
 	Handler = require('./lib/Handler');
 
-module.exports = {
-	when : function when ( ) {
-		var
-			result = new Chain(),
-			args = Array.prototype.slice.call(arguments);
+function when ( ) {
+	var
+		result = new Chain(),
+		args = Array.prototype.slice.call(arguments);
 
-		if ( args.length ) {
-			result.and.apply(result, args);
-		}
-		return result;
-	},
+	if ( args.length ) {
+		result.and.apply(result, args);
+	}
+	return result;
+}
+
+module.exports = {
+	when : when,
+	chain : when,
 	promise : Promise,
 	handle : Handler.set
 };

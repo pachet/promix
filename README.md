@@ -5,6 +5,7 @@
 2. [Introduction](#introduction)
 3. [API](#api)
 	* [promix.when](#promixwhen-) *
+	* [promix.chain](#promixchain-) *
 	* [chain.and](#chainand)
 	* [chain.then](#chainthen-) *
 	* [chain.or](#chainor)
@@ -133,6 +134,11 @@ Or just pass in a preexisting promise:
 var promise = promix.promise();
 var chain = promix.when(promise);
 `````
+
+<br />
+###promix.chain() [\*](#breakpoints)
+An alias for [promix.when()](#promixwhen-).
+
 
 <br />
 ###chain.and()
