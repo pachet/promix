@@ -145,7 +145,11 @@ Usage:
 
 `````javascript
 var promise = promix.promise();
-var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).and(promise) //---> continue adding things as need be!
+promix.when(asyncOne, 1, 2)
+	.and(asyncTwo, 3, 4)
+	.and(promise)
+	.and(...)
+	//continue adding things as need be
 `````
 
 <br />
@@ -184,7 +188,7 @@ promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn, 'a', 'b').then(func
 	//[3, 12, 'aaa bbb']
 });
 ````` 
-In the above case, the chain continues because `someOtherFn` calls the `callback` argument supplied by promix.
+In the above case, the chain continues because `someOtherFn` calls the `callback` argument supplied by Promix.
 
 If you pass a promise to `chain.then()`, the chain will wait until that promise has been resolved (or rejected) before continuing:
 
@@ -234,7 +238,7 @@ Usage:
 
 Only the first sibling to complete will be added to the list of results:
 `````javascript
-var chain = promix.when(asyncTwo, 3, 4).or(asyncTwo, 1, 2).then(function ( results ) {
+var chain = promix.when(asyncTwo, 3, 4).or(asyncOne, 1, 2).then(function ( results ) {
 	//asyncOne completes first (see above);
 	//we only receive asyncOne's result:
 	console.log(results [0]);
@@ -263,8 +267,9 @@ var chain = promix.when(asyncOne, 1, 2).and(errorFn, 'foo').then(function ( resu
 });
 `````
 
-*NOTE* If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](#chainend-)),
-the error will be thrown.
+**NOTE**
+
+If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](#chainend-)), the error will be thrown.
 You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress](#chainsuppress)).
 
 <br />
@@ -274,8 +279,8 @@ Add a single callback to the end of the chain. This callback also acts as an err
 Usage:
 > **chain.end( function )**
 
-Callbacks often take the form `function ( error, result ) { }`.
-`chain.end()` allows you to pass a single function of this type into the chain;
+Callbacks in Node.js often take the form `function ( error, result ) { }`.
+`chain.end()` allows you to pass a single function of this signature into the chain;
 Promix will fork it into a `.then ( results ) { }` success handler and a `.otherwise ( error ) { }` error handler behind the scenes:
 
 `````javascript
@@ -429,7 +434,21 @@ The `chain.as()` method will also assign a new promise property on the chain its
 ###chain \[label\]
 An alias to a promise representing the state of a specific step in the chain, as designated by `chain.as()`.
 
-When a step in the chain is either fulfilled or rejected, the promise stored at this 
+When a step in the chain is either fulfilled or rejected, the promise stored at this property will be completed with the result (or error) from that step:
+`````javascript
+var chain = when(asyncOne, 1, 2).as('foo');
+chain.and(asyncTwo, 3, 4).as('bar');
+
+
+//chain.bar is now a standard promise:
+chain.bar.then(function ( result ) {
+	console.log(result);
+
+	//12
+}, function ( error ) {
+	//We won't reach this
+});
+````` 
 
 <br />
 ###chain \[label\]()
@@ -461,7 +480,9 @@ function additionalFn ( val1, val2, val3 ) {
 	console.log(val3);
 }
 
-var chain = promix.when(asyncOne, 1, 2).as('one').and(asyncArray).as('array').and(asyncObject).as('object');
+var chain = promix.when(asyncOne, 1, 2).as('one');
+chain.and(asyncArray).as('array')
+chain.and(asyncObject).as('object');
 chain.then(additionalFn, chain.one(), chain.array(1), chain.object('water'));
 
 //3
