@@ -844,7 +844,7 @@ var chain = promix.when(errorFn, 'foo').then(function ( results ) {
 
 `````javascript
 var $wrapper = $('#wrapper');
-var start = offset;
+var offset = 0;
 var loading = false;
 var wrapperHeight = 0;
 
@@ -872,6 +872,7 @@ function addEntries ( entries ) {
 //Load the list of entries from the server,
 //wait for the first image to load, then show the list:
 function showNextEntries ( ) {
+	loading = true;
 	var chain = promix.when(loadEntries, 'javascript', offset).as('entries');
 	offset += 10;
 	chain.then(loadImageFor, chain.entries(0));
