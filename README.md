@@ -873,8 +873,8 @@ function addEntries ( entries ) {
 //wait for the first image to load, then show the list:
 function showNextEntries ( ) {
 	loading = true;
-	var chain = promix.when(loadEntries, 'javascript', offset).as('entries');
 	offset += 10;
+	var chain = promix.when(loadEntries, 'javascript', offset).as('entries');
 	chain.then(loadImageFor, chain.entries(0));
 	chain.then(addEntries, chain.entries());
 	chain.then($.fn.fadeIn).bind($wrapper).otherwise(showError);
