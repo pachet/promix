@@ -11,6 +11,7 @@
 	* [chain.or](#chainor)
 	* [chain.otherwise](#chainotherwise-) *
 	* [chain.end](#chainend-) *
+	* [chain.callback](#chaincallback-) *
 	* [chain.until](#chainuntil-) *
 	* [chain.assert](#chainassert-) *
 	* [chain.as](#chainas)
@@ -280,13 +281,34 @@ You can disable this feature by explicitly suppressing errors for your chain (se
 
 <br />
 ###chain.end() [\*](#breakpoints)
+Add a promise or callback-accepting function to the current chain.
+
+Usage:
+> **chain.end( promise )**
+
+> **chain.end( function [, arguments] )**
+
+If a callback is supplied, it will not be passed a trailing callback parameter, as is normally done when adding a function as a new step in the chain:
+
+`````javascript
+when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(function ( a, b, callback ) {
+	console.log(arguments);
+	console.log(callback);
+
+	//5, 6
+	//undefined
+}, 5, 6);
+`````
+
+<br />
+###chain.callback() [\*](#breakpoints)
 Add a single callback to the end of the chain. This callback also acts as an error handler.
 
 Usage:
-> **chain.end( function )**
+> **chain.callback( function )**
 
 Callbacks in Node.js often take the form `function ( error, result ) { }`.
-`chain.end()` allows you to pass a single function of this signature into the chain;
+`chain.callback()` allows you to pass a single function of this signature into the chain;
 Promix will fork it into a `.then ( results ) { }` success handler and a `.otherwise ( error ) { }` error handler behind the scenes:
 
 `````javascript
@@ -301,7 +323,7 @@ function typicalCallback ( error, result ) {
 	}
 }
 
-promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(typicalCallback);
+promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).callback(typicalCallback);
 `````
 
 <br />
