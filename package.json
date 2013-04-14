@@ -1,7 +1,7 @@
 {
 	"name": "promix",
 	"description": "Mix promises with callbacks for improved control flow",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"main": "./index",
 	"author": {
 		"name": "Pachet",
@@ -23,6 +23,5 @@
 	"devDependencies": {
 		"nodeunit": "0.7.x"
 	},
-	"readmeFilename": "README.md",
-	
+	"readmeFilename": "README.md"
 }
