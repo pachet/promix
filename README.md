@@ -4,7 +4,6 @@
 1. [Install](#install)
 2. [Introduction](#introduction)
 3. [API](#api)
-
 	* [Promix](#promix)
 	* [promix.when](#promixwhen-) *
 	* [promix.chain](#promixchain-) *
@@ -14,7 +13,6 @@
 	* [promix.toNumber](#promixtonumber)
 	* [promix.toArray](#promixtoarray)
 	* [promix.toObject](#promixtoobject)
-
 	* [Chain](#chain)
 	* [chain.and](#chainand)
 	* [chain.then](#chainthen-) *
@@ -34,16 +32,12 @@
 	* [chain.unsuppress](#chainunsuppress)
 	* [chain.bind](#chainbind)
 	* [chain.name](#chainname)
-
 	* [StringPromise](#stringpromise)
 	* [StringPromise.charAt](#stringpromisecharat)
-
 	* [NumberPromise](#numberpromise)
 	* [NumberPromise.toFixed](#numberpromisetofixed)
-
 	* [ArrayPromise](#arraypromise)
 	* [ArrayPromise.pop](#arraypromisepop)
-
 	* [ObjectPromise](#objectpromise)
 	* [ObjectPromise.toString](#objectpromisetostring)
 4. [Examples](#examples)
