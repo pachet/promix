@@ -1,7 +1,8 @@
 var
 	Chain = require('./lib/Chain'),
 	Promise = require('./lib/Promise'),
-	Handler = require('./lib/Handler');
+	Handler = require('./lib/Handler'),
+	Types = require('./lib/Types');
 
 function when ( ) {
 	var
@@ -14,9 +15,8 @@ function when ( ) {
 	return result;
 }
 
-module.exports = {
-	when : when,
-	chain : when,
-	promise : Promise,
-	handle : Handler.set
-};
+module.exports = Types;
+module.exports.handle = Handler.set;
+module.exports.promise = Promise;
+module.exports.when = when;
+module.exports.chain = when;

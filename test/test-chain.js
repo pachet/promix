@@ -112,7 +112,7 @@ function then ( test ) {
 	});
 }
 
-function end ( test ) {
+function callback ( test ) {
 	var
 		chain_one = promix.when(),
 		chain_two = promix.when();
@@ -125,7 +125,7 @@ function end ( test ) {
 		test.equal(results.bar, 'pass: bar');
 
 		chain_two.and(async, 'bad', 1).as('bad');
-		chain_two.end(handler_two);
+		chain_two.callback(handler_two);
 	}
 
 	function handler_two ( error, results ) {
@@ -136,7 +136,7 @@ function end ( test ) {
 	test.expect(6);
 	chain_one.and(async, 'foo', 1).as('foo');
 	chain_one.and(async, 'bar', 2).as('bar');
-	chain_one.end(handler_one);
+	chain_one.callback(handler_one);
 }
 
 function stop ( test ) {
@@ -520,7 +520,7 @@ module.exports = {
 	and : and,
 	or : or,
 	then : then,
-	end : end,
+	callback : callback,
 	'break' : _break,
 	stop : stop,
 	start : start,
