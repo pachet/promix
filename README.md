@@ -5,7 +5,7 @@
 2. [Introduction](#introduction)
 3. [API](#api)
 
-[Promix](#promix)
+	* **[Promix](#promix)**
 	* [promix.when](#promixwhen-) *
 	* [promix.chain](#promixchain-) *
 	* [promix.handle](#promixhandle)
@@ -15,7 +15,7 @@
 	* [promix.toArray](#promixtoarray)
 	* [promix.toObject](#promixtoobject)
 
-[Chain](#chain)
+	* **[Chain](#chain)**
 	* [chain.and](#chainand)
 	* [chain.then](#chainthen-) *
 	* [chain.or](#chainor)
@@ -35,16 +35,16 @@
 	* [chain.bind](#chainbind)
 	* [chain.name](#chainname)
 
-[StringPromise](#stringpromise)
+	* **[StringPromise](#stringpromise)**
 	* [StringPromise.charAt](#stringpromisecharat)
 
-[NumberPromise](#numberpromise)
+	* **[NumberPromise](#numberpromise)**
 	* [NumberPromise.toFixed](#numberpromisetofixed)
 
-[ArrayPromise](#arraypromise)
+	* **[ArrayPromise](#arraypromise)**
 	* [ArrayPromise.pop](#arraypromisepop)
 
-[ObjectPromise](#objectpromise)
+	* **[ObjectPromise](#objectpromise)**
 	* [ObjectPromise.toString](#objectpromisetostring)
 4. [Examples](#examples)
 	* [In the browser](#in-the-browser)
