@@ -4,8 +4,16 @@
 1. [Install](#install)
 2. [Introduction](#introduction)
 3. [API](#api)
++[Promix](#promix)
 	* [promix.when](#promixwhen-) *
 	* [promix.chain](#promixchain-) *
+	* [promix.handle](#promixhandle)
+	* [promix.promise](#promixpromise)
+	* [promix.toString](#promixtostring)
+	* [promix.toNumber](#promixtonumber)
+	* [promix.toArray](#promixtoarray)
+	* [promix.toObject](#promixtoobject)
++[Chain](#chain)
 	* [chain.and](#chainand)
 	* [chain.then](#chainthen-) *
 	* [chain.or](#chainor)
@@ -24,8 +32,14 @@
 	* [chain.unsuppress](#chainunsuppress)
 	* [chain.bind](#chainbind)
 	* [chain.name](#chainname)
-	* [promix.handle](#promixhandle)
-	* [promix.promise](#promixpromise)
++[StringPromise](#stringpromise)
+	* [StringPromise.charAt](#stringpromisecharat)
++[NumberPromise](#numberpromise)
+	* [NumberPromise.toFixed](#numberpromisetofixed)
++[ArrayPromise](#arraypromise)
+	* [ArrayPromise.pop](#arraypromisepop)
++[ObjectPromise](#objectpromise)
+	* [ObjectPromise.toString](#objectpromisetostring)
 4. [Examples](#examples)
 	* [In the browser](#in-the-browser)
 	* [In a service](#in-a-service)
@@ -213,7 +227,7 @@ var chain = promix.when(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(promise).then(f
 });
 `````
 
-A function passed to `chain.then()` can also directly return either **1)** a promise, or, for convenience, **2)** an array with a function at index 0 (just like we've been passing to our other methods) in order to continue the promise chain.
+A function passed to `chain.then()` can also directly return a promise in order to continue the promise chain.
 
 For example:
 ````javascript
