@@ -60,7 +60,6 @@
 	* [StringPromise.toFloat](#stringpromisetofloat)
 	* [ObjectPromise.parseJSON](#stringpromiseparse)
 	* [ObjectPromise.parse](#stringpromiseparsejson)
-
 	* 
 	* **< [NumberPromise](#numberpromise) >**
 	* [NumberPromise.toFixed](#numberpromisetofixed)
