@@ -292,10 +292,10 @@ function errorFn ( label, callback ) {
 The `promix` object exposes all of the functionality of the Promix library.
 
 Require it in Node.js:
-> **var promix = require('promix');
+> **var promix = require('promix');**
 
 Or load it in your browser:
-> **<script src="promix.min.js"></script>
+> **&lt;script src="promix.min.js"&gt;&lt;/script&gt;**
 
 <br />
 ###promix.when() [\*](#breakpoints)
