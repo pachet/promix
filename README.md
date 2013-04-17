@@ -3,13 +3,17 @@
 
 1. [Install](#install)
 2. [Introduction](#introduction)
+4. [Examples](#examples)
+	* [In the browser](#in-the-browser)
+	* [In a service](#in-a-service)
+	* [In a route](#in-a-route)
+	* [As a generator](#as-a-generator)
 3. [API](#api)
 	* **< [Promix](#promix) >**
-	*
 	* [promix.when](#promixwhen-) *
 	* [promix.chain](#promixchain-) *
-	* [promix.handle](#promixhandle)
 	* [promix.promise](#promixpromise)
+	* [promix.handle](#promixhandle)
 	* [promix.toString](#promixtostring)
 	* [promix.toNumber](#promixtonumber)
 	* [promix.toArray](#promixtoarray)
@@ -34,9 +38,29 @@
 	* [chain.unsuppress](#chainunsuppress)
 	* [chain.bind](#chainbind)
 	* [chain.name](#chainname)
+	* [chain.time](#chaintime)
 	* 
 	* **< [StringPromise](#stringpromise) >**
 	* [StringPromise.charAt](#stringpromisecharat)
+	* [StringPromise.concat](#stringpromiseconcat)
+	* [StringPromise.indexOf](#stringpromiseindexof)
+	* [StringPromise.length](#stringpromiselength)
+	* [StringPromise.match](#stringpromisematch)
+	* [StringPromise.replace](#stringpromisereplace)
+	* [StringPromise.split](#stringpromisesplit)
+	* [StringPromise.slice](#stringpromiseslice)
+	* [StringPromise.substr](#stringpromisesubstr)
+	* [StringPromise.substring](#stringpromisesubstring)
+	* [StringPromise.toLowerCase](#stringpromisetolowercase)
+	* [StringPromise.toUpperCase](#stringpromisetouppercase)
+	* [StringPromise.trim](#stringpromisetrim)
+	* [StringPromise.parseInt](#stringpromiseconcat)
+	* [StringPromise.toInt](#stringpromisetoint)
+	* [StringPromise.parseFloat](#stringpromiseparsefloat)
+	* [StringPromise.toFloat](#stringpromisetofloat)
+	* [ObjectPromise.parseJSON](#stringpromiseparse)
+	* [ObjectPromise.parse](#stringpromiseparsejson)
+
 	* 
 	* **< [NumberPromise](#numberpromise) >**
 	* [NumberPromise.toFixed](#numberpromisetofixed)
@@ -46,11 +70,14 @@
 	* 
 	* **< [ObjectPromise](#objectpromise) >**
 	* [ObjectPromise.toString](#objectpromisetostring)
-4. [Examples](#examples)
-	* [In the browser](#in-the-browser)
-	* [In a service](#in-a-service)
-	* [In a route](#in-a-route)
-	* [As a generator](#as-a-generator)
+	* [ObjectPromise.toNumber](#objectpromisetonumber)
+	* [ObjectPromise.toArray](#objectpromisetoarray)
+	* [ObjectPromise.get](#objectpromiseget)
+	* [ObjectPromise.set](#objectpromiseset)
+	* [ObjectPromise.delete](#objectpromisedelete)
+	* [ObjectPromise.keys](#objectpromisekeys)
+	* [ObjectPromise.toJSON](#objectpromisetojson)
+	* [ObjectPromise.json](#objectpromisejson)
 5. [License](#license)
 6. [Notes](#notes)
 	* [Breakpoints](#breakpoints)
@@ -110,6 +137,94 @@ Promix is a control flow library for JavaScript that makes it easy to chain asyn
 If you pass in a function that accepts a trailing callback argument, Promix will transform it into a promise and add it to the chain.
 You can pass in your own promises, too, if that's your style. Promix lets you easily mix the two, and make it out of callback hell in one piece.
 
+
+<br />
+##Examples
+
+<br />
+###In the browser
+
+`````javascript
+var $wrapper = $('#wrapper');
+var offset = 0;
+var loading = false;
+var wrapperHeight = 0;
+
+function loadEntries ( category, start ) {
+	return $.get('/news/' + category + '/entries/?start=' + start);
+}
+
+function loadImageFor ( entry ) {
+	var promise = promix.promise();
+	var image = new Image();
+	image.onload = function ( ) {
+		promise.fulfill();
+	};
+	image.src = '/images/' + entry.thumbnail;
+
+	return promise;
+}
+
+function addEntries ( entries ) {
+	$wrapper.append(Handlebars.templates.entries(entries));
+	loading = false;
+	wrapperHeight = $wrapper.height();
+}
+
+//Load the list of entries from the server,
+//wait for the first image to load, then show the list:
+function showNextEntries ( ) {
+	loading = true;
+	offset += 10;
+	var chain = promix.when(loadEntries, 'javascript', offset).as('entries');
+	chain.then(loadImageFor, chain.entries(0));
+	chain.then(addEntries, chain.entries());
+	chain.then($.fn.fadeIn).bind($wrapper).otherwise(showError);
+}
+
+showNextEntries();
+`````
+
+<br />
+###In a service
+
+`````javascript
+//Return the 10 most recent entries:
+function getEntries ( category, offset, callback ) {
+	var query = 'SELECT uuid, title, thumbnail, author, description, body, date FROM Entries WHERE active = 1 AND category = ? ORDER BY date DESC LIMIT 10 OFFSET ?';
+	promix.when(sql.query, query, [category, offset]).end(callback);
+}
+`````
+
+<br />
+###In a route
+`````javascript
+//Request entries and send them back as JSON:
+router.get('/news/:category/entries/', function ( request, response, next ) {
+	promix.when(getEntries, request.params.category, request.query.offset)
+		.then(response.send).as('json')
+		.otherwise(next);
+});
+`````
+
+<br />
+###As a generator
+`````javascript
+//Recycling the showNextEntries function from the first example:
+var generator = promix.chain(showNextEntries).stop().until(false);
+var $window = $(window);
+
+$window.on('scroll', function ( event ) {
+	if ( loading ) {
+		return;
+	}
+	if ( $window.scrollTop() > wrapperHeight - 200 ) {
+		generator.start();
+	}
+});
+`````
+
+
 <br />
 ##API
 
@@ -136,6 +251,16 @@ function errorFn ( label, callback ) {
 `````
 
 <br />
+##promix
+The `promix` object exposes all of the functionality of the Promix library.
+
+Require it in Node.js:
+>> **var promix = require('promix');
+
+Or load it in your browser:
+>> **<script src="promix.min.js"></script>**
+
+<br />
 ###promix.when() [\*](#breakpoints)
 Accept an optional promise or callback-accepting function, and return a new chain.
 
@@ -160,6 +285,177 @@ var chain = promix.when(promise);
 ###promix.chain() [\*](#breakpoints)
 An alias for [promix.when()](#promixwhen-).
 
+<br />
+###promix.promise()
+Create a new promise.
+
+Usage:
+> **promix.promise( [base object] )**
+
+This promise is Promises/A+ compliant, meaning it exposes a `.then()` method that can be used to attach success and error handlers:
+`````javascript
+var promise = promix.promise();
+
+function success ( result ) {
+	console.log(result);
+
+	//vaporeon
+}
+
+function failure ( error ) {
+	//our promise wasn't rejected,
+	//so we won't reach this
+}
+
+promise.then(success, failure);
+promise.fulfill('vaporeon');
+`````
+
+You can pass an optional object to `.promise()`, and that object will inherit the `.then()`, `.fulfill()`, and `.reject()` methods.
+`````javascript
+var promise = promix.promise({
+	foo : 'foo',
+	bar : 'bar',
+	baz : 'baz'
+});
+
+console.log(promise);
+
+//	{
+//		foo : 'foo',
+//		bar : 'bar',
+//		baz : 'baz',
+//		then : [function then],
+//		fulfill : [function fulfill],
+//		reject : [function reject]
+//	}
+`````
+
+<br />
+###promix.handle()
+Set the global error handler for uncaught promise/chain errors.
+
+Usage:
+> **promix.handle( function )**
+
+If a promise is rejected with an error and has no error handler of its own to receive it, Promix will pass that error into the global handler specified with `.handler()`, if it exists. This will keep the error from being thrown:
+
+`````javascript
+var promise = promix.promise();
+promix.handle(function ( error ) {
+	console.log(error);
+
+	//Error: An arbitrary error
+});
+
+//only supply a success handler:
+promise.then(function ( result )  {
+	//we will never reach this
+});
+
+promise.reject(new Error('An arbitrary error'));
+`````
+
+ Any uncaught errors within chains created with `promix.when()` will pass to the global handler, as well:
+`````javascript
+promix.handle(function ( error ) {
+	console.log(error);
+
+	//Error: This function throws errors (foo)
+});
+
+var chain = promix.when(errorFn, 'foo').then(function ( results ) {
+	//we will never reach this
+});
+`````
+
+###promix.toString()
+Convert a standard promise to a StringPromise. A StringPromise allows you to manipulate a promise's eventual string value using familiar String methods. (See the [StringPromise API](#stringpromise) below.)
+
+Usage:
+> **promix.toString( promise )**
+
+`````javascript
+var promise = promix.promise();
+
+setTimeout(function ( ) {
+	promise.fulfill('foobarfoobaz');
+}, 10);
+
+promix.toString(promise).replace(/foo/g, 'wat').then(function ( result ) {
+	console.log(result);
+	
+	//watbarwatbaz
+});
+`````
+
+###promix.toNumber()
+Convert a standard promise to a NumberPromise. A NumberPromise allows you to manipulate a promise's eventual number value using familiar methods. (See the [NumberPromise API](#numberpromise) below.)
+
+Usage:
+> **promix.toNumber( promise )**
+
+`````javascript
+var promise = promix.promise();
+
+setTimeout(function ( ) {
+	promise.fulfill(26.56);
+}, 10);
+
+promix.toNumber(promise).round().then(function ( result ) {
+	console.log(result);
+	
+	//27
+});
+`````
+
+
+###promix.toArray()
+Convert a standard promise to an ArrayPromise. An ArrayPromise allows you to manipulate a promise's eventual array value using familiar Array methods. (See the [NumberPromise API](#numberpromise) below.)
+
+Usage:
+> **promix.toArray( promise )**
+
+`````javascript
+var promise = promix.promise();
+
+setTimeout(function ( ) {
+	promise.fulfill(['foo', 'wat', 'baz', 'bar']);
+}, 10);
+
+promix.toArray(promise).sort().join('-').then(function ( result ) {
+	console.log(result);
+
+	//bar-baz-foo-wat
+});
+`````
+
+###promix.toObject()
+Convert a standard promise to an ObjectPromise. An ObjectPromise allows you to get and set properties, and transform the promise to other Promise types. (See the [ObjectPromise API](#objectpromise) below.)
+
+Usage:
+> **promix.toObject( promise )**
+
+`````javascript
+var promise = promix.promise();
+
+setTimeout(function ( ) {
+	promise.fulfill({
+		foo : 1,
+		bar : 2
+	});
+}, 10);
+
+promix.toObject(promise).get('foo').toNumber().plus(5).then(function ( result ) {
+	console.log(result);
+
+	//7
+});
+`````
+
+##Chain
+A chain is used to collect the eventual outcomes of asynchronous JavaScript actions. It consolidates the successful results of these actions, and notifies us of any error that occurs during completion of its steps.
+This allows us to assign one callback for the entire chain.
 
 <br />
 ###chain.and()
@@ -794,175 +1090,45 @@ chain.then(function ( results ) {
 });
 `````
 
-<br />
-###promix.promise()
-Create a new promise.
+##StringPromise
+StringPromises allow us to mutate the eventual String result of a promise that has yet to complete.
+StringPromises are returned from calling `promix.toString()`, as well as from any method on the other promise types that implicitly casts the promise value to a String (eg, `ArrayPromise.join()`).
 
-Usage:
-> **promix.promise( [base object] )**
+StringPromises expose the methods common to all Promix typed promises ([get](#objectpromiseget), [set](#objectpromiseset), [delete](#objectpromisedelete), [keys](#objectpromisekeys), [toJSON](#objectpromisetojson)), as well as the following additional methods:
 
-This promise is Promises/A+ compliant, meaning it exposes a `.then()` method that can be used to attach success and error handlers:
-`````javascript
-var promise = promix.promise();
+##NumberPromise
+NumberPromises allow us to mutate the eventual Number result of a promise that has yet to complete.
+NumberPromises are returned from calling `promix.toNumber()`, as well as from any method on the other promise types that implicitly casts the promise value to a Number (eg, `ArrayPromise.length()`).
 
-function success ( result ) {
-	console.log(result);
+NumberPromises expose the methods common to all Promix typed promises (), as well as the following additional methods:
 
-	//vaporeon
-}
+##ArrayPromise
+ArrayPromises allow us to mutate the eventual Array result of a promise that has yet to complete.
+ArrayPromises are returned from calling `promix.toArray()`, as well as from any method on the other promise types that implicitly casts the promise value to an Array (eg, `StringPromise.split()`).
 
-function failure ( error ) {
-	//our promise wasn't rejected,
-	//so we won't reach this
-}
 
-promise.then(success, failure);
-promise.fulfill('vaporeon');
-`````
 
-You can pass an optional object to `.promise()`, and that object will inherit the `.then()`, `.fulfill()`, and `.reject()` methods.
-`````javascript
-var promise = promix.promise({
-	foo : 'foo',
-	bar : 'bar',
-	baz : 'baz'
-});
+ArrayPromises expose the methods common to all Promix typed promises (), as well as the following additional methods:
 
-console.log(promise);
+##ObjectPromise
+ObjectPromises allow us to perform generic object mutations on a promise that has yet to complete.
+ObjectPromises are returned from calling `promix.toObject()`, as well as from any method on the other promise types with an indeterminate return type (eg `ArrayPromise.pop()`, where we are unsure what type of value exists at index 0).
 
-//	{
-//		foo : 'foo',
-//		bar : 'bar',
-//		baz : 'baz',
-//		then : [function then],
-//		fulfill : [function fulfill],
-//		reject : [function reject]
-//	}
-`````
+ObjectPromises expose the following methods:
 
 <br />
-###promix.handle()
-Set the global error handler for uncaught promise/chain errors.
-
-Usage:
-> **promix.handle( function )**
-
-If a promise is rejected with an error and has no error handler of its own to receive it, Promix will pass that error into the global handler specified with `.handler()`, if it exists. This will keep the error from being thrown:
-
-`````javascript
-var promise = promix.promise();
-promix.handle(function ( error ) {
-	console.log(error);
-
-	//Error: An arbitrary error
-});
-
-//only supply a success handler:
-promise.then(function ( result )  {
-	//we will never reach this
-});
-
-promise.reject(new Error('An arbitrary error'));
-`````
-
- Any uncaught errors within chains created with `promix.when()` will pass to the global handler, as well:
-`````javascript
-promix.handle(function ( error ) {
-	console.log(error);
-
-	//Error: This function throws errors (foo)
-});
-
-var chain = promix.when(errorFn, 'foo').then(function ( results ) {
-	//we will never reach this
-});
-`````
-
+###ObjectPromise.get()
+Promise to get the value of the given property.
 <br />
-##Examples
-
+###ObjectPromise.set()
+Promise to set the property name to the given value.
 <br />
-###In the browser
-
-`````javascript
-var $wrapper = $('#wrapper');
-var offset = 0;
-var loading = false;
-var wrapperHeight = 0;
-
-function loadEntries ( category, start ) {
-	return $.get('/news/' + category + '/entries/?start=' + start);
-}
-
-function loadImageFor ( entry ) {
-	var promise = promix.promise();
-	var image = new Image();
-	image.onload = function ( ) {
-		promise.fulfill();
-	};
-	image.src = '/images/' + entry.thumbnail;
-
-	return promise;
-}
-
-function addEntries ( entries ) {
-	$wrapper.append(Handlebars.templates.entries(entries));
-	loading = false;
-	wrapperHeight = $wrapper.height();
-}
-
-//Load the list of entries from the server,
-//wait for the first image to load, then show the list:
-function showNextEntries ( ) {
-	loading = true;
-	offset += 10;
-	var chain = promix.when(loadEntries, 'javascript', offset).as('entries');
-	chain.then(loadImageFor, chain.entries(0));
-	chain.then(addEntries, chain.entries());
-	chain.then($.fn.fadeIn).bind($wrapper).otherwise(showError);
-}
-
-showNextEntries();
-`````
-
+###ObjectPromise.delete()
+Promise to delete the property at the supplied identifier.
 <br />
-###In a service
+###ObjectPromise.keys()
+Promise to return an array of the property identifiers belonging to the promise result.
 
-`````javascript
-//Return the 10 most recent entries:
-function getEntries ( category, offset, callback ) {
-	var query = 'SELECT uuid, title, thumbnail, author, description, body, date FROM Entries WHERE active = 1 AND category = ? ORDER BY date DESC LIMIT 10 OFFSET ?';
-	promix.when(sql.query, query, [category, offset]).end(callback);
-}
-`````
-
-<br />
-###In a route
-`````javascript
-//Request entries and send them back as JSON:
-router.get('/news/:category/entries/', function ( request, response, next ) {
-	promix.when(getEntries, request.params.category, request.query.offset)
-		.then(response.send).as('json')
-		.otherwise(next);
-});
-`````
-
-<br />
-###As a generator
-`````javascript
-//Recycling the showNextEntries function from the first example:
-var generator = promix.chain(showNextEntries).stop().until(false);
-var $window = $(window);
-
-$window.on('scroll', function ( event ) {
-	if ( loading ) {
-		return;
-	}
-	if ( $window.scrollTop() > wrapperHeight - 200 ) {
-		generator.start();
-	}
-});
-`````
 
 <br />
 ##License
