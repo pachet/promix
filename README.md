@@ -1127,44 +1127,228 @@ chain.then(function ( results ) {
 });
 `````
 
+<br />
 ##StringPromise
 StringPromises allow us to mutate the eventual String result of a promise that has yet to complete.
 StringPromises are returned from calling `promix.toString()`, as well as from any method on the other promise types that implicitly casts the promise value to a String (eg, `ArrayPromise.join()`).
 
 StringPromises expose the methods common to all Promix typed promises ([get](#objectpromiseget), [set](#objectpromiseset), [delete](#objectpromisedelete), [keys](#objectpromisekeys), [toJSON](#objectpromisetojson)), as well as the following additional methods:
 
+<br />
+###StringPromise.charAt()
+Return a 1-character string containing the character at the supplied index.
+
+Usage:
+>**StringPromise.charAt( index )**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.concat()
+Concatenate the current string and all the supplied arguments, and return the resulting string.
+
+Usage:
+>**StringPromise.concat( arg1 [, arg2, arg3 .... ] )**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.indexOf()
+Find the numeric index of the first instance of the supplied substring within the current string, if it exists.
+
+Usage:
+>**StringPromise.indexOf( substring )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###StringPromise.length()
+
+Return the character length of the current string.
+
+Usage:
+>**StringPromise.length()**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###StringPromise.match()
+Return an array of matches against a string or regex argument.
+
+Usage:
+>**StringPromise.match( string | regex )**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###StringPromise.replace()
+Replaces the search term with the replacement term, and returns a new string.
+
+Usage:
+>**StringPromise.replace( string | regex, replacement string )**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.split()
+Splits the current string on every instance of the supplied delimiter, and returns the resulting array.
+
+Usage:
+>**StringPromise.split( delimiter )**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###StringPromise.slice()
+Returns the portion of the current string between the start and ending positions.
+
+Usage:
+>**StringPromise.slice( start, end )**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.substr()
+Returns the portion of the current string beginning at the start position and extending the specified number of characters.
+
+Usage:
+>**StringPromise.substr( start, length )**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.substring()
+Returns the portion of the current string between the start and end positions.
+
+Usage:
+>**StringPromise.substring( start, end )**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.toLowerCase()
+Converts the current string to lowercase.
+
+Usage:
+>**StringPromise.toLowerCase()**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.toUpperCase()
+Converts the current screen to UPPERCASE.
+
+Usage:
+>**StringPromise.toUpperCase()**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.trim()
+Trims whitespace from both ends of the current string.
+
+Usage:
+>**StringPromise.trim()**
+
+Returns:
+>**StringPromise**
+
+<br />
+###StringPromise.parseInt()
+Parses the current string and returns an integer in the specified base.
+
+Usage:
+>**StringPromise.parseInt( base )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###StringPromise.toInt()
+Alias for [StringPromise.parseInt](#stringpromiseparseint).
+
+<br />
+###StringPromise.parseFloat()
+Parses the current string and returns a float.
+
+Usage:
+>**StringPromise.parseFloat()**
+
+Returns:
+
+>**NumberPromise**
+
+<br />
+###StringPromise.toFloat()
+Alias for [StringPromise.parseFloat](#stringpromiseparsefloat).
+
+<br />
+###StringPromise.parseJSON()
+Parses the current string as JSON, and returns the result.
+
+Usage:
+>**StringPromise.parseJSON()**
+
+Returns:
+>**ObjectPromise**
+
+<br />
+###StringPromise.json()
+Alias for [StringPromise.parseJSON](#stringpromiseparsejson).
+
+<br />
 ##NumberPromise
 NumberPromises allow us to mutate the eventual Number result of a promise that has yet to complete.
 NumberPromises are returned from calling `promix.toNumber()`, as well as from any method on the other promise types that implicitly casts the promise value to a Number (eg, `ArrayPromise.length()`).
 
 NumberPromises expose the methods common to all Promix typed promises (), as well as the following additional methods:
 
+<br />
 ##ArrayPromise
 ArrayPromises allow us to mutate the eventual Array result of a promise that has yet to complete.
 ArrayPromises are returned from calling `promix.toArray()`, as well as from any method on the other promise types that implicitly casts the promise value to an Array (eg, `StringPromise.split()`).
 
-
-
 ArrayPromises expose the methods common to all Promix typed promises (), as well as the following additional methods:
 
+<br />
 ##ObjectPromise
 ObjectPromises allow us to perform generic object mutations on a promise that has yet to complete.
-ObjectPromises are returned from calling `promix.toObject()`, as well as from any method on the other promise types with an indeterminate return type (eg `ArrayPromise.pop()`, where we are unsure what type of value exists at index 0).
+ObjectPromises are returned from any method on the other promise types with an indeterminate return type (eg `ArrayPromise.pop()`, where we are unsure what type of value exists at index 0).
 
 ObjectPromises expose the following methods:
 
 <br />
 ###ObjectPromise.get()
 Promise to get the value of the given property.
+
 <br />
 ###ObjectPromise.set()
 Promise to set the property name to the given value.
+
 <br />
 ###ObjectPromise.delete()
 Promise to delete the property at the supplied identifier.
+
 <br />
 ###ObjectPromise.keys()
 Promise to return an array of the property identifiers belonging to the promise result.
+
+<br />
+###ObjectPromise.toJSON()
+Promise to return a serialized JSON representation of the current promise.
+
 
 
 <br />
@@ -1189,4 +1373,4 @@ promix.when(foo).and(bar).and(baz).then(wat);
 The `.then(wat)` step is a breakpoint, because it requires everything before it to be completed before it will execute.
 
 
-
+ 
