@@ -1176,7 +1176,7 @@ Returns:
 
 <br />
 ###StringPromise.toUpperCase()
-Converts the current screen to UPPERCASE.
+Converts the current string to UPPERCASE.
 
 Usage:
 >**StringPromise.toUpperCase()**
