@@ -1245,6 +1245,195 @@ NumberPromises are returned from calling `promix.toNumber()`, as well as from an
 NumberPromises expose the methods common to all Promix typed promises (), as well as the following additional methods:
 
 <br />
+###NumberPromise.add()
+Adds the supplied numbers to the current value.
+
+Usage:
+>**NumberPromise.add( number [, number, number, ... ] )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.plus()
+Alias for [NumberPromise.add](#numberpromiseadd).
+
+<br />
+###NumberPromise.subtract()
+Subtracts the supplied numbers from the current value.
+
+Usage:
+>**NumberPromise.subtract( number [, number, number, ... ] )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.minus()
+Alias for [NumberPromise.subtract](#numberpromisesubtract).
+
+<br />
+###NumberPromise.multiply()
+Multiplies the current value by the supplied numbers.
+
+Usage:
+>**NumberPromise.multiply( number [, number, number, ... ] )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.times()
+Alias for [NumberPromise.multiply](#numberpromisemultiply).
+
+<br />
+###NumberPromise.divide()
+Divides the current value by the supplied numbers.
+
+Usage:
+>**NumberPromise.divide( number [, number, number, ... ] )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.divideBy()
+Alias for [NumberPromise.divide](#numberpromisedivide).
+
+###NumberPromise.round()
+Rounds the current value to the nearest whole number.
+
+Usage:
+>**NumberPromise.round()**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.ceil()
+Returns the smallest whole number that is greater than or equal to the current value.
+
+Usage:
+>**NumberPromise.ceil()**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.floor()
+Returns the largest whole number that is less than or equal to the current value.
+
+Usage:
+>**NumberPromise.floor()**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.average()
+Finds the average of the current value and all supplied values.
+
+Usage:
+>**NumberPromise.average( number [, number, number, ... ] )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.modulus()
+Returns the remainder of dividing the current value by the supplied number.
+
+Usage:
+>**NumberPromise.modulus( number )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.pow()
+Raises the current value to the supplied power.
+
+Usage:
+>**NumberPromise.pow( number )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.raiseTo()
+Alias of [NumberPromise.pow](#numberpromisepow)
+
+<br />
+###NumberPromise.abs()
+Finds the absolute value of the current value.
+
+Usage:
+>**NumberPromise.abs()**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.min()
+Finds the least value among the current value and the supplied arguments.
+
+Usage:
+>**NumberPromise.min( number [, number, number, ... ] )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.max()
+Finds the greatest value among the current value and the supplied arguments.
+
+Usage:
+>**NumberPromise.max( number [, number, number, ... ] )**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###NumberPromise.toFixed()
+Returns the current value expressed to the specified number of decimal places.
+
+Usage:
+>**NumberPromise.toFixed( number )**
+
+Returns:
+>**StringPromise**
+
+<br />
+###NumberPromise.toExponential()
+Returns the current value expressed in scientific notation (one digit to the left of the decimal point).
+
+Usage:
+>**NumberPromise.toExponential()**
+
+Returns:
+>**StringPromise**
+
+<br />
+###NumberPromise.toPrecision()
+Returns the current value expressed with the specified number of significant digits.
+
+Usage:
+>**NumberPromise.toPrecision()**
+
+Returns:
+>**StringPromise**
+
+<br />
+###NumberPromise.toString()
+Casts the current value to a string.
+
+Usage:
+>**NumberPromise.toString()**
+
+Returns:
+>**StringPromise** 
+
+<br />
 ##ArrayPromise
 ArrayPromises allow us to mutate the eventual Array result of a promise that has yet to complete.
 ArrayPromises are returned from calling `promix.toArray()`, as well as from any method on the other promise types that implicitly casts the promise value to an Array (eg, `StringPromise.split()`).
