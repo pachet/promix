@@ -349,6 +349,7 @@ function bind ( test ) {
 	var
 		chain = promix.when(),
 		object = {
+			name : null,
 			create_name : function ( ) {
 				return 'foo';
 			},
@@ -359,14 +360,20 @@ function bind ( test ) {
 				setTimeout(function ( ) {
 					return void callback(null, resolved_name);
 				}, 10);
+			},
+			check_name : function ( results ) {
+				test.equal(this.name, 'bar');
+				test.done();
 			}
 		};
 
 	chain.and(object.get_name).as('object').bind(object);
-	chain.then(function ( results ) {
+	chain.then(function ( results, callback ) {
 		test.equal(results.object, 'foo');
-		test.done();
+		object.name = 'bar';
 	});
+	chain.as('test');
+	chain.end(object.check_name).bind(object);
 	chain.otherwise(function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
