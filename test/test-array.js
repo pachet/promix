@@ -86,13 +86,21 @@ function unshift ( test ) {
 
 function concat ( test ) {
 	var
-		promise = promix.promise();
+		promise = promix.promise(),
+		string_promise = promix.promise();
 
+	test.expect(2);
 	promix.toArray(promise).concat(2).pop().then(function ( result ) {
 		test.equals(result, 2);
+	});
+	promix.toArray(['foo']).concat(string_promise).concat('baz', 'wat').join(' ').then(function ( result ) {
+		test.equals(result, 'foo bar baz wat');
 		test.done();
 	});
 	queue(promise, [10, 5, 7]);
+	setTimeout(function ( ) {
+		string_promise.fulfill('bar');
+	}, 10);
 }
 
 function join ( test ) {

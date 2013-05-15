@@ -523,6 +523,24 @@ function introspect_success ( test ) {
 	});
 }
 
+function returned ( test ) {
+	var
+		chain = promix.when();
+
+	function asyncAndReturn ( a, b, callback ) {
+		setTimeout(callback.bind(this, null, a + b));
+		return a + b;
+	}
+
+	test.expect(1);
+	chain.and(asyncAndReturn, 1, 2);
+	chain.as('foo');
+	chain.then(function ( results ) {
+		test.equals(results [0], chain.foo.returned);
+		test.done();
+	});
+}
+
 module.exports = {
 	and : and,
 	or : or,
@@ -540,5 +558,6 @@ module.exports = {
 	bind : bind,
 	promise_compose_success : promise_compose_success,
 	promise_compose_failure : promise_compose_failure,
-	introspect_success : introspect_success
+	introspect_success : introspect_success,
+	returned : returned
 };
