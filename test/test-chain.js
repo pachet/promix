@@ -112,6 +112,67 @@ function then ( test ) {
 	});
 }
 
+function otherwise ( test ) {
+	var
+		one = promix.chain(),
+		two = promix.chain(),
+		three = promix.chain(),
+		four = promix.chain(),
+		complete = 0,
+		context = {
+			name : 'context',
+			handler : function handler ( one, two, error ) {
+				test.equals(one, 'one');
+				test.equals(two, 'two');
+				test.equals(this.name, 'context');
+				goodError('four', error);
+			}
+		};
+
+	function goodError ( label, error ) {
+		test.equals(error.toString(), 'Error: fail: bad');
+		complete ++;
+		if ( complete === 4 ) {
+			test.done();
+		}
+	}
+
+	function badError ( label, error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	}
+
+	test.expect(7);
+	one.and(async, 'foo', 0);
+	one.and(async, 'bad', 0);
+	one.otherwise(badError, 'x_one');
+	one.otherwise(goodError, 'one');
+
+	two.and(async, 'foo', 0);
+	two.otherwise(badError, 'x_two');
+	two.then(async, 'bar', 0);
+	two.and(async, 'bad', 0);
+	two.otherwise(goodError, 'two');
+	two.then(async, 'baz', 0);
+	two.otherwise(badError);
+
+	three.and(async, 'foo', 0);
+	three.otherwise(badError, 'x_three');
+	three.and(async, 'bar', 0);
+	three.and(async, 'bad', 0);
+	three.otherwise(goodError, 'three');
+	three.then(async, 'wat', 0);
+	three.otherwise(badError);
+
+	four.and(async, 'foo', 0);
+	four.otherwise(badError, 'x_four');
+	four.then(async, 'bad', 0);
+	four.otherwise(context.handler, 'one', 'two').bind(context);
+	
+	
+
+}
+
 function callback ( test ) {
 	var
 		chain_one = promix.when(),
@@ -265,7 +326,7 @@ function _break ( test ) {
 
 function assert ( test ) {
 	var
-		chain_one = promix.when(),
+		chain_one = promix.chain(),
 		chain_two = promix.when();
 
 	test.expect(3);
@@ -545,6 +606,7 @@ module.exports = {
 	and : and,
 	or : or,
 	then : then,
+	otherwise : otherwise,
 	callback : callback,
 	'break' : _break,
 	stop : stop,
