@@ -573,7 +573,10 @@ function introspect_success ( test ) {
 	chain.and(async_one, 1).as('one');
 	chain.and(async_two, 1).as('two');
 	chain.and(async_three, 1).as('three');
-	chain.then(async_four, chain.one(), chain.two(2), chain.three('value')).as('check');
+	chain.one.then(function ( result ) {
+		console.log(result);
+	});
+	chain.then(async_four, chain.one, chain.two(2), chain.three('value')).as('check');
 	chain.then(function ( results ) {
 		test.equal(results.check, 6);
 		test.done();

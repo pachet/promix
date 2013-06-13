@@ -28,6 +28,16 @@ function fork ( failure, success ) {
 	};
 }
 
+function next ( value ) {
+	var
+		promise = Promise();
+
+	setTimeout(function ( ) {
+		return void promise.fulfill(value);
+	}, 0);
+	return promise;
+}
+
 module.exports = Types;
 module.exports.handle = Handler.set;
 module.exports.promise = Promise;
