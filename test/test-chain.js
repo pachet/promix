@@ -441,6 +441,37 @@ function bind ( test ) {
 	});
 }
 
+function promise_returned ( test ) {
+	var
+		chain = promix.chain();
+
+	function promise_service ( value ) {
+		var
+			promise = promix.promise();
+
+		setTimeout(function ( ) {
+			console.log(value);
+			promise.fulfill(value);
+		}, 30);
+		return promise;
+	}
+	
+	test.expect(2);
+	chain.and(promise_service, 2).as('one');
+	chain.then(promise_service, 3, 4).as('two');
+	chain.then(function ( results ) {
+		console.log(results);
+		test.equal(results [0], 2);
+		test.equal(results [1], 3);
+		test.done();
+	});
+	chain.otherwise(function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+}
+
 function promise_compose_success ( test ) {
 	var
 		promise_one = promix.promise(),
@@ -621,6 +652,7 @@ module.exports = {
 	time : time,
 	until : until,
 	bind : bind,
+	promise_returned : promise_returned,
 	promise_compose_success : promise_compose_success,
 	promise_compose_failure : promise_compose_failure,
 	introspect_success : introspect_success,
