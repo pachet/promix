@@ -44,6 +44,7 @@ module.exports.promise = Promise;
 module.exports.when = when;
 module.exports.chain = when;
 module.exports.fork = fork;
+module.exports.next = next;
 
 if ( typeof window !== 'undefined' && typeof window.promix === 'undefined' ) {
 	window.promix = module.exports;
