@@ -450,7 +450,6 @@ function promise_returned ( test ) {
 			promise = promix.promise();
 
 		setTimeout(function ( ) {
-			console.log(value);
 			promise.fulfill(value);
 		}, 30);
 		return promise;
@@ -459,8 +458,7 @@ function promise_returned ( test ) {
 	test.expect(2);
 	chain.and(promise_service, 2).as('one');
 	chain.then(promise_service, 3, 4).as('two');
-	chain.then(function ( results ) {
-		console.log(results);
+	chain.end(function ( results ) {
 		test.equal(results [0], 2);
 		test.equal(results [1], 3);
 		test.done();
@@ -470,6 +468,37 @@ function promise_returned ( test ) {
 		test.done();
 	});
 
+}
+
+function promise_end ( test ) {
+	var
+		chain = promix.chain(),
+		object = { };
+
+	function service_one ( value, callback ) {
+		setTimeout(function ( ) {
+			callback(null, {
+				foo : 'bar',
+				baz : 'wat'
+			});
+		}, 0);
+	}
+
+	test.expect(2);
+	object.resolution = function jeffson ( ) {
+		test.done();
+	};
+	object.callback = function persimmon ( result ) {
+		test.equals(result.foo, 'bar');
+		test.equals(result.baz, 'wat');
+		this.resolution();
+	};
+	chain.and(service_one, 1).as('one');
+	chain.end(object.callback, chain.one).bind(object);
+	chain.otherwise(function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
 }
 
 function promise_compose_success ( test ) {
@@ -604,9 +633,6 @@ function introspect_success ( test ) {
 	chain.and(async_one, 1).as('one');
 	chain.and(async_two, 1).as('two');
 	chain.and(async_three, 1).as('three');
-	chain.one.then(function ( result ) {
-		console.log(result);
-	});
 	chain.then(async_four, chain.one, chain.two(2), chain.three('value')).as('check');
 	chain.then(function ( results ) {
 		test.equal(results.check, 6);
@@ -653,6 +679,7 @@ module.exports = {
 	until : until,
 	bind : bind,
 	promise_returned : promise_returned,
+	promise_end : promise_end,
 	promise_compose_success : promise_compose_success,
 	promise_compose_failure : promise_compose_failure,
 	introspect_success : introspect_success,
