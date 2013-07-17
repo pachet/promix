@@ -1,4 +1,58 @@
-#Promix - Mix promises with callbacks for improved control flow
+#Promix
+###Mix promises with callbacks for improved control flow
+
+Promix is a way to regain control of asynchronous code.
+
+**Before:**
+`````javascript
+function handleError ( response, error ) {
+	response.send(500, 'Internal server error');
+}
+
+server.get('/:user/posts', function ( request, response ) {
+	getUser(request.params.user, function ( error, user ) {
+		if ( error ) {
+			return handleError(response, error);
+		}
+		getPostsForUser(request.params.user, function ( error, posts ) {
+			if ( error ) {
+				return handleError(response, error);
+			}
+			results.posts = posts;
+			//only fetch comments for the first post:
+			getCommentsForPost(posts [0], function ( error, comments ) {
+				if ( error ) {
+					return handleError(response, error);
+				}
+				return response.render('/views/posts', {
+					user : user,
+					posts : posts,
+					comments : comments
+				});
+			});
+		});
+	});
+`````
+**After:**
+`````javascript
+server.get('/:users/posts', function route ( request, response ) {
+	var
+		chain = promix.chain();
+		
+	chain.and(getUser, request.params.user).as('user');
+	chain.and(getPostsForUser, request.params.user).as('posts');
+	//only fetch comments for the first post:
+	chain.then(getCommentsForPost, chain.posts(0)).as('comments');
+	chain.then(response.render, '/views/posts', promix.compose({
+		user : chain.user,
+		posts : chain.posts,
+		comments  :chain.comments
+	});
+	chain.otherwise(response.send, 500, 'Internal server error');
+});
+`````
+
+
 ##Contents
 
 1. [Install](#install)
