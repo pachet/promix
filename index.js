@@ -38,6 +38,16 @@ function next ( value ) {
 	return promise;
 }
 
+function compose ( object ) {
+	var
+		chain = new Chain();
+
+	Object.keys(object).map(function map ( key ) {
+		chain.and(object [key]).as(key);
+	});
+	return chain;
+}
+
 module.exports = Types;
 module.exports.handle = Handler.set;
 module.exports.promise = Promise;
@@ -45,6 +55,7 @@ module.exports.when = when;
 module.exports.chain = when;
 module.exports.fork = fork;
 module.exports.next = next;
+module.exports.compose = compose;
 
 if ( typeof window !== 'undefined' && typeof window.promix === 'undefined' ) {
 	window.promix = module.exports;
