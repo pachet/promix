@@ -25,7 +25,11 @@
 		"node": "*"
 	},
 	"devDependencies": {
-		"nodeunit": "0.7.x"
+		"nodeunit": "0.7.x",
+		"promises-aplus-tests": "*"
+	},
+	"scripts": {
+		"test": "nodeunit test && promises-aplus-tests test/aplus-adapter.js"
 	},
 	"readmeFilename": "README.md"
 }
