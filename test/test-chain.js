@@ -662,6 +662,26 @@ function returned ( test ) {
 	});
 }
 
+function explicit_monotonic_returned ( test ) {
+	test.expect(3);
+	var chain = promix.chain();
+	chain.then(function ( results ) {
+		test.equals(results.length, 0);
+		return 'foo';
+	});
+	chain.then(function ( results ) {
+		test.equals(results.length, 1);
+		return 'bar';
+	});
+	chain.then(function ( results ) {
+		test.equals(results.length, 2);
+		test.done();
+	});
+	chain.otherwise(test.ok, false, 'we should not be here');
+}
+
+
+
 module.exports = {
 	and : and,
 	or : or,
@@ -683,5 +703,6 @@ module.exports = {
 	promise_compose_success : promise_compose_success,
 	promise_compose_failure : promise_compose_failure,
 	introspect_success : introspect_success,
-	returned : returned
+	returned : returned,
+	explicit_monotonic_returned : explicit_monotonic_returned
 };
