@@ -40,12 +40,12 @@ function errorless ( callback ) {
 	};
 }
 
-function forward ( promise, value ) {
+function wrap ( promise, value ) {
 	return function ( error, result ) {
 		if ( error ) {
 			return void promise.reject(error);
 		}
-		return void promise.resolve(value);
+		return void promise.resolve(value || result);
 	};
 }
 
@@ -86,8 +86,9 @@ module.exports = Types;
 module.exports.handle = Handler.set;
 module.exports.promise = Promise;
 module.exports.when = module.exports.chain = when;
-module.exports.join = module.exports.fork = join;
-module.exports.forward = forward;
+module.exports.join = join;
+module.exports.fork = fork;
+module.exports.wrap = module.exports.forward = wrap;
 module.exports.errorless = errorless;
 module.exports.succeed = module.exports.next = succeed;
 module.exports.fail = fail;
