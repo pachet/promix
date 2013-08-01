@@ -87,20 +87,24 @@ function unshift ( test ) {
 function concat ( test ) {
 	var
 		promise = promix.promise(),
-		string_promise = promix.promise();
+		string_promise_one = promix.promise(),
+		string_promise_two = promix.promise();
 
 	test.expect(2);
 	promix.toArray(promise).concat(2).pop().then(function ( result ) {
 		test.equals(result, 2);
 	});
-	promix.toArray(['foo']).concat(string_promise).concat('baz', 'wat').join(' ').then(function ( result ) {
+	promix.toArray(string_promise_one).concat(string_promise_two).concat('baz', 'wat').join(' ').then(function ( result ) {
 		test.equals(result, 'foo bar baz wat');
 		test.done();
 	});
 	queue(promise, [10, 5, 7]);
 	setTimeout(function ( ) {
-		string_promise.fulfill('bar');
+		string_promise_two.fulfill('bar');
 	}, 10);
+	setTimeout(function ( ) {
+		string_promise_one.fulfill('foo');
+	}, 20);
 }
 
 function join ( test ) {
