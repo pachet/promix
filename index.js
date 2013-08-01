@@ -1,8 +1,8 @@
 var
 	Chain = require('./lib/Chain'),
 	Promise = require('./lib/Promise'),
-	Handler = require('./lib/Handler'),
-	Types = require('./lib/Types');
+	handler = require('./lib/Handler'),
+	types = require('./lib/types');
 
 function when ( ) {
 	var
@@ -82,8 +82,8 @@ function compose ( object ) {
 	return chain;
 }
 
-module.exports = Types;
-module.exports.handle = Handler.set;
+module.exports = types;
+module.exports.handle = handler.set;
 module.exports.promise = Promise;
 module.exports.when = module.exports.chain = when;
 module.exports.join = join;
