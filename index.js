@@ -28,6 +28,12 @@ function join ( failure, success ) {
 	};
 }
 
+function fork ( promise, callback ) {
+	promise.then(function abstracted_callback ( result ) {
+		return callback(null, result);
+	}, callback);
+}
+
 function errorless ( callback ) {
 	return function errorless ( ) {
 		return callback.apply(null, [null].concat(arguments));
