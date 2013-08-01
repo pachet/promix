@@ -93,6 +93,7 @@ module.exports.errorless = errorless;
 module.exports.succeed = module.exports.next = succeed;
 module.exports.fail = fail;
 module.exports.compose = compose;
+module.exports.version = require('./package.json').version;
 
 if ( typeof window !== 'undefined' && typeof window.promix === 'undefined' ) {
 	window.promix = module.exports;
