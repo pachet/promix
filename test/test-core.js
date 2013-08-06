@@ -17,6 +17,23 @@ function compose ( test ) {
 	});
 }
 
+
+function concat ( test ) {
+	var
+		promise_one = promix.next('bar'),
+		promise_two = promix.next('wat');
+
+	test.expect(1);
+	promix.concat('foo', promise_one, 'baz', promise_two).then(function success ( result ) {
+		test.equals(result, 'foobarbazwat');
+		test.done();
+	}, function failure ( error ) {
+		test.ok(false, 'We should not be here.');
+		test.done();
+	});
+}
+
 module.exports = {
-	compose : compose
+	compose : compose,
+	concat : concat
 };
