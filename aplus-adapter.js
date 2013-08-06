@@ -1,5 +1,5 @@
 var
-	promix = require('../index');
+	promix = require('./index');
 
 function pending ( ) {
 	var
