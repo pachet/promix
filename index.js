@@ -82,12 +82,23 @@ function compose ( object ) {
 	return chain;
 }
 
+function concat ( ) {
+	var
+		args = Array.prototype.slice.call(arguments),
+		primary = args.shift(),
+		intermediary;
+
+	intermediary = types.toString(primary);
+	return intermediary.concat.apply(intermediary, args);
+}
+
 module.exports = types;
 module.exports.handle = handler.set;
 module.exports.promise = Promise;
 module.exports.when = module.exports.chain = when;
 module.exports.join = join;
 module.exports.fork = fork;
+module.exports.concat = concat;
 module.exports.wrap = module.exports.forward = wrap;
 module.exports.errorless = errorless;
 module.exports.succeed = module.exports.next = succeed;
