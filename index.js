@@ -49,6 +49,27 @@ function wrap ( promise, value ) {
 	};
 }
 
+function invoke ( ) {
+	var
+		promise,
+		args = Array.prototype.slice.call(arguments),
+		primary;
+
+	if ( typeof args [0] !== 'function' ) {
+		return succeed(args);
+	}
+	promise = new Promise();
+	primary = args.shift();
+	args.push(function abstracted_callback ( error, result ) {
+		if ( error ) {
+			return void promise.reject(error);
+		}
+		return void promise.fulfill(result);
+	});
+	primary.apply(null, args);
+	return promise;
+}
+
 function succeed ( value ) {
 	var
 		promise = Promise();
