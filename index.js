@@ -1,7 +1,7 @@
 var
-	Chain = require('./lib/Chain'),
-	Promise = require('./lib/Promise'),
-	handler = require('./lib/Handler'),
+	Chain = require('./lib/chain'),
+	Promise = require('./lib/promise'),
+	handler = require('./lib/handler'),
 	Exposure = require('./lib/exposure'),
 	types = require('./lib/types');
 
