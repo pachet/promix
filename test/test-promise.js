@@ -124,7 +124,7 @@ function fulfill_reject ( test ) {
 		deferred_one = promix.promise(),
 		deferred_two;
 
-	test.expect(3);
+	test.expect(2);
 	
 	deferred_two = deferred_one.then(function success_one ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
@@ -134,9 +134,6 @@ function fulfill_reject ( test ) {
 		test.done();
 	});
 	deferred_one.fulfill('This promise will be fulfilled');
-	test.throws(function ( ) {
-		deferred_one.reject(new Error('This promise will be rejected'));
-	});
 	deferred_two.then(function success_two ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
 		test.done();
@@ -151,15 +148,12 @@ function reject_fulfill ( test ) {
 		deferred_one = promix.promise(),
 		deferred_two;
 
-	test.expect(2);
+	test.expect(1);
 	deferred_two = deferred_one.then(function success_one ( result ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
 	deferred_one.reject(new Error('This promise will be rejected'));
-	test.throws(function ( ) {
-		deferred_one.fulfill('This promise will be fulfilled');
-	});
 	deferred_two.then(function success_two ( result ) {
 		test.ok(false, 'We should not be here');
 		test.done();
