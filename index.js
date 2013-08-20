@@ -2,11 +2,12 @@ var
 	Chain = require('./lib/Chain'),
 	Promise = require('./lib/Promise'),
 	handler = require('./lib/Handler'),
+	Exposure = require('./lib/exposure'),
 	types = require('./lib/types');
 
 function when ( ) {
 	var
-		result = new Chain(),
+		result = new Exposure(),
 		args = Array.prototype.slice.call(arguments);
 
 	if ( args.length ) {
@@ -95,7 +96,7 @@ function fail ( reason ) {
 
 function compose ( object ) {
 	var
-		chain = new Chain();
+		chain = new Exposure();
 
 	Object.keys(object).map(function map ( key ) {
 		chain.and(object [key]).as(key);

@@ -58,8 +58,8 @@ function or ( test ) {
 		chain_two = promix.when();
 
 	test.expect(3);
-	chain_one.and(async, 'one', 6);
-	chain_one.or(async, 'two', 2);
+	chain_one.and(async, 'one', 16);
+	chain_one.or(async, 'two', 0);
 	chain_one.or(async, 'three', 4).as('or');
 	chain_one.then(function ( results ) {
 		test.equal(results [0], 'pass: two');
@@ -225,7 +225,7 @@ function start ( test ) {
 		test.done();
 	});
 
-	setTimeout(chain.start, 0);
+	setTimeout(chain.start.bind(chain), 0);
 }
 
 function suppress ( test ) {
