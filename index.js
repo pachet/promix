@@ -37,7 +37,7 @@ function fork ( promise, callback ) {
 
 function errorless ( callback ) {
 	return function errorless ( ) {
-		return callback.apply(null, [null].concat(arguments));
+		return callback.apply(null, [null].concat(Array.prototype.slice.call(arguments)));
 	};
 }
 
@@ -120,6 +120,7 @@ module.exports.promise = Promise;
 module.exports.when = module.exports.chain = when;
 module.exports.join = join;
 module.exports.fork = fork;
+module.exports.invoke = invoke;
 module.exports.concat = concat;
 module.exports.wrap = module.exports.forward = wrap;
 module.exports.errorless = errorless;
