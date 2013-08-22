@@ -211,8 +211,12 @@ showNextEntries();
 `````javascript
 //Return the 10 most recent entries:
 function getEntries ( category, offset, callback ) {
-	var query = 'SELECT uuid, title, thumbnail, author, description, body, date FROM Entries WHERE active = 1 AND category = ? ORDER BY date DESC LIMIT 10 OFFSET ?';
-	promix.when(sql.query, query, [category, offset]).end(callback);
+	var query = [
+		'SELECT uuid, title, thumbnail, author, description, body, date',
+		'FROM Entries WHERE active = 1 AND category = ?',
+		'ORDER BY date DESC LIMIT 10 OFFSET ?'
+	];
+	promix.when(sql.query, query.join(' '), [category, offset]).end(callback);
 }
 `````
 
@@ -1495,6 +1499,166 @@ ArrayPromises are returned from calling `promix.toArray()`, as well as from any 
 ArrayPromises expose the methods common to all Promix typed promises (), as well as the following additional methods:
 
 <br />
+###ArrayPromise.concat()
+Returns a new array combining the elements of the current array and any supplied arguments.
+
+Usage:
+>**ArrayPromise.concat(item [, item, item, ...])**
+
+Returns:
+>**ArrayPromise** 
+
+<br />
+###ArrayPromise.filter()
+Returns a new array by filtering each current element through the filter callback function. If the callback returns true for a specific item, it will be included in the new array.
+
+Usage:
+>**ArrayPromise.filter(callback [, context])**
+
+Returns:
+>**ArrayPromise** 
+
+<br />
+###ArrayPromise.forEach()
+Executes the specified callback function for each element in the array. The callback receives the current element and the current array index as arguments. This method returns the original array.
+
+Usage:
+>**ArrayPromise.forEach(callback [, context])**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###ArrayPromise.indexOf()
+Returns the numeric index of the first occurrence of the supplied value within the array, or -1 if the value does not exist in the array.
+
+Usage:
+>**ArrayPromise.indexOf(value)**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###ArrayPromise.join()
+Returns the concatenated .toString() representation of all elements in the array, separated by delimiter or ','.
+
+Usage:
+>**ArrayPromise.join([delimiter])**
+
+Returns:
+>**StringPromise**
+
+<br />
+###ArrayPromise.lastIndexOf()
+Returns the numeric index of the last occurrence of the supplied value within the array, or -1 if the value does not exist in the array.
+
+Usage:
+>**ArrayPromise.lastIndexOf(value)**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###ArrayPromise.map()
+Invokes the callback for each element of the current array, and returns a new array containing each of values returned from the callback.
+
+Usage:
+>**ArrayPromise.map(callback [, context])**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###ArrayPromise.pop()
+Removes the last element from the array and returns it as a new ObjectPromise.
+
+Usage:
+>**ArrayPromise.pop()**
+
+Returns:
+>**ObjectPromise**
+
+<br />
+###ArrayPromise.push()
+Adds elements to the tail of the array, and returns the array's new length.
+
+Usage:
+>**ArrayPromise.push()**
+
+Returns:
+>**NumberPromise**
+
+<br />
+###ArrayPromise.reverse()
+Returns a new array with the order of elements reversed.
+
+Usage:
+>**ArrayPromise.reverse()**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###ArrayPromise.shift()
+Removes the element at the head of the array and returns it as a new ObjectPromise.
+
+Usage:
+>**ArrayPromise.shift()**
+
+Returns:
+>**ObjectPromise**
+
+<br />
+###ArrayPromise.slice()
+Returns a new array consisting of the elements in the current array between the start and end indices.
+
+Usage:
+>**ArrayPromise.slice(start, end)**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###ArrayPromise.sort()
+Returns a new array with the elements sorted by the specified callback. If no callback is supplied, elements will be sorted alphabetically.
+
+Usage:
+>**ArrayPromise.sort([callback])**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###ArrayPromise.splice()
+Removes `count` number of elements from the array starting at position `offset`, and inserts any trailing elements after `offset`. This method returns a new array containing any removed elements.
+
+Usage:
+>**ArrayPromise.splice(offset, count [, element, element, ...])**
+
+Returns:
+>**ArrayPromise**
+
+<br />
+###ArrayPromise.toString()
+Returns a string representation of the current array.
+
+Usage:
+>**ArrayPromise.toString()**
+
+Returns:
+>**StringPromise**
+
+<br />
+###ArrayPromise.unshift()
+Adds the specified elements to the head of the array, and returns the new array length.
+
+Usage:
+>**ArrayPromise.unshift(element [, element, element, ...])**
+
+Returns:
+>**NumberPromise**
+
+<br />
 ##ObjectPromise
 ObjectPromises allow us to perform generic object mutations on a promise that has yet to complete.
 ObjectPromises are returned from any method on the other promise types with an indeterminate return type (eg `ArrayPromise.pop()`, where we are unsure what type of value exists at index 0).
@@ -1505,22 +1669,55 @@ ObjectPromises expose the following methods:
 ###ObjectPromise.get()
 Promise to get the value of the given property.
 
+Usage:
+>**ObjectPromise.get(property)**
+
+Returns:
+>**ObjectPromise**
+
+
 <br />
 ###ObjectPromise.set()
 Promise to set the property name to the given value.
+
+Usage:
+>**ObjectPromise.set(property, value)**
+
+Returns:
+>**ObjectPromise**
+
 
 <br />
 ###ObjectPromise.delete()
 Promise to delete the property at the supplied identifier.
 
+Usage:
+>**ObjectPromise.delete(identifier)**
+
+Returns:
+>**ObjectPromise**
+
+
 <br />
 ###ObjectPromise.keys()
 Promise to return an array of the property identifiers belonging to the promise result.
+
+Usage:
+>**ObjectPromise.keys()**
+
+Returns:
+>**ArrayPromise**
+
 
 <br />
 ###ObjectPromise.toJSON()
 Promise to return a serialized JSON representation of the current promise.
 
+Usage:
+>**ObjectPromise.toJSON()**
+
+Returns:
+>**StringPromise**
 
 
 <br />
@@ -1530,8 +1727,6 @@ Promix is MIT licensed. You can read the license [here](https://raw.github.com/r
 
 <br />
 ##Notes
-
-<br />
 ###Breakpoints
 
 Certain Promix chain methods act as chain breakpoints. 
