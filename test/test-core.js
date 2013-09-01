@@ -33,8 +33,8 @@ function join ( test ) {
 	}
 
 	test.expect(2);
-	resolver(true, promix.join(fail_one, success_one));
-	resolver(false, promix.join(fail_two, success_two));
+	resolver(true, promix.join(success_one, fail_one));
+	resolver(false, promix.join(success_two, fail_two));
 }
 
 function fork ( test ) {
