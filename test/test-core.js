@@ -207,6 +207,7 @@ function concat ( test ) {
 module.exports = {
 	join : join,
 	fork : fork,
+	first : first,
 	wrap : wrap,
 	errorless : errorless,
 	invoke : invoke,

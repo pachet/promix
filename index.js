@@ -114,6 +114,7 @@ function first ( ) {
 			if ( results [index] ) {
 				promise.fulfill(results [index]);
 			}
+			index ++;
 		}
 		return promise.fulfill(results.pop());
 	});
