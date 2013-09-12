@@ -99,26 +99,25 @@ function fork ( promise, callback ) {
 //
 function first ( ) {
 	var
-		returned = false,
 		promise = new Promise(),
+		chain = new Exposure(),
 		length = arguments.length,
-		index = 0,
-		current;
-
-	function dispatcher ( result ) {
-		if ( ! returned && result ) {
-			returned = true;
-			promise.fulfill(result);
-		}
-	}
+		index = 0;
 
 	while ( index < length ) {
-		current = arguments [index];
-		if ( current && typeof current.then === 'function' ) {
-			current.then(dispatcher);
-		}
+		chain.and(arguments [index]);
 		index ++;
 	}
+	chain.then(function success ( results ) {
+		index = 0;
+		while ( index < length ) {
+			if ( results [index] ) {
+				promise.fulfill(results [index]);
+			}
+		}
+		return promise.fulfill(results.pop());
+	});
+	chain.otherwise(promise.reject);
 	return promise;
 }
 
