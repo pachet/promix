@@ -18,6 +18,7 @@ module.exports = {
 	chain : when,
 	join : join,
 	fork : fork,
+	first : first,
 	invoke : invoke,
 	concat : concat,
 	wrap : wrap,
@@ -88,6 +89,37 @@ function fork ( promise, callback ) {
 	promise.then(function abstracted_callback ( result ) {
 		return callback(null, result);
 	}, callback);
+}
+
+// Accepts an indeterminate number of promises,
+// and returns a promise that will be fulfilled with the first truthy promise result.
+//
+// Usage :
+//	promix.first(<object> promise, <object> promise [, <object> promise, ....])
+//
+function first ( ) {
+	var
+		returned = false,
+		promise = new Promise(),
+		length = arguments.length,
+		index = 0,
+		current;
+
+	function dispatcher ( result ) {
+		if ( ! returned && result ) {
+			returned = true;
+			promise.fulfill(result);
+		}
+	}
+
+	while ( index < length ) {
+		current = arguments [index];
+		if ( current && typeof current.then === 'function' ) {
+			current.then(dispatcher);
+		}
+		index ++;
+	}
+	return promise;
 }
 
 // Turns a success-only callback into a standard error-first callback.
@@ -162,7 +194,7 @@ function invoke ( ) {
 //	<Promise>
 function succeed ( value ) {
 	var
-		promise = Promise();
+		promise = new Promise();
 
 	utils.next(function wrapper ( ) {
 		return void promise.resolve(value);
@@ -180,7 +212,7 @@ function succeed ( value ) {
 //
 function fail ( reason ) {
 	var
-		promise = Promise();
+		promise = new Promise();
 
 	if ( ! ( reason instanceof Error ) ) {
 		reason = new Error(reason);
