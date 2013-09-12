@@ -43,7 +43,7 @@ function fork ( test ) {
 		promise_two = promix.promise();
 
 	function callback_one ( error, result ) {
-		test.equals(error.toString(), 'Error: An arbitrary error.');		
+		test.equals(error.toString(), 'Error: An arbitrary error.');
 	}
 
 	function callback_two ( error, result ) {
@@ -57,6 +57,22 @@ function fork ( test ) {
 	promix.fork(promise_two, callback_two);
 	promise_one.reject(new Error('An arbitrary error.'));
 	promise_two.fulfill('An arbitrary result.');
+}
+
+function first ( test ) {
+	var
+		promise_one = promix.promise(),
+		promise_two = promix.promise(),
+		promise_three = promix.promise();
+
+	test.expect(1);
+	promix.first(promise_one, promise_two, promise_three).then(function ( result ) {
+		test.equals(result, 'foo');
+		test.done();
+	});
+	setTimeout(promise_one.fulfill.bind(promise_one, false), 10);
+	setTimeout(promise_two.reject.bind(promise_two, 'This is a new error'), 20);
+	setTimeout(promise_three.fulfill.bind(promise_three, 'foo'), 30);
 }
 
 function errorless ( test ) {
