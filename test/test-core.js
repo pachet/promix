@@ -71,7 +71,7 @@ function first ( test ) {
 		test.done();
 	});
 	setTimeout(promise_one.fulfill.bind(promise_one, false), 10);
-	setTimeout(promise_two.reject.bind(promise_two, 'This is a new error'), 20);
+	setTimeout(promise_two.fulfill.bind(promise_two, null), 20);
 	setTimeout(promise_three.fulfill.bind(promise_three, 'foo'), 30);
 }
 
