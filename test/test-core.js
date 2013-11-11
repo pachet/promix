@@ -204,6 +204,29 @@ function concat ( test ) {
 	});
 }
 
+function _do ( test ) {
+
+	function increment ( value, callback ) {
+		setTimeout(function ( ) {
+			callback(null, value + 1);
+		}, 0);
+	}
+
+	test.expect(1);
+	promix.with(15).do(
+		increment,
+		increment,
+		increment,
+		increment
+	).then(function ( result ) {
+		test.equals(result, 19);
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'we should not be here.');
+		test.done();
+	});
+}
+
 module.exports = {
 	join : join,
 	fork : fork,
@@ -214,5 +237,6 @@ module.exports = {
 	succeed : succeed,
 	fail : fail,
 	compose : compose,
-	concat : concat
+	concat : concat,
+	'do' : _do
 };

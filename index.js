@@ -4,7 +4,8 @@ var
 	handler = require('./lib/handler'),
 	Exposure = require('./lib/exposure'),
 	types = require('./lib/types'),
-	utils = require('./lib/utils');
+	utils = require('./lib/utils'),
+	hold;
 
 
 module.exports = {
@@ -28,6 +29,8 @@ module.exports = {
 	next : succeed,
 	fail : fail,
 	compose : compose,
+	'do' : _do,
+	'with' : _with,
 	version : require('./package.json').version
 };
 
@@ -84,11 +87,14 @@ function join ( success, failure ) {
 //
 // Usage :
 //	promix.fork(<object> promise, <function> callback)
+// Returns :
+//	$Promix
 //
 function fork ( promise, callback ) {
 	promise.then(function abstracted_callback ( result ) {
 		return callback(null, result);
 	}, callback);
+	return this;
 }
 
 // Accepts an indeterminate number of promises,
@@ -96,6 +102,9 @@ function fork ( promise, callback ) {
 //
 // Usage :
 //	promix.first(<object> promise, <object> promise [, <object> promise, ....])
+//
+// Returns :
+//	<Promise>
 //
 function first ( ) {
 	var
@@ -192,6 +201,7 @@ function invoke ( ) {
 //
 // Returns :
 //	<Promise>
+//
 function succeed ( value ) {
 	var
 		promise = new Promise();
@@ -232,6 +242,9 @@ function fail ( reason ) {
 //	baz : bazPromise
 // }).then(fn);
 //
+// Returns
+//	<Chain>
+//
 function compose ( object ) {
 	var
 		chain = new Exposure();
@@ -245,10 +258,11 @@ function compose ( object ) {
 // Convenience wrapper to concatenate promises into a single StringPromise.
 //
 // Usage :
-//	promix.concat(<string || Promise> arg1 [, arg2, arg3, arg4])
+//	promix.concat(<string || Promise> arg1 [, arg2, arg3, arg4, ...])
 //
 // Returns :
 //	<StringPromise>
+//
 function concat ( ) {
 	var
 		args = utils.copy(arguments),
@@ -258,4 +272,62 @@ function concat ( ) {
 	intermediary = types.toString(primary);
 	return intermediary.concat.apply(intermediary, args);
 }
+
+
+// Tell Promix to hold onto a series of values to pass into promix.do().
+//
+// Usage :
+//	promix.with(arg1 [, arg2, arg3, arg4, ...])
+//
+// Returns :
+//	$Promix
+//
+function _with ( ) {
+	hold = utils.copy(arguments);
+	return this;
+}
+
+
+// Execute a list of functions in sequence, cascading the return value.
+//
+// Usage :
+//	promix.do(fn1 [, fn2, fn3, fn4, ...])
+//
+// Returns :
+//	<Promise>
+//
+function _do ( ) {
+	var
+		chain = new Exposure(),
+		args = utils.copy(arguments),
+		index = 0,
+		length = args.length,
+		current,
+		promise = new Promise();
+
+	while ( index < length ) {
+		current = args [index];
+		if ( ! index && hold ) {
+			hold.unshift(current);
+			chain.and.apply(chain, hold);
+			hold = null;
+		}
+		else {
+			if ( index ) {
+				chain.and(current, chain [index - 1]);
+			}
+			else {
+				chain.and(current);
+			}
+		}
+		chain.as(index);
+		index ++;
+	}
+	chain.then(function complete ( result ) {
+		promise.fulfill(result);
+	}, chain [index - 1]);
+	chain.otherwise(promise.reject);
+	return promise;
+}
+
 

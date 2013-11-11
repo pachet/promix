@@ -7,11 +7,13 @@ function pending ( ) {
 
 	return {
 		promise : promise,
-		fulfill : promise.fulfill,
+		resolve : promise.fulfill,
 		reject : promise.reject
 	};
 }
 
+
 module.exports = {
-	pending : pending
+	pending : pending,
+	deferred : pending
 };

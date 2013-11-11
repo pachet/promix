@@ -1,6 +1,7 @@
 var
 	promix = require('../index');
 
+
 function async ( label, time, callback ) {
 	setTimeout(function ( ) {
 		if ( label === 'bad' || label === 'worse' ) {
@@ -232,11 +233,11 @@ function suppress ( test ) {
 	var
 		chain_one = promix.when(),
 		chain_two = promix.when();
-		
+
+	test.expect(5);
 	chain_one.and(async, 'foo', 1).as('foo');
 	chain_one.and(async, 'bad', 2).as('bad');
 	chain_one.suppress();
-	test.expect(5);
 	chain_one.then(function ( results ) {
 		var
 			chain_three;
@@ -379,7 +380,9 @@ function time ( test ) {
 }
 
 function until ( test ) {
-	var i = 0;
+	var
+		i = 0,
+		chain = promix.chain();
 
 	function loop ( callback ) {
 		i ++;
@@ -389,12 +392,13 @@ function until ( test ) {
 	}
 
 	test.expect(2);
-	promix.when(loop).as('loop1').until(5).then(function ( results ) {
+	chain.and(loop).as('loop1').until(5).then(function ( results ) {
 		var
-			promise = promix.promise();
+			promise = promix.promise(),
+			chain = promix.chain();
 
 		test.equal(results.loop1, 5);
-		promix.when(loop).as('loop2').until(promise).then(function ( results ) {
+		chain.and(loop).as('loop2').until(promise).then(function ( results ) {
 			test.equal(results.loop2, 7);
 			test.done();
 		});
@@ -680,6 +684,43 @@ function explicit_monotonic_returned ( test ) {
 	chain.otherwise(test.ok, false, 'we should not be here');
 }
 
+function sync ( test ) {
+	var
+		chain = promix.chain(),
+		timer;
+
+
+	timer = setTimeout(function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, 0);
+
+	test.expect(6);
+	chain.and(function ( arg, callback ) {
+		callback(null, 'one');
+	}, 1).as('one');
+	chain.and(function ( arg, callback ) {
+		callback(null, 'two');
+	}, 2).as('two');
+	chain.and(function ( arg, callback ) {
+		callback(null, 'three');
+	}, 3).as('three');
+	chain.then(function ( arg, callback ) {
+		callback(null, 'four');
+	}, 4).as('four');
+	chain.then(asyncOne, 2, 3).as('five');
+	chain.then(function ( results ) {
+		clearTimeout(timer);
+		test.equals(results.length, 5);
+		test.equals(results.one, 'one');
+		test.equals(results.two, 'two');
+		test.equals(results.three, 'three');
+		test.equals(results.four, 'four');
+		test.equals(results.five, null);
+		test.done();
+	}).sync();
+}
+
 
 
 module.exports = {
@@ -698,6 +739,7 @@ module.exports = {
 	time : time,
 	until : until,
 	bind : bind,
+	sync : sync,
 	promise_returned : promise_returned,
 	promise_end : promise_end,
 	promise_compose_success : promise_compose_success,
