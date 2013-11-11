@@ -163,6 +163,51 @@ function reject_fulfill ( test ) {
 	});
 }
 
+function sync_fulfill ( test ) {
+	var
+		promise = promix.promise(),
+		timer;
+
+	test.expect(1);
+	timer = setTimeout(function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, 0);
+	promise.then(function ( result ) {
+		clearTimeout(timer);
+		test.equals(result, 'one');
+		test.done();
+	}, function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	});
+
+	promise.fulfill('one').sync();
+}
+
+
+function sync_reject ( test ) {
+	var
+		promise = promix.promise(),
+		timer;
+
+	test.expect(1);
+	timer = setTimeout(function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, 0);
+	promise.then(function ( result ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, function ( error ) {
+		clearTimeout(timer);
+		test.equals(error.toString(), 'Error: an arbitrary error');
+		test.done();
+	});
+
+	promise.reject(new Error('an arbitrary error')).sync();
+}
+
 module.exports = {
 	then : then,
 	cascade : cascade,
@@ -171,5 +216,7 @@ module.exports = {
 	fulfill_fulfill : fulfill_fulfill,
 	reject_reject : reject_reject,
 	fulfill_reject : fulfill_reject,
-	reject_fulfill : reject_fulfill
+	reject_fulfill : reject_fulfill,
+	sync_fulfill : sync_fulfill,
+	sync_reject : sync_reject
 };
