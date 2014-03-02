@@ -5,6 +5,7 @@ var
 	Exposure = require('./lib/exposure'),
 	types = require('./lib/types'),
 	utils = require('./lib/utils'),
+	streams = require('./lib/streams'),
 	hold;
 
 
@@ -31,6 +32,7 @@ module.exports = {
 	compose : compose,
 	'do' : _do,
 	'with' : _with,
+	fromStream: streams.wrap,
 	version : require('./package.json').version
 };
 
