@@ -10,5 +10,6 @@ lib-cov
 
 node_modules
 npm-debug.log
+promix.min.js
 
 .DS_Store
