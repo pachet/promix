@@ -53,6 +53,29 @@ function and ( test ) {
 	});
 }
 
+function andCall ( test ) {
+	var
+		chain = promix.when(),
+		context = { };
+
+	function monotonic ( callback ) {
+		test.equal(arguments.length, 1);
+		test.equal(this, context);
+		return void setTimeout(function deferred ( ) {
+			callback(null, 'baz');
+		}, 0);
+	}
+
+	test.expect(3);
+
+	chain.and(async, 'foo', 0).as('foo');
+	chain.andCall(monotonic, context).as('bar');
+	chain.then(function finisher ( results ) {
+		test.equals(results.bar, 'baz');
+		test.done();
+	});
+}
+
 function or ( test ) {
 	var
 		chain_one = promix.when(),
@@ -113,6 +136,29 @@ function then ( test ) {
 	});
 }
 
+function thenCall ( test ) {
+	var
+		chain = promix.when(),
+		context = { };
+
+	function monotonic ( callback ) {
+		test.equal(this, context);
+		test.equal(arguments.length, 1);
+		return void setTimeout(function deferred ( ) {
+			callback(null, 'baz');
+		}, 0);
+	}
+
+	test.expect(3);
+
+	chain.and(async, 'foo', 0).as('foo');
+	chain.thenCall(monotonic, context).as('bar');
+	chain.then(function finisher ( results ) {
+		test.equals(results.bar, 'baz');
+		test.done();
+	});
+}
+
 function otherwise ( test ) {
 	var
 		one = promix.chain(),
@@ -169,8 +215,8 @@ function otherwise ( test ) {
 	four.otherwise(badError, 'x_four');
 	four.then(async, 'bad', 0);
 	four.otherwise(context.handler, 'one', 'two').bind(context);
-	
-	
+
+
 
 }
 
@@ -178,7 +224,7 @@ function callback ( test ) {
 	var
 		chain_one = promix.when(),
 		chain_two = promix.when();
-	
+
 	function handler_one ( error, results ) {
 		test.equal(error, null);
 		test.equal(results [0], 'pass: foo');
@@ -278,7 +324,7 @@ function suppress ( test ) {
 function reject ( test ) {
 	var
 		chain = promix.when(asyncOne, 1, 2).as('foo');
-	
+
 	test.expect(1);
 	chain.then(function ( results ) {
 		test.ok(false, 'We should not be here');
@@ -407,7 +453,7 @@ function until ( test ) {
 		}, 200);
 	});
 
-	
+
 }
 
 function bind ( test ) {
@@ -458,7 +504,7 @@ function promise_returned ( test ) {
 		}, 30);
 		return promise;
 	}
-	
+
 	test.expect(2);
 	chain.and(promise_service, 2).as('one');
 	chain.then(promise_service, 3, 4).as('two');
@@ -537,7 +583,7 @@ function promise_compose_success ( test ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-	
+
 	setTimeout(function ( ) {
 		promise_one.fulfill('pikachu');
 	}, 0);
@@ -585,7 +631,7 @@ function promise_compose_failure ( test ) {
 		test.equal(error.toString(), 'Error: This promise will be rejected');
 		test.done();
 	});
-	
+
 	setTimeout(function ( ) {
 		promise_one.fulfill('pikachu');
 	}, 0);
@@ -623,7 +669,7 @@ function introspect_success ( test ) {
 			return void callback(null, { value : value + 1 });
 		}, 0);
 	}
-	
+
 	function async_four ( a, b, c, callback ) {
 		test.equal(a, 2);
 		test.equal(b, 4);
@@ -725,8 +771,10 @@ function sync ( test ) {
 
 module.exports = {
 	and : and,
+	andCall: andCall,
 	or : or,
 	then : then,
+	thenCall: thenCall,
 	otherwise : otherwise,
 	callback : callback,
 	'break' : _break,
