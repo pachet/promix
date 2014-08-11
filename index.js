@@ -32,6 +32,7 @@ module.exports = {
 	compose : compose,
 	'do' : _do,
 	'with' : _with,
+	interpose: interpose,
 	fromStream: streams.wrap,
 	version : require('./package.json').version
 };
@@ -332,4 +333,24 @@ function _do ( ) {
 	return promise;
 }
 
+function interpose(success, callback, context) {
+	if (!callback) {
+		throw new Error('must supply an error handler as 2nd arg');
+	}
 
+	if (!context) {
+		context = this;
+	}
+
+	return function interposed(error, result) {
+		if (error) {
+			return void callback.call(context, error);
+		}
+
+		try {
+			callback(null, success.call(context, result));
+		} catch(error) {
+			callback.call(context, error);
+		}
+	};
+}
