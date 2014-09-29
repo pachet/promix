@@ -767,7 +767,18 @@ function sync ( test ) {
 	}).sync();
 }
 
+function last ( test ) {
+	var chain = promix.chain();
 
+	test.expect(1);
+
+	chain.and(asyncOne, 2 , 3);
+	chain.then(asyncTwo, chain.last, chain.last).as('result');
+	chain.then(function interstitial ( results ) {
+		test.equals(results.result, 25);
+		test.done();
+	});
+}
 
 module.exports = {
 	and : and,
@@ -794,5 +805,6 @@ module.exports = {
 	promise_compose_failure : promise_compose_failure,
 	introspect_success : introspect_success,
 	returned : returned,
-	explicit_monotonic_returned : explicit_monotonic_returned
+	explicit_monotonic_returned : explicit_monotonic_returned,
+	last: last
 };
