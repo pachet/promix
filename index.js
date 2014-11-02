@@ -8,9 +8,8 @@ var
 	streams = require('./lib/streams'),
 	hold;
 
-
 module.exports = {
-	promise : Promise,
+	promise : promise,
 	toString : types.toString,
 	toNumber : types.toNumber,
 	toArray : types.toArray,
@@ -36,6 +35,10 @@ module.exports = {
 	fromStream: streams.wrap,
 	version : require('./package.json').version
 };
+
+function promise ( base, clone ) {
+	return new Promise(base, clone);
+}
 
 // expose the module at `window.promix` if we're in a browser:
 if ( typeof window !== 'undefined' && typeof window.promix === 'undefined' ) {

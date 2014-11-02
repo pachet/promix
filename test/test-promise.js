@@ -103,7 +103,7 @@ function fulfill_fulfill ( test ) {
 function reject_reject ( test ) {
 	var
 		deferred = promix.promise();
-	
+
 	test.expect(2);
 	deferred.then(function success_one ( result ) {
 		test.ok(false, 'We should not be here');
@@ -125,7 +125,7 @@ function fulfill_reject ( test ) {
 		deferred_two;
 
 	test.expect(2);
-	
+
 	deferred_two = deferred_one.then(function success_one ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
 		return result;
@@ -208,6 +208,21 @@ function sync_reject ( test ) {
 	promise.reject(new Error('an arbitrary error')).sync();
 }
 
+function fn ( test ) {
+	test.expect(1);
+
+	var promise = promix.promise();
+
+	promise.fn()('bowser');
+
+	setTimeout(function deferred ( ) {
+		promise.fulfill(function wrapped ( string ) {
+			test.equals(string, 'bowser');
+			test.done();
+		});
+	}, 0);
+}
+
 module.exports = {
 	then : then,
 	cascade : cascade,
@@ -218,5 +233,6 @@ module.exports = {
 	fulfill_reject : fulfill_reject,
 	reject_fulfill : reject_fulfill,
 	sync_fulfill : sync_fulfill,
-	sync_reject : sync_reject
+	sync_reject : sync_reject,
+	fn: fn
 };
