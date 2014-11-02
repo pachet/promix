@@ -457,6 +457,8 @@ function until ( test ) {
 }
 
 function bind ( test ) {
+	test.expect(4);
+
 	var
 		chain = promix.when(),
 		object = {
@@ -474,7 +476,31 @@ function bind ( test ) {
 			},
 			check_name : function ( results ) {
 				test.equal(this.name, 'bar');
-				test.done();
+
+				var chain2 = promix.chain();
+
+				function foo(value, callback) {
+					var label = this.label;
+
+					setTimeout(function deferred() {
+						callback(null, label + ' ' + value);
+					}, 0);
+				}
+
+				chain.and(foo, 'baz').bind({
+					label: 'foo'
+				}).as('one');
+				chain.and(foo, 'wat').bind({
+					label: 'bar'
+				}).as('two');
+				chain.then(function success(results) {
+					test.equals(results.one, 'foo baz');
+					test.equals(results.two, 'bar wat');
+					test.done();
+				});
+				chain.otherwise(function failure(error) {
+					test.ok(false, 'we should not be here');
+				});
 			}
 		};
 
