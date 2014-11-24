@@ -806,9 +806,42 @@ function last ( test ) {
 	});
 }
 
+function each ( test ) {
+	test.expect(6);
+
+	var chain = promix.chain();
+
+	var values = [
+		'foo',
+		'bar',
+		'baz'
+	];
+
+	var index = 0;
+
+	function checker ( value, callback ) {
+		test.equals(value, values [index++]);
+
+		callback(null, value.split('').reverse().join(''));
+	}
+
+	function callback ( results ) {
+		var index = results.length;
+
+		while ( index -- ) {
+			test.equals(results [index], values [index].split('').reverse().join(''));
+		}
+
+		test.done();
+	}
+
+	chain.each(values, checker);
+	chain.end(callback);
+}
+
 module.exports = {
 	and : and,
-	andCall: andCall,
+	andCall : andCall,
 	or : or,
 	then : then,
 	thenCall: thenCall,
@@ -832,5 +865,6 @@ module.exports = {
 	introspect_success : introspect_success,
 	returned : returned,
 	explicit_monotonic_returned : explicit_monotonic_returned,
-	last: last
+	last : last,
+	each : each
 };
