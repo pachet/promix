@@ -407,20 +407,26 @@ function time ( test ) {
 	var
 		chain = promix.when();
 
-	test.expect(5);
+	test.expect(8);
 	chain.and(async, 'pikachu', 350).as('pikachu');
 	chain.and(async, 'charizard', 250).as('charizard');
 	test.equal(chain.time('pikachu'), 0);
 	test.equal(chain.time('charizard'), 0);
 	chain.then(function ( results ) {
 		var
-			pikachu_check = chain.time('pikachu') >= 350,
-			charizard_check = chain.time('charizard') >= 250,
-			total_check = chain.time() >= 350;
+			pikachu_time = chain.time('pikachu'),
+			charizard_time = chain.time('charizard'),
+			total_time = chain.time();
 
-		test.equal(pikachu_check, true);
-		test.equal(charizard_check, true);
-		test.equal(total_check, true);
+		// we just ballpark the expected minimum values
+		// because sometimes the functions are executed
+		// a millisecond faster than you'd expect (eg, 349)
+		test.ok(pikachu_time >= 345);
+		test.ok(pikachu_time <= 355);
+		test.ok(charizard_time >= 245);
+		test.ok(charizard_time <= 255);
+		test.ok(total_time >= 345);
+		test.ok(total_time <= 355);
 		test.done();
 	});
 }
@@ -839,12 +845,89 @@ function each ( test ) {
 	chain.end(callback);
 }
 
+function thenEach ( test ) {
+	test.expect(7);
+
+	var index = 0;
+
+	function asyncFn ( value, callback ) {
+		var frozen_index = index;
+
+		setTimeout(function deferred ( ) {
+			test.equals(
+				index,
+				frozen_index,
+				'Make sure that `thenEach` sequence is executed serially, not in parallel'
+			);
+
+			index ++;
+
+			callback(null, value.split('').reverse().join(''));
+		}, 10);
+	}
+
+	var chain = promix.chain();
+
+	var array = [
+		'pikachu',
+		'charizard',
+		'vaporeon'
+	];
+
+	chain.thenEach(array, asyncFn);
+
+	chain.then(function finisher ( results ) {
+		test.equals(results.length, array.length);
+
+		var index = 0;
+
+		while ( index < array.length ) {
+			test.equals(
+				results[index],
+				array[index].split('').reverse().join('')
+			);
+			index ++;
+		}
+
+		test.done();
+	});
+
+}
+
+function expunge ( test ) {
+
+	function asyncFn ( value, callback ) {
+		setTimeout(function deferred ( ) {
+			return void callback(null, value);
+		});
+	}
+
+	test.expect(3);
+
+	var chain = promix.chain();
+
+	chain.and(asyncFn, 'foo').as('foo');
+	chain.and(asyncFn, 'bar').as('bar').expunge();
+	chain.and(asyncFn, 'baz').as('baz');
+	chain.and(asyncFn, 'wat').expunge();
+	chain.and(asyncFn, 'biz').as('biz');
+	chain.and(asyncFn, 'bam').as('bam').expunge(true);
+
+	chain.then(function finisher ( results ) {
+		test.equals(results.length, 3);
+		test.equals(results.bar, 'bar');
+		test.equals(results.bam, undefined);
+		test.done();
+	});
+
+}
+
 module.exports = {
 	and : and,
 	andCall : andCall,
 	or : or,
 	then : then,
-	thenCall: thenCall,
+	thenCall : thenCall,
 	otherwise : otherwise,
 	callback : callback,
 	'break' : _break,
@@ -866,5 +949,7 @@ module.exports = {
 	returned : returned,
 	explicit_monotonic_returned : explicit_monotonic_returned,
 	last : last,
-	each : each
+	each : each,
+	thenEach : thenEach,
+	expunge : expunge
 };

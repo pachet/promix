@@ -1,7 +1,7 @@
 {
 	"name": "promix",
 	"description": "Mix promises with callbacks for improved control flow",
-	"version": "0.1.20",
+	"version": "0.1.21",
 	"main": "./index",
 	"author": {
 		"name": "Pachet",
