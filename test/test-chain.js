@@ -53,6 +53,30 @@ function and ( test ) {
 	});
 }
 
+function andRecursive ( test ) {
+	test.expect(3);
+
+	var
+		chain = promix.chain();
+
+	function foo ( value, callback ) {
+		test.equals(value, 1);
+		chain.and(bar, 2);
+		callback(null);
+	}
+
+	function bar ( value, callback ) {
+		test.equals(value, 2);
+		callback(null);
+	}
+
+	chain.and(foo, 1);
+	chain.then(function finisher ( results ) {
+		test.equals(results.length, 2);
+		test.done();
+	});
+}
+
 function andCall ( test ) {
 	var
 		chain = promix.when(),
@@ -924,6 +948,7 @@ function expunge ( test ) {
 
 module.exports = {
 	and : and,
+	andRecursive : andRecursive,
 	andCall : andCall,
 	or : or,
 	then : then,
