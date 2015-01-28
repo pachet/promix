@@ -946,6 +946,42 @@ function expunge ( test ) {
 
 }
 
+function pipe ( test ) {
+	test.expect(6);
+
+	function asyncOne ( str, callback ) {
+		setTimeout(callback.bind(this, null, str), 0);
+	}
+
+	function asyncTwo ( str1, str2, callback ) {
+		test.equals(str1, 'bar');
+		test.equals(str2, 'foo');
+		setTimeout(function ( ) {
+			callback(null, str1 + '-' + str2);
+		}, 0);
+	}
+
+	function asyncThree ( str1, str2, str3, callback ) {
+		test.equals(str1, 'baz');
+		test.equals(str2, 'wat');
+		test.equals(str3, 'bar-foo');
+		setTimeout(function ( ) {
+			callback(null, str1 + '-' + str2 + '-' + str3);
+		}, 0);
+	}
+
+	promix.chain(asyncOne, 'foo')
+		.pipe(asyncTwo, 'bar')
+		.pipe(asyncThree, 'baz', 'wat')
+		.pipe(function finisher ( result ) {
+			test.equals(result, 'baz-wat-bar-foo');
+			test.done();
+		})
+		.otherwise(function failure ( error ) {
+			test.ok(false, error.toString());
+		});
+}
+
 module.exports = {
 	and : and,
 	andRecursive : andRecursive,
@@ -976,5 +1012,6 @@ module.exports = {
 	last : last,
 	each : each,
 	thenEach : thenEach,
-	expunge : expunge
+	expunge : expunge,
+	pipe : pipe
 };
