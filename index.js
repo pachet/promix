@@ -9,31 +9,32 @@ var
 	hold;
 
 module.exports = {
-	promise : promise,
-	toString : types.toString,
-	toNumber : types.toNumber,
-	toArray : types.toArray,
-	toObject : types.toObject,
-	handle : handler.set,
-	when : when,
-	chain : when,
-	join : join,
-	fork : fork,
-	first : first,
-	invoke : invoke,
-	concat : concat,
-	wrap : wrap,
-	forward : wrap,
-	errorless : errorless,
-	succeed : succeed,
-	next : succeed,
-	fail : fail,
-	compose : compose,
-	'do' : _do,
-	'with' : _with,
+	promise: promise,
+	toString: types.toString,
+	toNumber: types.toNumber,
+	toArray: types.toArray,
+	toObject: types.toObject,
+	toJSON: toJSON,
+	handle: handler.set,
+	when: when,
+	chain: when,
+	join: join,
+	fork: fork,
+	first: first,
+	invoke: invoke,
+	concat: concat,
+	wrap: wrap,
+	forward: wrap,
+	errorless: errorless,
+	succeed: succeed,
+	next: succeed,
+	fail: fail,
+	compose: compose,
+	'do': _do,
+	'with': _with,
 	interpose: interpose,
 	fromStream: streams.wrap,
-	version : require('./package.json').version
+	version: require('./package.json').version
 };
 
 function promise ( base, clone ) {
@@ -48,12 +49,12 @@ if ( typeof window !== 'undefined' && typeof window.promix === 'undefined' ) {
 
 // Takes an optional promise or fn to invoke, and returns a new chain.
 //
-// Usage :
+// Usage:
 //	promix.when()
 //	promix.when(<thenable> promise)
 //	promix.when(<function> callback [, arg1, arg2, ...])
 //
-// Returns :
+// Returns:
 //	<Chain>
 //
 function when ( ) {
@@ -70,10 +71,10 @@ function when ( ) {
 // Takes discrete success and failure callbacks,
 // and turns them into a consolidated error-first callback.
 //
-// Usage :
+// Usage:
 //	promix.join(<function> successFn, <function> failureFn)
 //
-// Returns :
+// Returns:
 //	<function>
 //
 function join ( success, failure ) {
@@ -91,9 +92,9 @@ function join ( success, failure ) {
 
 // Applies a standard error-first callback to a promise.
 //
-// Usage :
+// Usage:
 //	promix.fork(<object> promise, <function> callback)
-// Returns :
+// Returns:
 //	$Promix
 //
 function fork ( promise, callback ) {
@@ -106,10 +107,10 @@ function fork ( promise, callback ) {
 // Accepts an indeterminate number of promises,
 // and returns a promise that will be fulfilled with the first truthy promise result.
 //
-// Usage :
+// Usage:
 //	promix.first(<object> promise, <object> promise [, <object> promise, ....])
 //
-// Returns :
+// Returns:
 //	<Promise>
 //
 function first ( ) {
@@ -139,10 +140,10 @@ function first ( ) {
 
 // Turns a success-only callback into a standard error-first callback.
 //
-// Usage :
+// Usage:
 //	promix.errorless(<function> callback)
 //
-// Returns :
+// Returns:
 //	<function>
 //
 function errorless ( callback ) {
@@ -153,10 +154,10 @@ function errorless ( callback ) {
 
 // Transforms a promise into a standard callback.
 //
-// Usage :
+// Usage:
 //	promix.wrap(<object> promise, <?> value)
 //
-// Returns :
+// Returns:
 //	<function>
 //
 function wrap ( promise, value ) {
@@ -173,10 +174,10 @@ function wrap ( promise, value ) {
 // and returns a promise that will be fulfilled/rejected
 // when that callback is called.
 //
-// Usage :
+// Usage:
 //	promix.invoke(<function> callbackAcceptingFn [, arg1, arg2, ...])
 //
-// Returns :
+// Returns:
 //	<Promise>
 //
 function invoke ( ) {
@@ -202,10 +203,10 @@ function invoke ( ) {
 
 // Returns a promise that will be fulfilled at the next tick/breath.
 //
-// Usage :
+// Usage:
 //	promix.succeed(<?> value)
 //
-// Returns :
+// Returns:
 //	<Promise>
 //
 function succeed ( value ) {
@@ -220,10 +221,10 @@ function succeed ( value ) {
 
 // Returns a promise that will be rejected at the next tick/breath.
 //
-// Usage :
+// Usage:
 //	promix.fail(<?> reason)
 //
-// Returns :
+// Returns:
 //	<Promise>
 //
 function fail ( reason ) {
@@ -243,9 +244,9 @@ function fail ( reason ) {
 // supplied object. This lets us do cool things like:
 //
 // promix.compose({
-//	foo : fooPromise,
-//	bar : 2,
-//	baz : bazPromise
+//	foo: fooPromise,
+//	bar: 2,
+//	baz: bazPromise
 // }).then(fn);
 //
 // Returns
@@ -253,20 +254,35 @@ function fail ( reason ) {
 //
 function compose ( object ) {
 	var
-		chain = new Exposure();
+		chain = new Exposure(),
+		promise = new Promise(),
+		keys = Object.keys(object);
 
-	Object.keys(object).map(function map ( key ) {
-		chain.and(object [key]).as(key);
+	keys.forEach(function each(key) {
+		chain.and(object[key]).as(key);
 	});
-	return chain;
+
+	chain.then(function handler(results) {
+		var result = { };
+
+		keys.forEach(function each(key) {
+			result[key] = results[key];
+		});
+
+		promise.fulfill(result);
+	});
+
+	chain.otherwise(promise.reject);
+
+	return promise;
 }
 
 // Convenience wrapper to concatenate promises into a single StringPromise.
 //
-// Usage :
+// Usage:
 //	promix.concat(<string || Promise> arg1 [, arg2, arg3, arg4, ...])
 //
-// Returns :
+// Returns:
 //	<StringPromise>
 //
 function concat ( ) {
@@ -282,10 +298,10 @@ function concat ( ) {
 
 // Tell Promix to hold onto a series of values to pass into promix.do().
 //
-// Usage :
+// Usage:
 //	promix.with(arg1 [, arg2, arg3, arg4, ...])
 //
-// Returns :
+// Returns:
 //	$Promix
 //
 function _with ( ) {
@@ -296,10 +312,10 @@ function _with ( ) {
 
 // Execute a list of functions in sequence, cascading the return value.
 //
-// Usage :
+// Usage:
 //	promix.do(fn1 [, fn2, fn3, fn4, ...])
 //
-// Returns :
+// Returns:
 //	<Promise>
 //
 function _do ( ) {
@@ -356,4 +372,8 @@ function interpose(success, callback, context) {
 			callback.call(context, error);
 		}
 	};
+}
+
+function toJSON(promise) {
+	return types.toObject(promise).toJSON();
 }
