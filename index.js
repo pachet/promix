@@ -1,12 +1,6 @@
 var Chain = require('./lib/chain'),
 	Promise = require('./lib/promise'),
-	Stats = require('./lib/stats'),
-	ArrayPromise = require('./lib/types/array'),
-	NumberPromise = require('./lib/types/number'),
-	StringPromise = require('./lib/types/string'),
-	ObjectPromise = require('./lib/types/object'),
-	BooleanPromise = require('./lib/types/boolean'),
-	slice = require('./lib/util/slice');
+	Stats = require('./lib/stats');
 
 function createChain() {
 	var chain = new Chain();
@@ -56,29 +50,6 @@ function compose(object) {
 	return promise;
 }
 
-function join(success, failure) {
-	return function applyJoin() {
-		var args = slice(arguments),
-			error = args.shift();
-
-		if (error) {
-			return void failure(error);
-		}
-
-		return void success.apply(null, args);
-	};
-}
-
-function next(value) {
-	var promise = new Promise();
-
-	setTimeout(function deferred() {
-		promise.fulfill(value);
-	}, 0);
-
-	return promise;
-}
-
 function getStats(name) {
 	return Stats.get(name);
 }
@@ -87,51 +58,13 @@ function printStats(name) {
 	return Stats.print(name);
 }
 
-function toString(promise) {
-	return new StringPromise(promise);
-}
-
-function toNumber(promise) {
-	return new NumberPromise(promise);
-}
-
-function toArray(promise) {
-	return new ArrayPromise(promise);
-}
-
-function toJSON(promise) {
-	var json_promise = new Promise();
-
-	promise.then(function success(result) {
-		try {
-			json_promise.fulfill(JSON.stringify(result));
-		} catch(error) {
-			json_promise.break(error);
-		}
-	}, json_promise.break);
-
-	return json_promise;
-}
-
-function toObject(promise) {
-	return new ObjectPromise(promise);
-}
-
-
 module.exports = {
 	chain: createChain,
 	when: createChain,
 	promise: createPromise,
 	wrap: wrap,
 	compose: compose,
-	join: join,
-	next: next,
+	version: require('./package.json').version,
 	getStats: getStats,
-	printStats: printStats,
-	toString: toString,
-	toNumber: toNumber,
-	toArray: toArray,
-	toJSON: toJSON,
-	toObject: toObject,
-	version: require('./package.json').version
+	printStats: printStats
 };

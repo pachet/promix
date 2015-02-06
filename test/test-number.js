@@ -6,7 +6,7 @@ function add ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).add(2, 3, 4).then(function ( result ) {
+	promix.toNumber(promise).plus(2, 3, 4).then(function ( result ) {
 		test.equals(result, 14);
 		test.done();
 	}, function ( error ) {
@@ -23,7 +23,7 @@ function subtract ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).subtract(1, 2).then(function ( result ) {
+	promix.toNumber(promise).minus(1, 2).then(function ( result ) {
 		test.equals(result, 3);
 		test.done();
 	}, function ( error ) {
@@ -40,7 +40,7 @@ function multiply ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).multiplyBy(5).then(function ( result ) {
+	promix.toNumber(promise).times(5).then(function ( result ) {
 		test.equals(result, 30);
 		test.done();
 	}, function ( error ) {
@@ -74,7 +74,7 @@ function round ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).multiplyBy(2).round().then(function ( result ) {
+	promix.toNumber(promise).times(2).round().then(function ( result ) {
 		test.equals(result, 3);
 		test.done();
 	}, function ( error ) {
@@ -108,7 +108,7 @@ function floor ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).multiplyBy(2).add(0.6).floor().then(function ( result ) {
+	promix.toNumber(promise).times(2).plus(0.6).floor().then(function ( result ) {
 		test.equals(result, 4);
 		test.done();
 	}, function ( error ) {
@@ -125,7 +125,7 @@ function average ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).add(2).average(4, 5, 6).then(function ( result ) {
+	promix.toNumber(promise).plus(2).average(4, 5, 6).then(function ( result ) {
 		test.equals(result, 4.5);
 		test.done();
 	}, function ( error ) {
@@ -137,12 +137,12 @@ function average ( test ) {
 	}, 0);
 }
 
-function mod ( test ) {
+function modulus ( test ) {
 	var
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).subtract(2).mod(5).then(function ( result ) {
+	promix.toNumber(promise).minus(2).modulus(5).then(function ( result ) {
 		test.equals(result, 3);
 		test.done();
 	}, function ( error ) {
@@ -160,7 +160,7 @@ function pow ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).add(2).pow(3).then(function ( result ) {
+	promix.toNumber(promise).plus(2).power(3).then(function ( result ) {
 		test.equals(result, 8);
 		test.done();
 	}, function ( error ) {
@@ -177,7 +177,7 @@ function abs ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).add(2).abs().then(function ( result ) {
+	promix.toNumber(promise).plus(2).abs().then(function ( result ) {
 		test.equals(result, 7.5);
 		test.done();
 	}, function ( error ) {
@@ -194,7 +194,7 @@ function max ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).add(2).max(5, 7, 9).then(function ( result ) {
+	promix.toNumber(promise).plus(2).max(5, 7, 9).then(function ( result ) {
 		test.equals(result, 9);
 		test.done();
 	}, function ( error ) {
@@ -211,7 +211,7 @@ function min ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).add(2).min(5, 7, 9).then(function ( result ) {
+	promix.toNumber(promise).plus(2).min(5, 7, 9).then(function ( result ) {
 		test.equals(result, 4);
 		test.done();
 	}, function ( error ) {
@@ -263,7 +263,7 @@ function toString ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toNumber(promise).add(2).toString().concat('tails').then(function ( result ) {
+	promix.toNumber(promise).plus(2).toString().concat('tails').then(function ( result ) {
 		test.equals(result, '9tails');
 		test.done();
 	}, function ( error ) {
@@ -322,7 +322,7 @@ module.exports = {
 	ceil : ceil,
 	floor : floor,
 	average : average,
-	mod : mod,
+	modulus : modulus,
 	pow : pow,
 	abs : abs,
 	max : max,

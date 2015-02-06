@@ -25,10 +25,10 @@ function invalid_number ( test ) {
 
 	test.expect(1);
 	promix.toNumber(promise).add(2, 3, 4).then(function ( result ) {
-		test.equals(isNaN(result), true);
+		test.equals(result, 9);
 		test.done();
 	});
-	queue(promise, { });
+	queue(promise, []);
 }
 
 function invalid_array ( test ) {

@@ -1,291 +1,284 @@
-var promix = require('../index.js');
+var
+	promix = require('../index.js');
 
-function queue(promise, value, delay) {
-	setTimeout(function() {
-		promise.fulfill(value);
-	}, delay || 0);
-}
 
-function charAt(test) {
+function charAt ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).charAt(2).then(function(result) {
+	promix.toString(promise).charAt(2).then(function ( result ) {
 		test.equals(result, 'k');
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
 
-	queue(promise, 'pikachu');
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu');
+	}, 0);
 }
 
-function concat(test) {
+function concat ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
+	promix.toString(promise).concat(' is', ' a', ' lightning', ' pokemon').then(function ( result ) {
+		test.equals(result, 'pikachu is a lightning pokemon');
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
 
-	var promise = promix.promise();
-
-	promix.toString(promise)
-		.concat(' is', ' a', ' lightning', ' pokemon')
-		.then(function(result) {
-			test.equals(result, 'pikachu is a lightning pokemon');
-			test.done();
-		}, function(error) {
-			test.ok(false, 'We should not be here');
-			test.done();
-		});
-
-	queue(promise, 'pikachu');
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu');
+	}, 0);
 }
 
-function indexOf(test) {
+function indexOf ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).indexOf('chu').then(function(result) {
+	promix.toString(promise).indexOf('chu').then(function ( result ) {
 		test.equals(result, 4);
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, 'pikachu');
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu');
+	}, 0);
 }
 
-function length(test) {
+function length ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).length().then(function(result) {
+	promix.toString(promise).length().then(function ( result ) {
 		test.equals(result, 7);
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, 'pikachu');
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu');
+	}, 0);
 }
 
-function match(test) {
+function match ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).match(/charizard/).then(function(result) {
+	promix.toString(promise).match(/charizard/).then(function ( result ) {
 		test.equals(result [0], 'charizard');
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, 'pikachu charizard wartortle');
-}
-
-function replace(test) {
-	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise)
-		.replace(/charizard/g, 'beedrill')
-		.then(function(result) {
-			test.equals(result, 'pikachu beedrill wartortle');
-			test.done();
-		}, function(error) {
-			test.ok(false, 'We should not be here');
-			test.done();
-		});
-
-	queue(promise, 'pikachu charizard wartortle');
-}
-
-function split(test) {
-	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).split(' ').then(function(result) {
-		test.equals(result.join('_'), 'pikachu_charizard_wartortle');
-		test.done();
-	}, function(error) {
-		test.ok(false, 'We should not be here');
-		test.done();
-	});
-
-	queue(promise, 'pikachu charizard wartortle');
-}
-
-function slice(test) {
-	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).slice(8).then(function(result) {
-		test.equals(result, 'charizard wartortle');
-		test.done();
-	}, function(error) {
-		test.ok(false, 'We should not be here');
-		test.done();
-	});
-
-	queue(promise, 'pikachu charizard wartortle');
-
-	setTimeout(function() {
+	setTimeout(function ( ) {
 		promise.fulfill('pikachu charizard wartortle');
 	}, 0);
 }
 
-function substr(test) {
+function replace ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).substr(8, 9).then(function(result) {
-		test.equals(result, 'charizard');
+	promix.toString(promise).replace(/charizard/g, 'beedrill').then(function ( result ) {
+		test.equals(result, 'pikachu beedrill wartortle');
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, 'pikachu charizard wartortle');
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu charizard wartortle');
+	}, 0);
 }
 
-function substring(test) {
+function split ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).substring(8, 17).then(function(result) {
-		test.equals(result, 'charizard');
+	promix.toString(promise).split(' ').then(function ( result ) {
+		test.equals(result.join('_'), 'pikachu_charizard_wartortle');
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, 'pikachu charizard wartortle');
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu charizard wartortle');
+	}, 0);
 }
 
-function toLowerCase(test) {
+function slice ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).toLowerCase().then(function(result) {
-		test.equals(result, 'charizard');
+	promix.toString(promise).slice(8).then(function ( result ) {
+		test.equals(result, 'charizard wartortle');
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, 'CHARIZARD');
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu charizard wartortle');
+	}, 0);
 }
 
-function toUpperCase(test) {
+function substr ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
+	promix.toString(promise).substr(8, 9).then(function ( result ) {
+		test.equals(result, 'charizard');
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu charizard wartortle');
+	}, 0);
+}
 
-	var promise = promix.promise();
+function substring ( test ) {
+	var
+		promise = promix.promise();
 
-	promix.toString(promise).toUpperCase().then(function(result) {
+	test.expect(1);
+	promix.toString(promise).substring(8, 17).then(function ( result ) {
+		test.equals(result, 'charizard');
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+	setTimeout(function ( ) {
+		promise.fulfill('pikachu charizard wartortle');
+	}, 0);
+}
+
+function toLowerCase ( test ) {
+	var
+		promise = promix.promise();
+
+	test.expect(1);
+	promix.toString(promise).toLowerCase().then(function ( result ) {
+		test.equals(result, 'charizard');
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+	setTimeout(function ( ) {
+		promise.fulfill('CHARIZARD');
+	}, 0);
+}
+
+function toUpperCase ( test ) {
+	var
+		promise = promix.promise();
+
+	test.expect(1);
+	promix.toString(promise).toUpperCase().then(function ( result ) {
 		test.equals(result, 'CHARIZARD');
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, 'charizard');
+	setTimeout(function ( ) {
+		promise.fulfill('charizard');
+	}, 0);
 }
 
-function trim(test) {
+function trim ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).trim().then(function(result) {
+	promix.toString(promise).trim().then(function ( result ) {
 		test.equals(result, 'charizard');
 		test.done();
-	}, function(error) {
+	}, function ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, ' charizard ');
+	setTimeout(function ( ) {
+		promise.fulfill('  charizard  ');
+	}, 0);
 }
 
-function parse(test) {
+
+function parseFloat ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).parse().then(function(result) {
-		test.equals(result.foo, 'bar');
-		test.done();
-	}, function(error) {
-		test.ok(false, error.toString());
-	});
-
-	queue(promise, '{"foo": "bar"}');
-}
-
-function parseFloat(test) {
-	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).parseFloat().then(function(result) {
+	promix.toString(promise).parseFloat().then(function ( result ) {
 		test.equals(result, 1.2345);
 		test.done();
-	}, function(error) {
-		test.ok(false, error.toString());
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, '1.2345abc');
+	setTimeout(function ( ) {
+		promise.fulfill('1.2345abc');
+	}, 0);
 }
 
 
-function parseInt(test) {
+function parseInt ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promix.toString(promise).parseInt(10).then(function(result) {
+	promix.toString(promise).parseInt(10).then(function ( result ) {
 		test.equals(result, 123);
 		test.done();
-	}, function(error) {
-		test.ok(false, error.toString());
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	queue(promise, '123px');
+	setTimeout(function ( ) {
+		promise.fulfill('123px');
+	}, 0);
 }
+
+
+
 
 
 module.exports = {
-	charAt: charAt,
-	concat: concat,
-	indexOf: indexOf,
-	length: length,
-	match: match,
-	replace: replace,
-	split: split,
-	slice: slice,
-	substr: substr,
-	substring: substring,
-	toLowerCase: toLowerCase,
-	toUpperCase: toUpperCase,
-	trim: trim,
-	parse: parse,
-	parseFloat: parseFloat,
-	parseInt: parseInt
+	charAt : charAt,
+	concat : concat,
+	indexOf : indexOf,
+	length : length,
+	match : match,
+	replace : replace,
+	split : split,
+	slice : slice,
+	substr : substr,
+	substring : substring,
+	toLowerCase : toLowerCase,
+	toUpperCase : toUpperCase,
+	trim : trim,
+	parseFloat : parseFloat,
+	parseInt : parseInt
 };

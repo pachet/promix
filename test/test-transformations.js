@@ -26,7 +26,7 @@ function array_to_number ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toArray(promise).reverse().toString().split(',').join('').parseInt().then(function ( result ) {
+	promix.toArray(promise).reverse().toString().split(',').join('').toInt().then(function ( result ) {
 		test.equals(result, 123);
 		test.done();
 	});
@@ -39,7 +39,7 @@ function string_to_number ( test ) {
 		promise = promix.promise();
 
 	test.expect(1);
-	promix.toString(promise).parseFloat().add(2).multiplyBy(3).toPrecision(3).parseFloat().then(function ( result ) {
+	promix.toString(promise).toFloat().plus(2).times(3).toPrecision(3).toFloat().then(function ( result ) {
 		test.equals(result, 12.3);
 		test.done();
 	});
