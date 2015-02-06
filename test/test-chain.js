@@ -6,6 +6,7 @@ var public_methods = [
 	'andCall',
 	'then',
 	'thenCall',
+	'thenEach',
 	'otherwise',
 	'as',
 	'bind',
@@ -32,6 +33,7 @@ var tests = {
 	callback: callback,
 	omit: omit,
 	each: each,
+	thenEach: thenEach,
 	eachRecursive: eachRecursive,
 	end: end,
 	name: name,
@@ -40,15 +42,9 @@ var tests = {
 	pipe: pipe,
 	last: last,
 	returnPromise: returnPromise,
-	/*
 	promise_end: promise_end,
 	promise_compose_success: promise_compose_success,
 	promise_compose_failure: promise_compose_failure,
-	introspect_success: introspect_success,
-	returned: returned,
-	explicit_monotonic_returned: explicit_monotonic_returned,
-	thenEach: thenEach,
-	*/
 };
 
 module.exports = tests;
@@ -613,7 +609,7 @@ function name(test) {
 }
 
 function time(test) {
-	test.expect(2);
+	test.expect(3);
 
 	var chain = promix.chain();
 
@@ -639,16 +635,18 @@ function time(test) {
 		var stats = promix.getStats('foo.bar');
 
 		test.equals(
-			stats.total,
+			stats.count,
 			2
 		);
+
+		test.ok(stats.total >= 200);
 
 		test.done();
 	});
 }
 
 function done(test) {
-	test.expect(1);
+	test.expect(0);
 
 	var chain = promix.chain();
 
@@ -661,7 +659,9 @@ function done(test) {
 		});
 	});
 
-	test.done();
+	setTimeout(function() {
+		test.done();
+	}, 0);
 }
 
 function returnPromise(test) {
@@ -818,7 +818,6 @@ function promise_compose_failure ( test ) {
 	chain.and(service_two, promise_three, 'baz', promise_four, 'wat').as('two');
 	chain.then(function ( results ) {
 		test.ok(false, 'We should not be here');
-		test.done();
 	});
 	chain.otherwise(function ( error ) {
 		test.equal(error.toString(), 'Error: This promise will be rejected');
@@ -835,93 +834,9 @@ function promise_compose_failure ( test ) {
 		promise_three.fulfill('vaporeon');
 	}, 0);
 	setTimeout(function ( ) {
-		promise_four.reject(new Error('This promise will be rejected'));
+		promise_four.break(new Error('This promise will be rejected'));
 	}, 0);
-}
 
-
-
-function introspect_success ( test ) {
-	var
-		chain = promix.when();
-
-	function async_one ( value, callback ) {
-		setTimeout(function ( ) {
-			return void callback(null, value * 2);
-		}, 0);
-	}
-
-	function async_two ( value, callback ) {
-		setTimeout(function ( ) {
-			return void callback(null, [null, null, value * 4]);
-		}, 0);
-	}
-
-	function async_three ( value, callback ) {
-		setTimeout(function ( ) {
-			return void callback(null, { value: value + 1 });
-		}, 0);
-	}
-
-	function async_four ( a, b, c, callback ) {
-		test.equal(a, 2);
-		test.equal(b, 4);
-		test.equal(c, 2);
-		setTimeout(function ( ) {
-			return void callback(null, c * b - a);
-		}, 0);
-	}
-
-	test.expect(4);
-	chain.and(async_one, 1).as('one');
-	chain.and(async_two, 1).as('two');
-	chain.and(async_three, 1).as('three');
-	chain.then(async_four, chain.one, chain.two(2), chain.three('value'));
-	chain.as('check');
-	chain.then(function ( results ) {
-		test.equal(results.check, 6);
-		test.done();
-	});
-	chain.otherwise(function ( error ) {
-		test.ok(false, 'We should not be here');
-		test.done();
-	});
-}
-
-function returned ( test ) {
-	var
-		chain = promix.when();
-
-	function asyncAndReturn ( a, b, callback ) {
-		setTimeout(callback.bind(this, null, a + b));
-		return a + b;
-	}
-
-	test.expect(1);
-	chain.and(asyncAndReturn, 1, 2);
-	chain.as('foo');
-	chain.then(function ( results ) {
-		test.equals(results [0], chain.foo.returned);
-		test.done();
-	});
-}
-
-function explicit_monotonic_returned ( test ) {
-	test.expect(3);
-	var chain = promix.chain();
-	chain.then(function ( results ) {
-		test.equals(results.length, 0);
-		return 'foo';
-	});
-	chain.then(function ( results ) {
-		test.equals(results.length, 1);
-		return 'bar';
-	});
-	chain.then(function ( results ) {
-		test.equals(results.length, 2);
-		test.done();
-	});
-	chain.otherwise(test.ok, false, 'we should not be here');
 }
 
 
@@ -981,7 +896,9 @@ function pipe(test) {
 	test.expect(6);
 
 	function asyncOne(str, callback) {
-		setTimeout(callback.bind(this, null, str), 0);
+		setTimeout(function() {
+			callback(null, str.split('').reverse().join(''));
+		}, 0);
 	}
 
 	function asyncTwo(str1, str2, callback) {
@@ -1001,7 +918,7 @@ function pipe(test) {
 		}, 0);
 	}
 
-	promix.chain(asyncOne, 'foo')
+	promix.chain(asyncOne, 'oof')
 		.pipe(asyncTwo, 'bar')
 		.pipe(asyncThree, 'baz', 'wat')
 		.pipe(function finisher ( result ) {
