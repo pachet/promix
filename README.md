@@ -635,7 +635,7 @@ var chain = promix.chain();
 chain.time('bowser');
 chain.and(oneSecond).as('foo');
 chain.and(oneSecond).as('foo');
-chain.and(twoSeconds).as(bar');
+chain.and(twoSeconds).as('bar');
 chain.then(function(results) {
 	chain.done();
 
