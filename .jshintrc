@@ -1,0 +1,131 @@
+{
+	// Stop on first error:
+	"passfail": false,
+
+	// Maximum errors before stopping:
+	"maxerr": 100,
+
+	// Maximum allowed line length:
+	"maxlen": 80,
+
+	// Groups of globals to ignore en masse:
+	"browser": true,
+	"node": true,
+	"jquery": true,
+
+	// Any additional globals that we need ignored:
+	"predef": [
+		"require",
+		"process",
+		"console",
+		"_",
+		"requireClient",
+		"requireServer",
+		"define",
+		"template",
+		"translate"
+	],
+
+	"-W020": true,
+	"-W079": true,
+
+	// Allow debugger statements e.g. browser breakpoints.
+	"debug": false,
+	// Allow development statements e.g. `console.log();`.
+	"devel": false,
+
+	// Require `use strict` pragma in every file.
+	"strict": false,
+	// Allow global "use strict" (also enables 'strict').
+	"globalstrict": false,
+
+	// require semicolons:
+	"asi": false,
+
+	// allow unsafe line breaks:
+	"laxbreak": true,
+
+	// allow bitwise operators:
+	"bitwise": false,
+
+	// tolerate assignments within loops:
+	"boss": true,
+
+	// require use of strict equality operator `===`:
+	"eqeqeq": true,
+
+	// prevent loose equivalence against null eg `foo == null`:
+	"eqnull": false,
+
+	// prevent usage of `eval()`:
+	"evil": false,
+
+  	// tolerate `ExpressionStatement` as Programs.
+	"expr": false,
+
+	// tolerate `for in` loops without `hasOwnPrototype`:
+	"forin": false,
+
+	// require IIFE's to be wrapped in parens e.g. `( function(){}() );`:
+	"immed": false,
+
+	// prevent variable use before definition:
+	"latedef": false,
+
+	// allow multi-line strings, whatever:
+	"multistr": true,
+
+	// allow functions to be defined within loops:
+	"loopfunc": true,
+
+	// prevent usage of `arguments.caller` and `arguments.callee`:
+	"noarg": true,
+
+	// prohibit `.` and `[^...]` in regular expressions:
+	"regexp": true,
+
+	// allow unescaped last dash in regex i.e. `[-...]`.
+	"regexdash": false,
+
+	// allow script-targeted URLs:
+	"scripturl": true,
+
+	// allow reassignment of variables later in code e.g. `var x=1; x=2;`.
+	"shadow": false,
+
+	// tolerate `new function () { ... };` and `new Object;`:
+	"supernew": false,
+
+	// require all non-global variables be declared before they are used:
+	"undef": true,
+
+	// require capitalization of all constructor functions e.g. `new F()`:
+	"newcap": true,
+
+	// prevent use of empty blocks:
+	"noempty": false,
+
+	// prevent use of constructors for side-effects:
+	"nonew": true,
+
+	// prohibit use of initial or trailing underscores in identifier names:
+	"nomen": false,
+
+	// allow only one `var` statement per function.
+	"onevar": false,
+
+	// prohibit use of `++` & `--`:
+	"plusplus": false,
+
+	// tolerate all forms of subscript notation besides dot notation e.g. `dict['key']` instead of `dict.key`:
+	"sub": true,
+
+	// prohibit trailing whitespaces:
+	"trailing": true,
+
+	// check against strict whitespace and indentation rules:
+	"white": false,
+
+	// require curly braces around functions and blocks:
+	"curly": false
+}
