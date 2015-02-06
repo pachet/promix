@@ -1,182 +1,222 @@
-var promix = require('../index');
+var
+	promix = require('../index');
 
-function then(test) {
+function then ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(4);
-
-	var promise = promix.promise();
-
-	promise.then(function(result) {
+	promise.then(function ( result ) {
 		test.equals(result, 1);
 		return 2;
-	}).then(function(result) {
+	}).then(function ( result ) {
 		test.equals(result, 2);
 		return 3;
-	}).then(function(result) {
+	}).then(function ( result ) {
 		test.equals(result, 3);
 		return 4;
-	}).then(function(result) {
+	}).then(function ( result ) {
 		test.equals(result, 4);
 		test.done();
 	});
 
-	setTimeout(function() {
+	setTimeout(function ( ) {
 		promise.fulfill(1);
 	}, 0);
 
 }
 
-function cascade(test) {
+function cascade ( test ) {
+	var
+		promise = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promise.then(function(result) {
+	promise.then(function ( result ) {
 		test.ok(false, 'we should not be here');
-	}).then(function(result) {
+	}).then(function ( result ) {
 		test.ok(false, 'we should not be here');
-	}).then(function(result) {
+	}).then(function ( result ) {
 		test.ok(false, 'we should not be here');
-	}).then(function(result) {
+	}).then(function ( result ) {
 		test.ok(false, 'we should not be here');
-	}).then(function(result) {
+	}).then(function ( result ) {
 		test.ok(false, 'we should not be here');
-	}, function(error) {
+	}, function ( error ) {
 		test.equals(error.toString(), 'Error: arbitrary error');
 		test.done();
 	});
 
-	setTimeout(function() {
+	setTimeout(function ( ) {
 		promise.reject(new Error('arbitrary error'));
 	}, 0);
 }
 
-function fulfill(test) {
+function fulfill ( test ) {
+	var
+		deferred = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promise.then(function success(result) {
+	deferred.then(function success ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
 		test.done();
-	}, function failure(error) {
+	}, function failure ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	promise.fulfill('This promise will be fulfilled');
+	return void deferred.fulfill('This promise will be fulfilled');
 }
 
-function reject(test) {
+function reject ( test ) {
+	var
+		deferred = promix.promise();
+
 	test.expect(1);
-
-	var promise = promix.promise();
-
-	promise.then(function(result) {
+	deferred.then(function success ( result ) {
 		test.ok(false, 'We should not be here');
 		test.done();
-	}, function(error) {
+	}, function failure ( error ) {
 		test.equal(error.toString(), 'Error: This promise will be rejected');
 		test.done();
 	});
-
-	promise.reject(new Error('This promise will be rejected'));
+	deferred.reject(new Error('This promise will be rejected'));
 }
 
-function fulfillFulfill(test) {
-	var promise = promix.promise();
+function fulfill_fulfill ( test ) {
+	var
+		deferred = promix.promise();
 
 	test.expect(2);
-
-	promise.then(function(result) {
+	deferred.then(function success_one ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
 	});
-
-	promise.then(function(result) {
+	deferred.then(function success_two ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
 		test.done();
-	}, function(error) {
+	}, function failure ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	promise.fulfill('This promise will be fulfilled');
+	return void deferred.fulfill('This promise will be fulfilled');
 }
 
 
-function rejectReject(test) {
+function reject_reject ( test ) {
+	var
+		deferred = promix.promise();
+
 	test.expect(2);
-
-	var promise = promix.promise();
-
-	promise.then(function(result) {
+	deferred.then(function success_one ( result ) {
 		test.ok(false, 'We should not be here');
-	}, function(error) {
+	}, function error_one ( error ) {
 		test.equal(error.toString(), 'Error: This promise will be rejected');
 	});
-
-	promise.then(function(result) {
+	deferred.then(function success_two ( result ) {
 		test.ok(false, 'We should not be here');
-	}, function(error) {
+	}, function error_two ( error ) {
 		test.equal(error.toString(), 'Error: This promise will be rejected');
 		test.done();
 	});
-
-	promise.reject(new Error('This promise will be rejected'));
+	return void deferred.reject(new Error('This promise will be rejected'));
 }
 
-function fulfillReject(test) {
-	var promise1 = promix.promise(),
-		promise2;
+function fulfill_reject ( test ) {
+	var
+		deferred_one = promix.promise(),
+		deferred_two;
 
 	test.expect(2);
 
-	promise2 = promise1.then(function(result) {
+	deferred_two = deferred_one.then(function success_one ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
 		return result;
-	}, function(error) {
+	}, function failure_one ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
-	promise1.fulfill('This promise will be fulfilled');
-
-	promise2.then(function(result) {
+	deferred_one.fulfill('This promise will be fulfilled');
+	deferred_two.then(function success_two ( result ) {
 		test.equal(result, 'This promise will be fulfilled');
 		test.done();
-	}, function(error) {
+	}, function failure_two ( error ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
 }
 
-function rejectFulfill(test) {
-	var promise1 = promix.promise(),
-		promise2;
+function reject_fulfill ( test ) {
+	var
+		deferred_one = promix.promise(),
+		deferred_two;
 
 	test.expect(1);
-	promise2 = promise1.then(function success_one(result) {
+	deferred_two = deferred_one.then(function success_one ( result ) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
-	promise1.reject(new Error('This promise will be rejected'));
-	promise2.then(function success_two(result) {
+	deferred_one.reject(new Error('This promise will be rejected'));
+	deferred_two.then(function success_two ( result ) {
 		test.ok(false, 'We should not be here');
 		test.done();
-	}, function failure_two(error) {
+	}, function failure_two ( error ) {
 		test.equal(error.toString(), 'Error: This promise will be rejected');
 		test.done();
 	});
 }
 
-function fn(test) {
+function sync_fulfill ( test ) {
+	var
+		promise = promix.promise(),
+		timer;
+
+	test.expect(1);
+	timer = setTimeout(function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, 0);
+	promise.then(function ( result ) {
+		clearTimeout(timer);
+		test.equals(result, 'one');
+		test.done();
+	}, function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	});
+
+	promise.fulfill('one').sync();
+}
+
+
+function sync_reject ( test ) {
+	var
+		promise = promix.promise(),
+		timer;
+
+	test.expect(1);
+	timer = setTimeout(function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, 0);
+	promise.then(function ( result ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, function ( error ) {
+		clearTimeout(timer);
+		test.equals(error.toString(), 'Error: an arbitrary error');
+		test.done();
+	});
+
+	promise.reject(new Error('an arbitrary error')).sync();
+}
+
+function fn ( test ) {
 	test.expect(1);
 
 	var promise = promix.promise();
 
 	promise.fn()('bowser');
 
-	setTimeout(function() {
-		promise.fulfill(function(string) {
+	setTimeout(function deferred ( ) {
+		promise.fulfill(function wrapped ( string ) {
 			test.equals(string, 'bowser');
 			test.done();
 		});
@@ -184,13 +224,15 @@ function fn(test) {
 }
 
 module.exports = {
-	then: then,
-	cascade: cascade,
-	fulfill: fulfill,
-	reject: reject,
-	fulfillFulfill: fulfillFulfill,
-	rejectReject: rejectReject,
-	fulfillReject: fulfillReject,
-	rejectFulfill: rejectFulfill,
+	then : then,
+	cascade : cascade,
+	fulfill : fulfill,
+	reject : reject,
+	fulfill_fulfill : fulfill_fulfill,
+	reject_reject : reject_reject,
+	fulfill_reject : fulfill_reject,
+	reject_fulfill : reject_fulfill,
+	sync_fulfill : sync_fulfill,
+	sync_reject : sync_reject,
 	fn: fn
 };

@@ -1,716 +1,579 @@
-var promix = require('../index'),
-	run = require('../lib/tests/run.js');
+var
+	promix = require('../index');
 
-var public_methods = [
-	'and',
-	'andCall',
-	'then',
-	'thenCall',
-	'otherwise',
-	'as',
-	'bind',
-	'callback',
-	'omit',
-	'each',
-	'end',
-	'name',
-	'time',
-	'done',
-	'pipe'
-];
 
-var tests = {
-	ensurePublicMethodCoverage: ensurePublicMethodCoverage,
-	and: and,
-	andRecursive: andRecursive,
-	andCall: andCall,
-	then: then,
-	thenCall: thenCall,
-	otherwise: otherwise,
-	as: as,
-	bind: bind,
-	callback: callback,
-	omit: omit,
-	each: each,
-	eachRecursive: eachRecursive,
-	end: end,
-	name: name,
-	time: time,
-	done: done,
-	pipe: pipe,
-	last: last,
-	returnPromise: returnPromise,
-	/*
-	promise_end: promise_end,
-	promise_compose_success: promise_compose_success,
-	promise_compose_failure: promise_compose_failure,
-	introspect_success: introspect_success,
-	returned: returned,
-	explicit_monotonic_returned: explicit_monotonic_returned,
-	thenEach: thenEach,
-	*/
-};
-
-module.exports = tests;
-
-function ensurePublicMethodCoverage(test) {
-	test.expect(public_methods.length);
-
-	public_methods.forEach(function each(method) {
-		test.ok(
-			tests[method] !== undefined,
-			'Ensure that a test exists for public method "' + method + '"'
-		);
-	});
-
-	test.done();
+function async ( label, time, callback ) {
+	setTimeout(function ( ) {
+		if ( label === 'bad' || label === 'worse' ) {
+			return void callback(new Error('fail: ' + label));
+		}
+		return void callback(null, 'pass: ' + label);
+	}, time || 0);
 }
 
-function and(test) {
-	test.expect(2);
+function asyncOne ( a, b, callback ) {
+	setTimeout(function ( ) {
+		return callback(null, a + b);
+	}, 1);
+}
 
-	function async(label, callback) {
-		setTimeout(function dispatcher() {
-			return void callback(null, 'pass: ' + label);
-		}, 0);
-	}
+function asyncTwo ( c, d, callback ) {
+	setTimeout(function ( ) {
+		return callback(null, c * d);
+	}, 2);
+}
 
-	var chain = promix.when();
+function errorFn ( label, callback ) {
+	setTimeout(function ( ) {
+		return callback(new Error('This function throws errors (' + label + ')'));
+	}, 30);
+}
 
-	chain.and(async, 'foo').as('foo');
-	chain.and(async, 'bar').as('bar');
-	chain.then(function finisher(results) {
-		run(test, function(test) {
-			// "chain.and()" should store results by index
-			// on the chain results object.
-			test.equal(results[0], 'pass: foo');
+function and ( test ) {
+	var
+		chain = promix.when();
+
+	test.expect(5);
+	chain.and(async, 'foo', 0).as('foo');
+	chain.and(async, 'bar', 1).as('bar');
+	chain.then(function ( results ) {
+		test.equal(results.foo, 'pass: foo');
+		test.equal(results [0], 'pass: foo');
+		test.equal(results.bar, 'pass: bar');
+		test.equal(results [1], 'pass: bar');
+		chain.and(async, 'bad', 0).as('bad');
+		chain.then(function ( results ) {
+			test.ok(false, 'We should not be here');
+			test.done();
 		});
-
-		run(test, function(test) {
-			// "chain.and()" should wait for all steps to complete
-			// before advancing to the next step.
-			test.equal(results[1], 'pass: bar');
+		chain.otherwise(function ( error, results ) {
+			test.equal(error.toString(), 'Error: fail: bad');
+			test.done();
 		});
-
-		test.done();
 	});
 }
 
-function andRecursive(test) {
-	test.expect(2);
+function andRecursive ( test ) {
+	test.expect(3);
 
-	var chain = promix.chain();
+	var
+		chain = promix.chain();
 
-	function foo(number, callback) {
-		chain.and(bar, 'pikachu');
+	function foo ( value, callback ) {
+		test.equals(value, 1);
+		chain.and(bar, 2);
 		callback(null);
 	}
 
-	function bar(pokemon, callback) {
-		callback(null, pokemon.split('').reverse().join(''));
+	function bar ( value, callback ) {
+		test.equals(value, 2);
+		callback(null);
 	}
 
 	chain.and(foo, 1);
-
-	chain.then(function finisher(results) {
-		run(test, function(test) {
-			// Additional actions added while a step is pending
-			// should be included as a child action within that step.
-			test.equals(results.length, 2);
-		});
-
-		run(test, function(test) {
-			// Action results from the same step should be
-			// enumerated in the correct order, even when one
-			// is added within the handler function of a sibling.
-			test.equals(results[1], 'uhcakip');
-		});
-
+	chain.then(function finisher ( results ) {
+		test.equals(results.length, 2);
 		test.done();
 	});
 }
 
-function andCall(test) {
-	test.expect(3);
-
-	var chain = promix.when(),
+function andCall ( test ) {
+	var
+		chain = promix.when(),
 		context = { };
 
-	function monotonic(callback) {
-		var args = arguments,
-			actual_context = this;
-
-		run(test, function(test) {
-			// The only argument passed to this function
-			// should be the continuation callback.
-			test.equal(args.length, 1);
-		});
-
-		run(test, function(test) {
-			// The execution context for the handler
-			// should be the one we specified in ".andCall()"
-			test.equal(actual_context, context);
-		});
-
-		callback(null, 'baz');
-	}
-
-	function async(label, callback) {
-		setTimeout(function dispatcher() {
-			return void callback(null, 'pass: ' + label);
+	function monotonic ( callback ) {
+		test.equal(arguments.length, 1);
+		test.equal(this, context);
+		return void setTimeout(function deferred ( ) {
+			callback(null, 'baz');
 		}, 0);
 	}
 
 	test.expect(3);
 
-	chain.and(async, 'foo').as('foo');
+	chain.and(async, 'foo', 0).as('foo');
 	chain.andCall(monotonic, context).as('bar');
-	chain.then(function finisher(results) {
-		run(test, function(test) {
-			// Straightforward test to make sure
-			// the value supplied by action is
-			// propagated to the results object.
-			test.equals(results.bar, 'baz');
-		});
-
+	chain.then(function finisher ( results ) {
+		test.equals(results.bar, 'baz');
 		test.done();
 	});
 }
 
-function then(test) {
-	test.expect(8);
+function or ( test ) {
+	var
+		chain_one = promix.when(),
+		chain_two = promix.when();
 
-	var chain = promix.when();
-
-	function async(label, time, callback) {
-		setTimeout(function dispatcher() {
-			return void callback(null, 'pass: ' + label);
-		}, time || 0);
-	}
-
-	function asyncWrapper(label, delay, callback) {
-
-		run(test, function(test) {
-			// "chain.then()" should create the correct result aliases
-			test.equal(chain.results.baz, 'pass: baz');
+	test.expect(3);
+	chain_one.and(async, 'one', 16);
+	chain_one.or(async, 'two', 0);
+	chain_one.or(async, 'three', 4).as('or');
+	chain_one.then(function ( results ) {
+		test.equal(results [0], 'pass: two');
+		test.equal(results.or, 'pass: two');
+		chain_two.or(async, 'four', 3);
+		chain_two.or(async, 'five', 2);
+		chain_two.or(async, 'bad', 1).as('or');
+		chain_two.then(function ( results ) {
+			test.ok(false, 'We should not be here');
+			test.done();
 		});
-
-		run(test, function(test) {
-			// "chain.then()" should index results at the correct index
-			test.equal(chain.results[2], 'pass: baz');
+		chain_two.otherwise(function ( error ) {
+			test.equal(error.toString(), 'Error: fail: bad');
+			test.done();
 		});
+	});
+}
 
+function then ( test ) {
+	var
+		chain = promix.when();
+
+	function async_wrapper ( label, delay, callback ) {
+		test.equal(chain.results.baz, 'pass: baz');
+		test.equal(chain.results [2], 'pass: baz');
 		return void async(label, delay, callback);
 	}
 
+	test.expect(8);
 	chain.and(async, 'foo', 1).as('foo');
-
-	chain.then(function interstitial(results) {
+	chain.then(function ( results ) {
 		chain.and(async, 'bar', 1).as('bar');
 	});
-
-	chain.then(function interstitial(results) {
-		test.equal(results[0], 'pass: foo');
+	chain.then(function ( results ) {
+		test.equal(results [0], 'pass: foo');
 		test.equal(results.foo, 'pass: foo');
-		test.equal(results[1], 'pass: bar');
+		test.equal(results [1], 'pass: bar');
 		test.equal(results.bar, 'pass: bar');
 	});
-
 	chain.and(async, 'baz', 3).as('baz');
-	chain.then(asyncWrapper, 'boo', 2).as('boo');
-
-	chain.then(function interstitial(results) {
-		test.equal(results[3], 'pass: boo');
+	chain.then(async_wrapper, 'boo', 2).as('boo');
+	chain.then(function ( results ) {
+		test.equal(results [3], 'pass: boo');
 		test.equal(results.boo, 'pass: boo');
 		test.done();
 	});
-
-	chain.otherwise(function failure(error) {
+	chain.otherwise(function ( error ) {
 		test.ok(false, 'We should not be here.');
 		test.done();
 	});
 }
 
-function thenCall(test) {
-	test.expect(3);
-
-	var chain = promix.when(),
+function thenCall ( test ) {
+	var
+		chain = promix.when(),
 		context = { };
 
-	function async(label, callback) {
-		setTimeout(function dispatcher() {
-			return void callback(null, 'pass: ' + label);
-		}, 0);
-	}
-
-	function monotonic(callback) {
-		var actual_context = this,
-			args = arguments;
-
-		run(test, function(test) {
-			// The context in the monotonic handler
-			// should be the same one we specified.
-			test.equal(actual_context, context);
-		});
-
-		run(test, function(test) {
-			// The only argument passed to the monotonic handler
-			// should be the chain's continuation callback.
-			test.equal(args.length, 1);
-		});
-
-		return void setTimeout(function deferred() {
+	function monotonic ( callback ) {
+		test.equal(this, context);
+		test.equal(arguments.length, 1);
+		return void setTimeout(function deferred ( ) {
 			callback(null, 'baz');
 		}, 0);
 	}
 
-	chain.and(async, 'foo').as('foo');
+	test.expect(3);
+
+	chain.and(async, 'foo', 0).as('foo');
 	chain.thenCall(monotonic, context).as('bar');
-	chain.then(function finisher(results) {
-		run(test, function(test) {
-			// The value returned from the monotonic handler
-			// should be properly enumerated on the results object.
-			test.equals(results.bar, 'baz');
-		});
-
+	chain.then(function finisher ( results ) {
+		test.equals(results.bar, 'baz');
 		test.done();
 	});
 }
 
-function otherwise(test) {
-	test.expect(4);
-
-	run(test, function(test) {
-		// Test to make sure that errors are forwarded to
-		// subsequent error handlers added with ".otherwise()"
-		var chain = promix.chain();
-
-		chain.andCall(function(callback) {
-			callback(new Error('test error 1'));
-		});
-
-		chain.otherwise(function(error) {
-			test.equal(error.toString(), 'Error: test error 1');
-		});
-	});
-
-	run(test, function(test) {
-		// Test to make sure that errors are forwarded to
-		// earlier error handlers added with ".otherwise()"
-		var chain = promix.chain();
-
-		chain.otherwise(function(error) {
-			test.equal(error.toString(), 'Error: test error 2');
-		});
-
-		chain.andCall(function(callback) {
-			callback(new Error('test error 2'));
-		});
-	});
-
-	run(test, function(test) {
-		// If a specified error handler throws its own error
-		// while handling the chain error it is supplied,
-		// the new error should be passed to earlier handlers.
-		var chain = promix.chain();
-
-		chain.otherwise(function(error) {
-			test.equal(error.toString(), 'Error: replaced error');
-		});
-
-		chain.andCall(function(callback) {
-			callback(new Error('original error'));
-		});
-
-		chain.otherwise(function(error) {
-			throw new Error('replaced error');
-		});
-	});
-
-	run(test, function(test) {
-		// If an action throws an error while being executed,
-		// the error should be forwarded to the correct error handler.
-		var chain = promix.chain();
-
-		chain.andCall(function(callback) {
-			throw new Error('test error 3');
-		});
-
-		chain.otherwise(function(error) {
-			test.equal(error.toString(), 'Error: test error 3');
-
-			setTimeout(function() {
-				// Wait until the other tests have finished (hopefully):
-				test.done();
-			}, 10);
-		});
-	});
-
-}
-
-function as(test) {
-	test.expect(4);
-
-	function async(label, callback) {
-		setTimeout(function dispatcher() {
-			return void callback(null, label);
-		}, 0);
-	}
-
-	var chain = promix.chain();
-
-	chain.and(async, 'foo').as('foo');
-	chain.and(async, 'bar').as('bar');
-
-	chain.then(function(results) {
-		test.equals(results.foo, 'foo');
-		test.equals(results[0], results.foo);
-		test.equals(results.bar, 'bar');
-		test.equals(results[1], results.bar);
-
-		test.done();
-	});
-}
-
-function callback(test) {
-	test.expect(6);
-
-	var chain_one = promix.when(),
-		chain_two = promix.when();
-
-	function async(label, time, callback) {
-		setTimeout(function dispatcher() {
-			if (label === 'bad' || label === 'worse') {
-				return void callback(new Error('fail: ' + label));
+function otherwise ( test ) {
+	var
+		one = promix.chain(),
+		two = promix.chain(),
+		three = promix.chain(),
+		four = promix.chain(),
+		complete = 0,
+		context = {
+			name : 'context',
+			handler : function handler ( one, two, error ) {
+				test.equals(one, 'one');
+				test.equals(two, 'two');
+				test.equals(this.name, 'context');
+				goodError('four', error);
 			}
-
-			return void callback(null, 'pass: ' + label);
-		}, time || 0);
-	}
-
-	function handlerOne(error, results) {
-		run(test, function(test) {
-			// Ensure that no error is passed into the callback handler.
-			test.equal(error, null);
-		});
-
-		run(test, function(test) {
-			// Ensure that the correct results object is passed to the handler.
-			test.equal(results [0], 'pass: foo');
-			test.equal(results.foo, 'pass: foo');
-			test.equal(results [1], 'pass: bar');
-			test.equal(results.bar, 'pass: bar');
-		});
-
-		chain_two.and(async, 'bad', 1).as('bad');
-		chain_two.callback(handlerTwo);
-	}
-
-	function handlerTwo(error, results) {
-		run(test, function(test) {
-			// The handler added via .callback()
-			// should be used as the chain's error handler,
-			// if an error actually occurs.
-			test.equal(error.toString(), 'Error: fail: bad');
-		});
-
-		test.done();
-	}
-
-	chain_one.and(async, 'foo', 1).as('foo');
-	chain_one.and(async, 'bar', 2).as('bar');
-	chain_one.callback(handlerOne);
-}
-
-function bind(test) {
-	test.expect(1);
-
-	run(test, function(test) {
-		// Make sure that bound actions are executed
-		// within the proper context.
-		var chain = promix.chain();
-
-		var cat = {
-			sound: 'meow'
 		};
 
-		function talk(callback) {
-			callback(null, this.sound);
+	function goodError ( label, error ) {
+		test.equals(error.toString(), 'Error: fail: bad');
+		complete ++;
+		if ( complete === 4 ) {
+			test.done();
 		}
+	}
 
-		chain.andCall(talk).bind(cat);
-		chain.then(function(results) {
-			test.equal(results[0], 'meow');
+	function badError ( label, error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	}
+
+	test.expect(7);
+	one.and(async, 'foo', 0);
+	one.and(async, 'bad', 0);
+	one.otherwise(badError, 'x_one');
+	one.otherwise(goodError, 'one');
+
+	two.and(async, 'foo', 0);
+	two.otherwise(badError, 'x_two');
+	two.then(async, 'bar', 0);
+	two.and(async, 'bad', 0);
+	two.otherwise(goodError, 'two');
+	two.then(async, 'baz', 0);
+	two.otherwise(badError);
+
+	three.and(async, 'foo', 0);
+	three.otherwise(badError, 'x_three');
+	three.and(async, 'bar', 0);
+	three.and(async, 'bad', 0);
+	three.otherwise(goodError, 'three');
+	three.then(async, 'wat', 0);
+	three.otherwise(badError);
+
+	four.and(async, 'foo', 0);
+	four.otherwise(badError, 'x_four');
+	four.then(async, 'bad', 0);
+	four.otherwise(context.handler, 'one', 'two').bind(context);
+
+
+
+}
+
+function callback ( test ) {
+	var
+		chain_one = promix.when(),
+		chain_two = promix.when();
+
+	function handler_one ( error, results ) {
+		test.equal(error, null);
+		test.equal(results [0], 'pass: foo');
+		test.equal(results.foo, 'pass: foo');
+		test.equal(results [1], 'pass: bar');
+		test.equal(results.bar, 'pass: bar');
+
+		chain_two.and(async, 'bad', 1).as('bad');
+		chain_two.callback(handler_two);
+	}
+
+	function handler_two ( error, results ) {
+		test.equal(error.toString(), 'Error: fail: bad');
+		test.done();
+	}
+
+	test.expect(6);
+	chain_one.and(async, 'foo', 1).as('foo');
+	chain_one.and(async, 'bar', 2).as('bar');
+	chain_one.callback(handler_one);
+}
+
+function stop ( test ) {
+	var
+		chain = promix.when();
+
+	test.expect(0);
+	chain.and(async, 'bar', 2).as('bar');
+	chain.stop();
+	chain.then(function ( results ) {
+		test.ok(false, 'We should not be here.');
+		test.done();
+	});
+	test.done();
+}
+
+function start ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2).stop();
+
+	test.expect(2);
+	chain.and(asyncTwo, 3, 4).then(function ( results ) {
+		test.equal(results [0], 3);
+		test.equal(results [1], 12);
+		test.done();
+	});
+
+	setTimeout(chain.start.bind(chain), 0);
+}
+
+function suppress ( test ) {
+	var
+		chain_one = promix.when(),
+		chain_two = promix.when();
+
+	test.expect(5);
+	chain_one.and(async, 'foo', 1).as('foo');
+	chain_one.and(async, 'bad', 2).as('bad');
+	chain_one.suppress();
+	chain_one.then(function ( results ) {
+		var
+			chain_three;
+
+		test.equal(results [0], 'pass: foo');
+		test.equal(results.foo, 'pass: foo');
+		chain_two.and(async, 'bar', 1).as('bar');
+		chain_two.and(async, 'bad', 2).as('bad');
+		chain_two.suppress(1);
+		chain_two.then(function ( results ) {
+			test.ok(true, 'Made it to 1st chokepoint');
+			chain_two.and(async, 'worse', 3).as('worse');
+		});
+		chain_two.then(function ( results ) {
+			test.ok(false, 'We should not be here.');
+			test.done();
+		});
+		chain_two.otherwise(function ( error ) {
+			test.equal(error.toString(), 'Error: fail: worse');
+			chain_three = promix.when(async, 'bar', 1).as('bar');
+			chain_three.and(async, 'bad', 2).as('bad');
+			chain_three.suppress('bad');
+			chain_three.then(function ( results ) {
+				test.equal(results.bar, 'pass: bar');
+				test.done();
+			});
+			chain_three.otherwise(function ( error ) {
+				test.ok(false, 'We should not be here');
+			});
+		});
+	});
+	chain_one.otherwise(function ( error ) {
+		test.ok(false, 'We should not be here.');
+		test.done();
+	});
+}
+
+function reject ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2).as('foo');
+
+	test.expect(1);
+	chain.then(function ( results ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+	chain.otherwise(function ( error ) {
+		test.equal(error.toString(), 'Error: This is a test error');
+		test.done();
+	});
+	chain.reject(new Error('This is a test error'));
+}
+
+function unsuppress ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2).and(errorFn, 'foo').suppress();
+
+	test.expect(1);
+	chain.then(function ( results ) {
+		chain.and(asyncTwo, 3, 4).and(errorFn, 'bar');
+		chain.unsuppress();
+		chain.otherwise(function ( error ) {
+			test.equal(error.toString(), 'Error: This function throws errors (bar)');
 			test.done();
 		});
 	});
 }
 
-function last(test) {
-	var chain = promix.chain();
+function _break ( test ) {
+	var
+		chain = promix.when(asyncOne, 1, 2);
 
 	test.expect(1);
+	chain.then(function ( results ) {
+		test.equal(results [0], 3);
+		chain.break();
+		setTimeout(function ( ) {
+			test.done();
+		});
+	});
 
-	function asyncOne(a, b, callback) {
-		setTimeout(function dispatcher() {
-			return callback(null, a + b);
-		}, 1);
-	}
-
-	function asyncTwo(c, d, callback) {
-		setTimeout(function dispatcher() {
-			return callback(null, c * d);
-		}, 2);
-	}
-
-	chain.and(asyncOne, 2 , 3);
-	chain.then(asyncTwo, chain.last, chain.last).as('result');
-	chain.then(function interstitial ( results ) {
-		test.equals(results.result, 25);
+	chain.then(function ( results ) {
+		test.ok(false, 'We should not be here');
 		test.done();
 	});
 }
 
-function each(test) {
-	test.expect(6);
+function assert ( test ) {
+	var
+		chain_one = promix.chain(),
+		chain_two = promix.when();
 
-	var chain = promix.chain();
-
-	var values = [
-		'foo',
-		'bar',
-		'baz'
-	];
-
-	var index = 0;
-
-	function checker(value, callback) {
-		test.equals(value, values [index++]);
-
-		callback(null, value.split('').reverse().join(''));
-	}
-
-	function callback(results) {
-		var index = results.length;
-
-		while (index--) {
-			test.equals(
-				results[index],
-				values[index].split('').reverse().join('')
-			);
-		}
-
+	test.expect(3);
+	chain_one.and(async, 'foo', 2).as('foo');
+	chain_one.assert(function ( results ) {
+		return ( results [0] === 'pass: foo' && results.foo === 'pass: foo' );
+	}).as('Test #1 for assertions.');
+	chain_one.then(function ( results ) {
+		test.equal(results [0], 'pass: foo');
+		test.equal(results.foo, 'pass: foo');
+		chain_two.and(async, 'bar', 2).as('bar');
+		chain_two.assert(function ( results ) {
+			return ( results [0] !== 'pass: bar' && results.bar !== 'pass: bar');
+		}).as('Test #2 for assertions.');
+		chain_two.then(function ( results ) {
+			test.ok(false, 'We should not be here');
+			test.done();
+		});
+		chain_two.otherwise(function ( error ) {
+			test.equal(error.toString(), 'Error: Domain failed assertion: Test #2 for assertions.');
+			test.done();
+		});
+	});
+	chain_one.otherwise(function ( results ) {
+		test.ok(false, 'We should not be here.');
 		test.done();
-	}
-
-	chain.each(values, checker);
-	chain.then(callback);
+	});
 }
 
+function time ( test ) {
+	var
+		chain = promix.when();
 
-function eachRecursive(test) {
+	test.expect(8);
+	chain.and(async, 'pikachu', 350).as('pikachu');
+	chain.and(async, 'charizard', 250).as('charizard');
+	test.equal(chain.time('pikachu'), 0);
+	test.equal(chain.time('charizard'), 0);
+	chain.then(function ( results ) {
+		var
+			pikachu_time = chain.time('pikachu'),
+			charizard_time = chain.time('charizard'),
+			total_time = chain.time();
+
+		// we just ballpark the expected minimum values
+		// because sometimes the functions are executed
+		// a millisecond faster than you'd expect (eg, 349)
+		test.ok(pikachu_time >= 345);
+		test.ok(pikachu_time <= 355);
+		test.ok(charizard_time >= 245);
+		test.ok(charizard_time <= 255);
+		test.ok(total_time >= 345);
+		test.ok(total_time <= 355);
+		test.done();
+	});
+}
+
+function until ( test ) {
+	var
+		i = 0,
+		chain = promix.chain();
+
+	function loop ( callback ) {
+		i ++;
+		setTimeout(function ( ) {
+			return callback(null, i);
+		}, 100);
+	}
+
+	test.expect(2);
+	chain.and(loop).as('loop1').until(5).then(function ( results ) {
+		var
+			promise = promix.promise(),
+			chain = promix.chain();
+
+		test.equal(results.loop1, 5);
+		chain.and(loop).as('loop2').until(promise).then(function ( results ) {
+			test.equal(results.loop2, 7);
+			test.done();
+		});
+		setTimeout(function ( ) {
+			promise.fulfill(true);
+		}, 200);
+	});
+
+
+}
+
+function bind ( test ) {
 	test.expect(4);
 
-	function reverse(value) {
-		return value.split('').reverse().join('');
-	}
+	var
+		chain = promix.when(),
+		object = {
+			name : null,
+			create_name : function ( ) {
+				return 'foo';
+			},
+			get_name : function ( callback ) {
+				var
+					resolved_name = this.create_name();
 
-	function foo(value, callback) {
-        return void callback(null, reverse(value));
-    }
+				setTimeout(function ( ) {
+					return void callback(null, resolved_name);
+				}, 10);
+			},
+			check_name : function ( results ) {
+				test.equal(this.name, 'bar');
 
-	function bar(value, callback) {
-		return void callback(null, reverse(value));
-	}
+				var chain2 = promix.chain();
 
-	function getList(path, callback) {
-		setTimeout(function deferred() {
-			return void callback(null, [
-				'pikachu',
-				'charizard',
-				'blastoise'
-			]);
-		});
-	}
+				function foo(value, callback) {
+					var label = this.label;
 
-	var chain = promix.chain();
+					setTimeout(function deferred() {
+						callback(null, label + ' ' + value);
+					}, 0);
+				}
 
-	chain.and(getList, 'test').as('list');
-    chain.each(chain.list, function each(item, callback) {
-        chain.and(foo, item);
-        chain.and(bar, chain.last).as(item);
-		callback(null);
-    });
+				chain.and(foo, 'baz').bind({
+					label: 'foo'
+				}).as('one');
+				chain.and(foo, 'wat').bind({
+					label: 'bar'
+				}).as('two');
+				chain.then(function success(results) {
+					test.equals(results.one, 'foo baz');
+					test.equals(results.two, 'bar wat');
+					test.done();
+				});
+				chain.otherwise(function failure(error) {
+					test.ok(false, 'we should not be here');
+				});
+			}
+		};
 
-    chain.then(function finisher(results) {
-		test.equals(results.length, 10);
-		test.equals(results.pikachu, 'pikachu');
-		test.equals(results.charizard, 'charizard');
-		test.equals(results.blastoise, 'blastoise');
-
-		test.done();
-    });
-}
-
-function omit(test) {
-	test.expect(3);
-
-	function asyncFn(value, callback) {
-		setTimeout(function() {
-			return void callback(null, value);
-		}, 0);
-	}
-
-	var chain = promix.chain();
-
-	chain.and(asyncFn, 'foo').as('foo');
-	chain.and(asyncFn, 'bar').as('bar').omit();
-	chain.and(asyncFn, 'baz').as('baz');
-	chain.and(asyncFn, 'wat').omit();
-	chain.and(asyncFn, 'biz').as('biz');
-	chain.and(asyncFn, 'bam').as('bam').omit();
-
-	chain.then(function(results) {
-		test.equals(results.length, 3);
-		test.equals(results.bar, undefined);
-		test.equals(results.bam, undefined);
+	chain.and(object.get_name).as('object').bind(object);
+	chain.then(function ( results, callback ) {
+		test.equal(results.object, 'foo');
+		object.name = 'bar';
+	});
+	chain.as('test');
+	chain.end(object.check_name).bind(object);
+	chain.otherwise(function ( error ) {
+		test.ok(false, 'We should not be here');
 		test.done();
 	});
-
 }
 
-function end(test) {
-	test.expect(3);
+function promise_returned ( test ) {
+	var
+		chain = promix.chain();
 
-	function asyncFn(value, callback) {
-		setTimeout(function() {
-			return void callback(null, value);
-		}, 0);
+	function promise_service ( value ) {
+		var
+			promise = promix.promise();
+
+		setTimeout(function ( ) {
+			promise.fulfill(value);
+		}, 30);
+		return promise;
 	}
 
-	function endFn(a, b) {
-		test.equals(arguments.length, 2);
-		test.equals(a, 'one');
-		test.equals(b, 'two');
-		test.done();
-	}
-
-	var chain = promix.chain();
-
-	chain.and(asyncFn, 'foo');
-	chain.end(endFn, 'one', 'two');
-}
-
-function name(test) {
-	test.expect(1);
-
-	var chain = promix.chain();
-
-	chain.name('foo');
-
-	test.equals(chain.namespace, 'foo');
-	test.done();
-}
-
-function time(test) {
 	test.expect(2);
-
-	var chain = promix.chain();
-
-	function slowFn(delay, callback) {
-		setTimeout(function() {
-			callback(null);
-		}, delay);
-	}
-
-	function getRandomDelay() {
-		return Math.floor(Math.random() * 200) + 100;
-	}
-
-	chain.time().name('foo');
-	chain.and(slowFn, getRandomDelay()).as('bar');
-	chain.and(slowFn, getRandomDelay()).as('bar');
-	chain.then(function(results) {
-		test.equals(
-			promix.getStats('bar'),
-			undefined
-		);
-
-		var stats = promix.getStats('foo.bar');
-
-		test.equals(
-			stats.total,
-			2
-		);
-
+	chain.and(promise_service, 2).as('one');
+	chain.then(promise_service, 3, 4).as('two');
+	chain.end(function ( results ) {
+		test.equal(results [0], 2);
+		test.equal(results [1], 3);
 		test.done();
 	});
-}
-
-function done(test) {
-	test.expect(1);
-
-	var chain = promix.chain();
-
-	chain.done();
-	chain.and(function() {
-		run(test, function(test) {
-			// Make sure that actions added after "chain.done()"
-			// is called do not get dispatched:
-			test.ok(false);
-		});
+	chain.otherwise(function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
 	});
 
-	test.done();
-}
-
-function returnPromise(test) {
-	test.expect(2);
-
-	run(test, function(test) {
-		// Ensure that promises that are fulfilled
-		// after their parent action is executed
-		// are correctly assigned as the result of that action.
-		function promiseReturner(value) {
-			var promise = promix.promise();
-
-			setTimeout(function() {
-				promise.fulfill(value);
-			}, 0);
-
-			return promise;
-		}
-
-		var chain = promix.chain();
-
-		chain.and(promiseReturner, 'foo');
-		chain.then(function(results) {
-			test.equal(results[0], 'foo');
-		});
-	});
-
-	run(test, function(test) {
-		// Ensure that promises that are rejected
-		// after their parent action is executed
-		// are correctly forwarded to the chain's error handler.
-		function promiseReturner(value) {
-			var promise = promix.promise();
-
-			setTimeout(function() {
-				promise.break(new Error('test error'));
-			}, 10);
-
-			return promise;
-		}
-
-		var chain = promix.chain();
-
-		chain.and(promiseReturner, 'foo');
-		chain.otherwise(function(error) {
-			test.equal(error.toString(), 'Error: test error');
-			test.done();
-		});
-	});
 }
 
 function promise_end ( test ) {
@@ -721,8 +584,8 @@ function promise_end ( test ) {
 	function service_one ( value, callback ) {
 		setTimeout(function ( ) {
 			callback(null, {
-				foo: 'bar',
-				baz: 'wat'
+				foo : 'bar',
+				baz : 'wat'
 			});
 		}, 0);
 	}
@@ -859,7 +722,7 @@ function introspect_success ( test ) {
 
 	function async_three ( value, callback ) {
 		setTimeout(function ( ) {
-			return void callback(null, { value: value + 1 });
+			return void callback(null, { value : value + 1 });
 		}, 0);
 	}
 
@@ -876,8 +739,7 @@ function introspect_success ( test ) {
 	chain.and(async_one, 1).as('one');
 	chain.and(async_two, 1).as('two');
 	chain.and(async_three, 1).as('three');
-	chain.then(async_four, chain.one, chain.two(2), chain.three('value'));
-	chain.as('check');
+	chain.then(async_four, chain.one, chain.two(2), chain.three('value')).as('check');
 	chain.then(function ( results ) {
 		test.equal(results.check, 6);
 		test.done();
@@ -924,6 +786,88 @@ function explicit_monotonic_returned ( test ) {
 	chain.otherwise(test.ok, false, 'we should not be here');
 }
 
+function sync ( test ) {
+	var
+		chain = promix.chain(),
+		timer;
+
+
+	timer = setTimeout(function ( ) {
+		test.ok(false, 'we should not be here');
+		test.done();
+	}, 0);
+
+	test.expect(6);
+	chain.and(function ( arg, callback ) {
+		callback(null, 'one');
+	}, 1).as('one');
+	chain.and(function ( arg, callback ) {
+		callback(null, 'two');
+	}, 2).as('two');
+	chain.and(function ( arg, callback ) {
+		callback(null, 'three');
+	}, 3).as('three');
+	chain.then(function ( arg, callback ) {
+		callback(null, 'four');
+	}, 4).as('four');
+	chain.then(asyncOne, 2, 3).as('five');
+	chain.then(function ( results ) {
+		clearTimeout(timer);
+		test.equals(results.length, 5);
+		test.equals(results.one, 'one');
+		test.equals(results.two, 'two');
+		test.equals(results.three, 'three');
+		test.equals(results.four, 'four');
+		test.equals(results.five, null);
+		test.done();
+	}).sync();
+}
+
+function last ( test ) {
+	var chain = promix.chain();
+
+	test.expect(1);
+
+	chain.and(asyncOne, 2 , 3);
+	chain.then(asyncTwo, chain.last, chain.last).as('result');
+	chain.then(function interstitial ( results ) {
+		test.equals(results.result, 25);
+		test.done();
+	});
+}
+
+function each ( test ) {
+	test.expect(6);
+
+	var chain = promix.chain();
+
+	var values = [
+		'foo',
+		'bar',
+		'baz'
+	];
+
+	var index = 0;
+
+	function checker ( value, callback ) {
+		test.equals(value, values [index++]);
+
+		callback(null, value.split('').reverse().join(''));
+	}
+
+	function callback ( results ) {
+		var index = results.length;
+
+		while ( index -- ) {
+			test.equals(results [index], values [index].split('').reverse().join(''));
+		}
+
+		test.done();
+	}
+
+	chain.each(values, checker);
+	chain.end(callback);
+}
 
 function thenEach ( test ) {
 	test.expect(7);
@@ -937,8 +881,7 @@ function thenEach ( test ) {
 			test.equals(
 				index,
 				frozen_index,
-				'Make sure that `thenEach` sequence is executed serially, ' +
-				'not in parallel'
+				'Make sure that `thenEach` sequence is executed serially, not in parallel'
 			);
 
 			index ++;
@@ -975,16 +918,42 @@ function thenEach ( test ) {
 
 }
 
+function expunge ( test ) {
 
+	function asyncFn ( value, callback ) {
+		setTimeout(function deferred ( ) {
+			return void callback(null, value);
+		});
+	}
 
-function pipe(test) {
+	test.expect(3);
+
+	var chain = promix.chain();
+
+	chain.and(asyncFn, 'foo').as('foo');
+	chain.and(asyncFn, 'bar').as('bar').expunge();
+	chain.and(asyncFn, 'baz').as('baz');
+	chain.and(asyncFn, 'wat').expunge();
+	chain.and(asyncFn, 'biz').as('biz');
+	chain.and(asyncFn, 'bam').as('bam').expunge(true);
+
+	chain.then(function finisher ( results ) {
+		test.equals(results.length, 3);
+		test.equals(results.bar, 'bar');
+		test.equals(results.bam, undefined);
+		test.done();
+	});
+
+}
+
+function pipe ( test ) {
 	test.expect(6);
 
-	function asyncOne(str, callback) {
+	function asyncOne ( str, callback ) {
 		setTimeout(callback.bind(this, null, str), 0);
 	}
 
-	function asyncTwo(str1, str2, callback) {
+	function asyncTwo ( str1, str2, callback ) {
 		test.equals(str1, 'bar');
 		test.equals(str2, 'foo');
 		setTimeout(function ( ) {
@@ -992,7 +961,7 @@ function pipe(test) {
 		}, 0);
 	}
 
-	function asyncThree(str1, str2, str3, callback) {
+	function asyncThree ( str1, str2, str3, callback ) {
 		test.equals(str1, 'baz');
 		test.equals(str2, 'wat');
 		test.equals(str3, 'bar-foo');
@@ -1013,4 +982,36 @@ function pipe(test) {
 		});
 }
 
-
+module.exports = {
+	and : and,
+	andRecursive : andRecursive,
+	andCall : andCall,
+	or : or,
+	then : then,
+	thenCall : thenCall,
+	otherwise : otherwise,
+	callback : callback,
+	'break' : _break,
+	stop : stop,
+	start : start,
+	suppress : suppress,
+	unsuppress : unsuppress,
+	reject : reject,
+	assert : assert,
+	time : time,
+	until : until,
+	bind : bind,
+	sync : sync,
+	promise_returned : promise_returned,
+	promise_end : promise_end,
+	promise_compose_success : promise_compose_success,
+	promise_compose_failure : promise_compose_failure,
+	introspect_success : introspect_success,
+	returned : returned,
+	explicit_monotonic_returned : explicit_monotonic_returned,
+	last : last,
+	each : each,
+	thenEach : thenEach,
+	expunge : expunge,
+	pipe : pipe
+};

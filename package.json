@@ -1,7 +1,7 @@
 {
 	"name": "promix",
 	"description": "Mix promises with callbacks for improved control flow",
-	"version": "0.2.00",
+	"version": "0.1.24",
 	"main": "./index",
 	"author": {
 		"name": "Pachet",
@@ -26,10 +26,10 @@
 	},
 	"devDependencies": {
 		"nodeunit": "0.7.x",
-		"promises-aplus-tests": "2.1.x"
+		"promises-aplus-tests": "*"
 	},
 	"scripts": {
-		"test" : "promises-aplus-tests aplus-adapter.js",
+		"test" : "nodeunit test && promises-aplus-tests aplus-adapter.js",
 		"prepublish" : "browserify index.js > promix.min.js && uglifyjs promix.min.js -o promix.min.js"
 	},
 	"readmeFilename": "README.md"
