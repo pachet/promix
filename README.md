@@ -335,7 +335,7 @@ setTimeout(function ( ) {
 	});
 }, 10);
 
-promix.toObject(promise).get('foo').toNumber().plus(5).then(function ( result ) {
+promix.toObject(promise).get('foo').toNumber().add(5).then(function ( result ) {
 	console.log(result);
 
 	//7
