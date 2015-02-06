@@ -45,37 +45,9 @@ function doAsyncStuff ( a, b, c, callback ) {
 1. [Install](#install)
 2. [Introduction](#introduction)
 4. [Examples](#examples)
-	* [In the browser](#in-the-browser)
-	* [In a service](#in-a-service)
-	* [In a route](#in-a-route)
-	* [As a generator](#as-a-generator)
 3. [API](#api)
-	* **< [Promix](#promix) >**
-	* [promix.chain](#promixwhen-) *
-	* [promix.chain](#promixchain-) *
-	* [promix.promise](#promixpromise)
-	* [promix.toString](#promixtostring)
-	* [promix.toNumber](#promixtonumber)
-	* [promix.toArray](#promixtoarray)
-	* [promix.toObject](#promixtoobject)
-	*
-	* **< [Chain](#chain) >**
-	* [chain.and](#chainand)
-	* [chain.then](#chainthen-) *
-	* [chain.otherwise](#chainotherwise-) *
-	* [chain.end](#chainend-) *
-	* [chain.callback](#chaincallback-) *
-	* [chain.as](#chainas)
-	* [chain.bind](#chainbind)
-	* [chain.name](#chainname)
-	*
-	* **< [StringPromise](#stringpromise) >**
-	* **< [NumberPromise](#numberpromise) >**
-	* **< [ArrayPromise](#arraypromise) >**
-	* **< [ObjectPromise](#objectpromise) >**
 5. [License](#license)
 6. [Notes](#notes)
-	* [Breakpoints](#breakpoints)
 
 <br />
 

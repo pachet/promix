@@ -10,7 +10,6 @@ function pending() {
 	};
 }
 
-
 module.exports = {
 	pending: pending,
 	deferred: pending

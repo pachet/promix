@@ -27,6 +27,7 @@
 	],
 
 	"-W020": true,
+
 	"-W079": true,
 
 	// Allow debugger statements e.g. browser breakpoints.
