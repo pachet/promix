@@ -1,11 +1,13 @@
 var Chain = require('./lib/chain'),
 	Promise = require('./lib/promise'),
 	Stats = require('./lib/stats'),
+	Settings = require('./lib/settings'),
 	ArrayPromise = require('./lib/types/array'),
 	NumberPromise = require('./lib/types/number'),
 	StringPromise = require('./lib/types/string'),
 	ObjectPromise = require('./lib/types/object'),
 	BooleanPromise = require('./lib/types/boolean'),
+	Logger = require('./lib/logger'),
 	slice = require('./lib/util/slice');
 
 function createChain() {
@@ -117,6 +119,10 @@ function toObject(promise) {
 	return new ObjectPromise(promise);
 }
 
+function setLogger(logger) {
+	Logger.wrap(logger);
+}
+
 
 module.exports = {
 	chain: createChain,
@@ -133,5 +139,8 @@ module.exports = {
 	toArray: toArray,
 	toJSON: toJSON,
 	toObject: toObject,
+	enableLogging: Settings.enableLogging,
+	disableLogging: Settings.disableLogging,
+	setLogger: setLogger,
 	version: require('./package.json').version
 };
