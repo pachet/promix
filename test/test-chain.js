@@ -419,7 +419,7 @@ function callback(test) {
 }
 
 function bind(test) {
-	test.expect(1);
+	test.expect(2);
 
 	run(test, function(test) {
 		// Make sure that bound actions are executed
@@ -427,7 +427,11 @@ function bind(test) {
 		var chain = promix.chain();
 
 		var cat = {
-			sound: 'meow'
+			sound: 'meow',
+			error: function() {
+				test.equals(this.sound, 'meow');
+				test.done();
+			}
 		};
 
 		function talk(callback) {
@@ -435,10 +439,14 @@ function bind(test) {
 		}
 
 		chain.andCall(talk).bind(cat);
+
 		chain.then(function(results) {
 			test.equal(results[0], 'meow');
-			test.done();
+
+			throw new Error('cat error');
 		});
+
+		chain.otherwise(cat.error).bind(cat);
 	});
 }
 
