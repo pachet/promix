@@ -17,7 +17,9 @@ var public_methods = [
 	'name',
 	'time',
 	'done',
-	'pipe'
+	'pipe',
+	'andOnce',
+	'thenOnce'
 ];
 
 var tests = {
@@ -45,6 +47,8 @@ var tests = {
 	promise_end: promise_end,
 	promise_compose_success: promise_compose_success,
 	promise_compose_failure: promise_compose_failure,
+	andOnce: andOnce,
+	thenOnce: thenOnce
 };
 
 module.exports = tests;
@@ -848,15 +852,15 @@ function promise_compose_failure ( test ) {
 }
 
 
-function thenEach ( test ) {
+function thenEach( test ) {
 	test.expect(7);
 
 	var index = 0;
 
-	function asyncFn ( value, callback ) {
+	function asyncFn(value, callback) {
 		var frozen_index = index;
 
-		setTimeout(function deferred ( ) {
+		setTimeout(function deferred() {
 			test.equals(
 				index,
 				frozen_index,
@@ -864,7 +868,7 @@ function thenEach ( test ) {
 				'not in parallel'
 			);
 
-			index ++;
+			index++;
 
 			callback(null, value.split('').reverse().join(''));
 		}, 10);
@@ -880,17 +884,17 @@ function thenEach ( test ) {
 
 	chain.thenEach(array, asyncFn);
 
-	chain.then(function finisher ( results ) {
+	chain.then(function finisher(results) {
 		test.equals(results.length, array.length);
 
 		var index = 0;
 
-		while ( index < array.length ) {
+		while (index < array.length) {
 			test.equals(
 				results[index],
 				array[index].split('').reverse().join('')
 			);
-			index ++;
+			index++;
 		}
 
 		test.done();
@@ -912,7 +916,7 @@ function pipe(test) {
 	function asyncTwo(str1, str2, callback) {
 		test.equals(str1, 'bar');
 		test.equals(str2, 'foo');
-		setTimeout(function ( ) {
+		setTimeout(function() {
 			callback(null, str1 + '-' + str2);
 		}, 0);
 	}
@@ -921,7 +925,7 @@ function pipe(test) {
 		test.equals(str1, 'baz');
 		test.equals(str2, 'wat');
 		test.equals(str3, 'bar-foo');
-		setTimeout(function ( ) {
+		setTimeout(function() {
 			callback(null, str1 + '-' + str2 + '-' + str3);
 		}, 0);
 	}
@@ -929,13 +933,66 @@ function pipe(test) {
 	promix.chain(asyncOne, 'oof')
 		.pipe(asyncTwo, 'bar')
 		.pipe(asyncThree, 'baz', 'wat')
-		.pipe(function finisher ( result ) {
+		.pipe(function finisher( result ) {
 			test.equals(result, 'baz-wat-bar-foo');
 			test.done();
 		})
-		.otherwise(function failure ( error ) {
+		.otherwise(function failure( error ) {
 			test.ok(false, error.toString());
 		});
 }
 
+function andOnce(test) {
+	test.expect(4);
 
+	var events = require('events'),
+		emitter = new events.EventEmitter();
+
+	var chain = promix.chain();
+
+	chain.andOnce(emitter, 'foo').as('foo');
+	chain.andOnce(emitter, 'bar').as('bar');
+
+	chain.then(function(results) {
+		test.equals(results[0], 16);
+		test.equals(results.foo, 16);
+		test.equals(results[1], 32);
+		test.equals(results.bar, 32);
+		test.done();
+	});
+
+	setTimeout(function() {
+		emitter.emit('foo', 16);
+	}, 5);
+
+	setTimeout(function() {
+		emitter.emit('bar', 32);
+	}, 10);
+}
+
+function thenOnce(test) {
+	test.expect(4);
+
+	var events = require('events'),
+		emitter = new events.EventEmitter();
+
+	var chain = promix.chain();
+
+	chain.and(function(dummy, callback) {
+		setTimeout(function() {
+			callback(null, 'asdf');
+		}, 10);
+	}, null).as('delay');
+
+	chain.thenOnce(emitter, 'foo').as('foo');
+
+	chain.then(function(results) {
+		test.equals(results.delay, 'asdf');
+		test.equals(results[0], 'asdf');
+		test.equals(results.foo, 16);
+		test.equals(results[1], 16);
+		test.done();
+	});
+
+	emitter.emit('foo', 16);
+}
