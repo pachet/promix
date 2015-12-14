@@ -19,7 +19,8 @@ var public_methods = [
 	'done',
 	'pipe',
 	'andOnce',
-	'thenOnce'
+	'thenOnce',
+	'using'
 ];
 
 var tests = {
@@ -48,7 +49,8 @@ var tests = {
 	promise_compose_success: promise_compose_success,
 	promise_compose_failure: promise_compose_failure,
 	andOnce: andOnce,
-	thenOnce: thenOnce
+	thenOnce: thenOnce,
+	using: using
 };
 
 module.exports = tests;
@@ -471,9 +473,9 @@ function last(test) {
 		}, 2);
 	}
 
-	chain.and(asyncOne, 2 , 3);
+	chain.and(asyncOne, 2, 3);
 	chain.then(asyncTwo, chain.last, chain.last).as('result');
-	chain.then(function interstitial ( results ) {
+	chain.then(function interstitial( results ) {
 		test.equals(results.result, 25);
 		test.done();
 	});
@@ -524,8 +526,8 @@ function eachRecursive(test) {
 	}
 
 	function foo(value, callback) {
-        return void callback(null, reverse(value));
-    }
+		return void callback(null, reverse(value));
+	}
 
 	function bar(value, callback) {
 		return void callback(null, reverse(value));
@@ -544,20 +546,20 @@ function eachRecursive(test) {
 	var chain = promix.chain();
 
 	chain.and(getList, 'test').as('list');
-    chain.each(chain.list, function each(item, callback) {
-        chain.and(foo, item);
-        chain.and(bar, chain.last).as(item);
+	chain.each(chain.list, function each(item, callback) {
+		chain.and(foo, item);
+		chain.and(bar, chain.last).as(item);
 		callback(null);
-    });
+	});
 
-    chain.then(function finisher(results) {
+	chain.then(function finisher(results) {
 		test.equals(results.length, 10);
 		test.equals(results.pikachu, 'pikachu');
 		test.equals(results.charizard, 'charizard');
 		test.equals(results.blastoise, 'blastoise');
 
 		test.done();
-    });
+	});
 }
 
 function omit(test) {
@@ -725,13 +727,13 @@ function returnPromise(test) {
 	});
 }
 
-function promise_end ( test ) {
+function promise_end(test) {
 	var
 		chain = promix.chain(),
 		object = { };
 
-	function service_one ( value, callback ) {
-		setTimeout(function ( ) {
+	function service_one(value, callback) {
+		setTimeout(function() {
 			callback(null, {
 				foo: 'bar',
 				baz: 'wat'
@@ -740,23 +742,23 @@ function promise_end ( test ) {
 	}
 
 	test.expect(2);
-	object.resolution = function jeffson ( ) {
+	object.resolution = function jeffson() {
 		test.done();
 	};
-	object.callback = function persimmon ( result ) {
+	object.callback = function persimmon(result) {
 		test.equals(result.foo, 'bar');
 		test.equals(result.baz, 'wat');
 		this.resolution();
 	};
 	chain.and(service_one, 1).as('one');
 	chain.end(object.callback, chain.one).bind(object);
-	chain.otherwise(function ( error ) {
+	chain.otherwise(function(error) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
 }
 
-function promise_compose_success ( test ) {
+function promise_compose_success(test) {
 	var
 		promise_one = promix.promise(),
 		promise_two = promix.promise(),
@@ -764,14 +766,14 @@ function promise_compose_success ( test ) {
 		promise_four = promix.promise(),
 		chain = promix.when();
 
-	function service_one ( a, b, c, d, callback ) {
-		setTimeout(function ( ) {
+	function service_one(a, b, c, d, callback) {
+		setTimeout(function() {
 			return void callback(null, a + b + c + d);
 		}, 0);
 	}
 
-	function service_two ( a, b, c, d, callback ) {
-		setTimeout(function ( ) {
+	function service_two(a, b, c, d, callback) {
+		setTimeout(function() {
 			return void callback(null, d + c + b + a);
 		}, 0);
 	}
@@ -779,33 +781,33 @@ function promise_compose_success ( test ) {
 	test.expect(2);
 	chain.and(service_one, promise_one, 'foo', promise_two, 'bar').as('one');
 	chain.and(service_two, promise_three, 'baz', promise_four, 'wat').as('two');
-	chain.then(function ( results ) {
+	chain.then(function(results) {
 		test.equal(results.one, 'pikachufoocharizardbar');
 		test.equal(results.two, 'watvenusaurbazvaporeon');
 		test.done();
 	});
-	chain.otherwise(function ( error ) {
+	chain.otherwise(function(error) {
 		test.ok(false, 'We should not be here');
 		test.done();
 	});
 
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_one.fulfill('pikachu');
 	}, 0);
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_two.fulfill('charizard');
 	}, 0);
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_three.fulfill('vaporeon');
 	}, 0);
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_four.fulfill('venusaur');
 	}, 0);
 }
 
 
 
-function promise_compose_failure ( test ) {
+function promise_compose_failure(test) {
 	var
 		promise_one = promix.promise(),
 		promise_two = promix.promise(),
@@ -813,14 +815,14 @@ function promise_compose_failure ( test ) {
 		promise_four = promix.promise(),
 		chain = promix.when();
 
-	function service_one ( a, b, c, d, callback ) {
-		setTimeout(function ( ) {
+	function service_one(a, b, c, d, callback) {
+		setTimeout(function() {
 			return void callback(null, a + b + c + d);
 		}, 0);
 	}
 
-	function service_two ( a, b, c, d, callback ) {
-		setTimeout(function ( ) {
+	function service_two(a, b, c, d, callback) {
+		setTimeout(function() {
 			return void callback(null, d + c + b + a);
 		}, 0);
 	}
@@ -828,24 +830,24 @@ function promise_compose_failure ( test ) {
 	test.expect(1);
 	chain.and(service_one, promise_one, 'foo', promise_two, 'bar').as('one');
 	chain.and(service_two, promise_three, 'baz', promise_four, 'wat').as('two');
-	chain.then(function ( results ) {
+	chain.then(function(results) {
 		test.ok(false, 'We should not be here');
 	});
-	chain.otherwise(function ( error ) {
+	chain.otherwise(function(error) {
 		test.equal(error.toString(), 'Error: This promise will be rejected');
 		test.done();
 	});
 
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_one.fulfill('pikachu');
 	}, 0);
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_two.fulfill('charizard');
 	}, 0);
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_three.fulfill('vaporeon');
 	}, 0);
-	setTimeout(function ( ) {
+	setTimeout(function() {
 		promise_four.break(new Error('This promise will be rejected'));
 	}, 0);
 
@@ -995,4 +997,22 @@ function thenOnce(test) {
 	});
 
 	emitter.emit('foo', 16);
+}
+
+function using(test) {
+	test.expect(1);
+
+	function deferred(dummy, callback) {
+		callback(null, 1234);
+	}
+
+	function downstream(value, callback) {
+		test.equals(value, 1234);
+		test.done();
+	}
+
+	var chain = promix.chain();
+
+	chain.and(deferred, 'abcd').as('deferred');
+	chain.and(downstream).using('deferred');
 }
