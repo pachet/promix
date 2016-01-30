@@ -27,6 +27,7 @@ var tests = {
 	ensurePublicMethodCoverage: ensurePublicMethodCoverage,
 	and: and,
 	andRecursive: andRecursive,
+	andSyncVsAsync: andSyncVsAsync,
 	andCall: andCall,
 	then: then,
 	thenCall: thenCall,
@@ -130,6 +131,33 @@ function andRecursive(test) {
 
 		test.done();
 	});
+}
+
+function andSyncVsAsync(test) {
+	test.expect(2);
+
+	var chain = promix.chain();
+
+	function getNumberSync(number, callback) {
+		return void callback(null, number);
+	}
+
+	function getNumberAsync(number, callback) {
+		setTimeout(function deferred() {
+			return void callback(null, number);
+		}, 0);
+	}
+
+	function addNumbers(one, two, callback) {
+		test.equals(one, 1);
+		test.equals(two, 2);
+		test.done();
+	}
+
+	chain.and(getNumberAsync, 1).as('one');
+	chain.and(getNumberSync, 2).as('two');
+
+	chain.and(addNumbers, chain.one, chain.two);
 }
 
 function andCall(test) {
