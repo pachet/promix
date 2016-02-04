@@ -51,7 +51,11 @@ var tests = {
 	promise_compose_failure: promise_compose_failure,
 	andOnce: andOnce,
 	thenOnce: thenOnce,
-	using: using
+	using: using,
+	conditionalIf: conditionalIf,
+	conditionalIfElse: conditionalIfElse,
+	conditionalElse: conditionalElse,
+	complexConditional: complexConditional
 };
 
 module.exports = tests;
@@ -1043,4 +1047,169 @@ function using(test) {
 
 	chain.and(deferred, 'abcd').as('deferred');
 	chain.and(downstream).using('deferred');
+}
+
+function conditionalIf(test) {
+	test.expect(2);
+
+	var chain = promix.chain();
+
+	function deferred_a(a, b, callback) {
+		test.equals(a, 1);
+		test.equals(b, 2);
+		callback(null);
+	}
+
+	function deferred_b(a, b, callback) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	}
+
+	function deferred_c() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	}
+
+	var promise_a = promix.next(true),
+		promise_b = promix.next(false);
+
+	chain.if(promise_a).then(deferred_a, 1, 2).as('a');
+	chain.elseIf(promise_b).then(deferred_b, 3, 4).as('b');
+	chain.else(deferred_c).as('c');
+	chain.endIf();
+	chain.then(function handler() {
+		test.done();
+	}).as('d');
+}
+
+function conditionalIfElse(test) {
+	test.expect(2);
+
+	var chain = promix.chain();
+
+	function deferred_a(a, b, callback) {
+		test.ok(false, 'We should not be here (1)');
+		test.done();
+
+	}
+
+	function deferred_b(a, b, callback) {
+		test.equals(a, 3);
+		test.equals(b, 4);
+		callback(null);
+	}
+
+	function deferred_c() {
+		test.ok(false, 'We should not be here (2)');
+		test.done();
+	}
+
+	chain.if(promix.next(false)).then(deferred_a, 1, 2).as('a');
+	chain.elseIf(promix.next(true)).then(deferred_b, 3, 4).as('b');
+	chain.else(deferred_c).as('c');
+	chain.endIf();
+	chain.then(function handler() {
+		test.done();
+	}).as('d');
+}
+
+function conditionalElse(test) {
+	test.expect(2);
+
+	var chain = promix.chain();
+
+	function deferred_a(a, b, callback) {
+		test.ok(false, 'We should not be here');
+		test.done();
+
+	}
+
+	function deferred_b(a, b, callback) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	}
+
+	function deferred_c(a, b, callback) {
+		test.equals(a, 5);
+		test.equals(b, 6);
+		callback(null);
+	}
+
+	chain.if(promix.next(false)).then(deferred_a, 1, 2).as('a');
+	chain.elseIf(promix.next(false)).then(deferred_b, 3, 4).as('b');
+	chain.else(deferred_c, 5, 6).as('c');
+	chain.endIf();
+	chain.then(function handler() {
+		test.done();
+	}).as('d');
+}
+
+function complexConditional(test) {
+	test.expect(6);
+
+	var chain = promix.chain();
+
+	chain.if(promix.next(true)).then(function interstitial() {
+		test.ok(true, 'It is okay that we are here');
+	});
+
+	chain.elseIf(promix.next(false)).then(function interstitial() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	chain.else(function interstitial() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	chain.then(function interstitial() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	chain.if(promix.next(false)).then(function interstitial() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	chain.elseIf(promix.next(true).equals(true)).then(function interstitial() {
+		test.ok(true, 'It is okay that we are here');
+	});
+
+	chain.else(function interstitial() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	chain.endIf();
+
+	chain.then(function interstitial() {
+		test.ok(true, 'It is okay that we are here');
+	});
+
+	chain.if(promix.next(false).equals(true)).then(function interstitial() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	chain.elseIf(promix.next(false)).then(function interstitial() {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	chain.else(function interstitial() {
+		test.ok(true, 'It is okay that we are here');
+	});
+
+	chain.then(function interstitial() {
+		test.ok(true, 'It is okay that we are here');
+	});
+
+	chain.endIf();
+
+	chain.then(function finisher() {
+		test.ok(true, 'It is okay that we are here');
+		test.done();
+	});
 }
