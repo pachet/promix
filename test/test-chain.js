@@ -55,7 +55,8 @@ var tests = {
 	conditionalIf: conditionalIf,
 	conditionalIfElse: conditionalIfElse,
 	conditionalElse: conditionalElse,
-	complexConditional: complexConditional
+	complexConditional: complexConditional,
+	truncatedConditional: truncatedConditional
 };
 
 module.exports = tests;
@@ -1212,4 +1213,76 @@ function complexConditional(test) {
 		test.ok(true, 'It is okay that we are here');
 		test.done();
 	});
+}
+
+function truncatedConditional(test) {
+	var file_path = '/foo/bar/baz.txt';
+
+	var chain = promix.chain();
+
+	function isDirectoryAbstracted(path, callback) {
+		test.ok(true, 'isDirectory called');
+
+		setTimeout(function deferred() {
+			callback(null, false);
+		}, 1);
+	}
+
+	chain.and(isDirectoryAbstracted, file_path);
+
+	function rmdirAbstracted(path, callback) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	}
+
+	function unlinkAbstracted(path, callback) {
+		test.ok(true, 'unlink called');
+
+		setTimeout(function deferred() {
+			callback(null);
+		}, 1);
+	}
+
+	chain
+		.if(chain.last)
+		.then(rmdirAbstracted, file_path)
+		.else(unlinkAbstracted, file_path)
+		.endIf();
+
+	function getParentDirectory(file_path) {
+		return '/foo/bar';
+	}
+
+	var parent_directory = getParentDirectory(file_path);
+
+	function readdirAbstracted(path, callback) {
+		test.ok(true, 'readdir called');
+
+		setTimeout(function deferred() {
+			return void callback(null, [
+				'pikachu',
+				'bowser',
+				'mario'
+			]);
+		}, 1);
+	}
+
+	chain.then(readdirAbstracted, parent_directory);
+
+	function deleteFileAbstracted(path, callback) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	}
+
+	chain
+		.if(chain.last.get('length').equals(0))
+		.then(deleteFileAbstracted, parent_directory)
+		.endIf();
+
+	function abstractedCallback(error, results) {
+		test.ok(true, 'We are here! This is good');
+		test.done();
+	}
+
+	chain.callback(abstractedCallback);
 }
