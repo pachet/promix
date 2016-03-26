@@ -56,7 +56,8 @@ var tests = {
 	conditionalIfElse: conditionalIfElse,
 	conditionalElse: conditionalElse,
 	complexConditional: complexConditional,
-	truncatedConditional: truncatedConditional
+	truncatedConditional: truncatedConditional,
+	sleep: sleep
 };
 
 module.exports = tests;
@@ -1286,3 +1287,23 @@ function truncatedConditional(test) {
 
 	chain.callback(abstractedCallback);
 }
+
+function sleep(test) {
+	test.expect(1);
+
+	var chain = promix.chain();
+
+	var failure_timer = setTimeout(function deferred() {
+		test.ok(false, 'We should not be here');
+	}, 1000);
+
+	setTimeout(function deferred() {
+		test.ok(true, 'We should be here');
+	}, 250);
+
+	chain.sleep(500).then(function deferred() {
+		clearTimeout(failure_timer);
+		test.done();
+	});
+}
+
