@@ -81,6 +81,22 @@ function next(value) {
 	return promise;
 }
 
+function concat() {
+	if (arguments.length === 0) {
+		return next('');
+	}
+
+	var
+		args    = slice(arguments),
+		promise = new StringPromise(args.shift());
+
+	while (args.length) {
+		promise = promise.concat(args.shift());
+	}
+
+	return promise;
+}
+
 function getStats(name) {
 	return Stats.get(name);
 }
@@ -101,13 +117,17 @@ function toArray(promise) {
 	return new ArrayPromise(promise);
 }
 
+function toBoolean(promise) {
+	return new BooleanPromise(promise);
+}
+
 function toJSON(promise) {
 	var json_promise = new Promise();
 
 	promise.then(function success(result) {
 		try {
 			json_promise.fulfill(JSON.stringify(result));
-		} catch(error) {
+		} catch (error) {
 			json_promise.break(error);
 		}
 	}, json_promise.break);
@@ -125,22 +145,24 @@ function setLogger(logger) {
 
 
 module.exports = {
-	chain: createChain,
-	when: createChain,
-	promise: createPromise,
-	wrap: wrap,
-	compose: compose,
-	join: join,
-	next: next,
-	getStats: getStats,
-	printStats: printStats,
-	toString: toString,
-	toNumber: toNumber,
-	toArray: toArray,
-	toJSON: toJSON,
-	toObject: toObject,
-	enableLogging: Settings.enableLogging,
+	chain:          createChain,
+	when:           createChain,
+	promise:        createPromise,
+	wrap:           wrap,
+	compose:        compose,
+	join:           join,
+	next:           next,
+	concat:         concat,
+	getStats:       getStats,
+	printStats:     printStats,
+	toString:       toString,
+	toNumber:       toNumber,
+	toArray:        toArray,
+	toBoolean:      toBoolean,
+	toJSON:         toJSON,
+	toObject:       toObject,
+	enableLogging:  Settings.enableLogging,
 	disableLogging: Settings.disableLogging,
-	setLogger: setLogger,
-	version: require('./package.json').version
+	setLogger:      setLogger,
+	version:        require('./package.json').version
 };

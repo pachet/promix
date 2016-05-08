@@ -36,7 +36,7 @@ function join(test) {
 }
 
 
-function compose (test) {
+function compose(test) {
 	test.expect(4);
 
 	promix.compose({
@@ -44,7 +44,7 @@ function compose (test) {
 		two: promix.next(2),
 		three: promix.next(3),
 		four: promix.next(4)
-	}).then(function resolve (result) {
+	}).then(function resolve(result) {
 		test.equals(result.one, 1);
 		test.equals(result.two, 2);
 		test.equals(result.three, 3);
@@ -53,7 +53,35 @@ function compose (test) {
 	});
 }
 
+function concat(test) {
+	test.expect(1);
+
+	var
+		value_a = 'pikachu ',
+		value_b = promix.next('is '),
+		value_c = 'an ',
+		value_d = promix.next('electric '),
+		value_e = 'pokemon';
+
+	promix.concat(
+		value_a,
+		value_b,
+		value_c,
+		value_d,
+		value_e
+	).then(
+		function success(result) {
+			test.equals(result, 'pikachu is an electric pokemon');
+			test.done();
+		},
+		function failure() {
+			test.ok(false, 'We should not be here');
+		}
+	);
+}
+
 module.exports = {
 	join: join,
-	compose: compose
+	compose: compose,
+	concat: concat
 };
