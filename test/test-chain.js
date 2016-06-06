@@ -1,5 +1,6 @@
-var promix = require('../index'),
-	run = require('../lib/tests/run.js');
+var
+	promix = require('../index'),
+	run    = require('../lib/tests/run.js');
 
 var public_methods = [
 	'and',
@@ -25,39 +26,41 @@ var public_methods = [
 
 var tests = {
 	ensurePublicMethodCoverage: ensurePublicMethodCoverage,
-	and: and,
-	andRecursive: andRecursive,
-	andSyncVsAsync: andSyncVsAsync,
-	andCall: andCall,
-	then: then,
-	thenCall: thenCall,
-	otherwise: otherwise,
-	as: as,
-	bind: bind,
-	callback: callback,
-	omit: omit,
-	each: each,
-	thenEach: thenEach,
-	eachRecursive: eachRecursive,
-	end: end,
-	name: name,
-	time: time,
-	done: done,
-	pipe: pipe,
-	last: last,
-	returnPromise: returnPromise,
-	promise_end: promise_end,
-	promise_compose_success: promise_compose_success,
-	promise_compose_failure: promise_compose_failure,
-	andOnce: andOnce,
-	thenOnce: thenOnce,
-	using: using,
-	conditionalIf: conditionalIf,
-	conditionalIfElse: conditionalIfElse,
-	conditionalElse: conditionalElse,
-	complexConditional: complexConditional,
-	truncatedConditional: truncatedConditional,
-	sleep: sleep
+	and:                        and,
+	andRecursive:               andRecursive,
+	andSyncVsAsync:             andSyncVsAsync,
+	andCall:                    andCall,
+	then:                       then,
+	thenCall:                   thenCall,
+	otherwise:                  otherwise,
+	as:                         as,
+	bind:                       bind,
+	callback:                   callback,
+	omit:                       omit,
+	each:                       each,
+	thenEach:                   thenEach,
+	eachRecursive:              eachRecursive,
+	end:                        end,
+	name:                       name,
+	time:                       time,
+	done:                       done,
+	pipe:                       pipe,
+	last:                       last,
+	returnPromise:              returnPromise,
+	promise_end:                promise_end,
+	promise_compose_success:    promise_compose_success,
+	promise_compose_failure:    promise_compose_failure,
+	andOnce:                    andOnce,
+	thenOnce:                   thenOnce,
+	using:                      using,
+	conditionalIf:              conditionalIf,
+	conditionalIfElse:          conditionalIfElse,
+	conditionalElse:            conditionalElse,
+	complexConditional:         complexConditional,
+	truncatedConditional:       truncatedConditional,
+	sleep:                      sleep,
+	prepend:                    prepend,
+	append:                     append
 };
 
 module.exports = tests;
@@ -763,7 +766,7 @@ function returnPromise(test) {
 
 function promise_end(test) {
 	var
-		chain = promix.chain(),
+		chain  = promix.chain(),
 		object = { };
 
 	function service_one(value, callback) {
@@ -794,11 +797,11 @@ function promise_end(test) {
 
 function promise_compose_success(test) {
 	var
-		promise_one = promix.promise(),
-		promise_two = promix.promise(),
+		promise_one   = promix.promise(),
+		promise_two   = promix.promise(),
 		promise_three = promix.promise(),
-		promise_four = promix.promise(),
-		chain = promix.when();
+		promise_four  = promix.promise(),
+		chain         = promix.when();
 
 	function service_one(a, b, c, d, callback) {
 		setTimeout(function() {
@@ -843,11 +846,11 @@ function promise_compose_success(test) {
 
 function promise_compose_failure(test) {
 	var
-		promise_one = promix.promise(),
-		promise_two = promix.promise(),
+		promise_one   = promix.promise(),
+		promise_two   = promix.promise(),
 		promise_three = promix.promise(),
-		promise_four = promix.promise(),
-		chain = promix.when();
+		promise_four  = promix.promise(),
+		chain         = promix.when();
 
 	function service_one(a, b, c, d, callback) {
 		setTimeout(function() {
@@ -1305,5 +1308,70 @@ function sleep(test) {
 		clearTimeout(failure_timer);
 		test.done();
 	});
+}
+
+function prepend(test) {
+	var
+		chain        = promix.chain(),
+		global_error = new Error('test error');
+
+	chain.prepend('pikachu');
+
+	function foo(pokemon, a, b, callback) {
+		test.equals(pokemon, 'pikachu');
+		test.equals(a, 123);
+		test.equals(b, 456);
+
+		return void callback(null);
+	}
+
+	function bar(pokemon, a, b, callback) {
+		test.equals(pokemon, 'pikachu');
+		test.equals(a, 789);
+		test.equals(b, 101112);
+
+		return void callback(global_error);
+	}
+
+	function failure(error) {
+		test.equals(error, global_error);
+		test.done();
+	}
+
+	chain.and(foo, 123, 456);
+	chain.and(bar, 789, 101112);
+	chain.otherwise(failure);
+}
+
+function append(test) {
+	var
+		chain        = promix.chain(),
+		global_error = new Error('test error');
+
+	chain.append('charizard');
+
+	function foo(a, b, callback, pokemon) {
+		test.equals(a, 123);
+		test.equals(b, 456);
+		test.equals(pokemon, 'charizard');
+		return void callback(null);
+	}
+
+	function bar(a, b, callback, pokemon) {
+		test.equals(a, 789);
+		test.equals(b, 101112);
+		test.equals(pokemon, 'charizard');
+		return void callback(global_error);
+	}
+
+	function failure(error, pokemon) {
+		test.equals(error, global_error);
+		test.equals(pokemon, 'charizard');
+		test.done();
+	}
+
+	chain.and(foo, 123, 456);
+	chain.and(bar, 789, 101112);
+	chain.otherwise(failure);
 }
 
