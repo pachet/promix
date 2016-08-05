@@ -11,6 +11,7 @@ var public_methods = [
 	'otherwise',
 	'as',
 	'bind',
+	'bindAll',
 	'callback',
 	'omit',
 	'each',
@@ -35,6 +36,7 @@ var tests = {
 	otherwise:                  otherwise,
 	as:                         as,
 	bind:                       bind,
+	bindAll:                    bindAll,
 	callback:                   callback,
 	omit:                       omit,
 	each:                       each,
@@ -491,6 +493,33 @@ function bind(test) {
 
 		chain.otherwise(cat.error).bind(cat);
 	});
+}
+
+function bindAll(test) {
+	test.expect(3);
+
+	var context = {
+		name: 'bowser'
+	};
+
+	var chain = promix.chain();
+
+	chain.andCall(function a(callback) {
+		test.equals(this, context);
+		callback(null);
+	});
+
+	chain.andCall(function b(callback) {
+		test.equals(this, context);
+		callback(new Error('something'));
+	});
+
+	chain.otherwise(function c() {
+		test.equals(this, context);
+		test.done();
+	});
+
+	chain.bindAll(context);
 }
 
 function last(test) {
@@ -1374,4 +1403,5 @@ function append(test) {
 	chain.and(bar, 789, 101112);
 	chain.otherwise(failure);
 }
+
 
