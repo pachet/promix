@@ -164,5 +164,6 @@ module.exports = {
 	enableLogging:  Settings.enableLogging,
 	disableLogging: Settings.disableLogging,
 	setLogger:      setLogger,
-	version:        require('./package.json').version
+	version:        require('./package.json').version,
+	Promise:        Promise
 };
