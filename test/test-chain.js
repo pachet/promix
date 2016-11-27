@@ -53,6 +53,7 @@ var tests = {
 	promise_compose_success:    promise_compose_success,
 	promise_compose_failure:    promise_compose_failure,
 	andOnce:                    andOnce,
+	andOnceTimeout:             andOnceTimeout,
 	thenOnce:                   thenOnce,
 	using:                      using,
 	conditionalIf:              conditionalIf,
@@ -1036,6 +1037,26 @@ function andOnce(test) {
 	setTimeout(function() {
 		emitter.emit('bar', 32);
 	}, 10);
+}
+
+function andOnceTimeout(test) {
+	test.expect(1);
+
+	var
+		events  = require('events'),
+		emitter = new events.EventEmitter(),
+	    chain   = promix.chain();
+
+	chain.andOnce(emitter, 'foo', 100);
+
+	chain.then(function() {
+		test.ok(false, 'We should not be here');
+	});
+
+	chain.otherwise(function(error) {
+		test.ok(true, 'Successfully caught timeout error');
+		test.done();
+	});
 }
 
 function thenOnce(test) {
