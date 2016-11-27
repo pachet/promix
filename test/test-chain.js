@@ -1039,20 +1039,31 @@ function andOnce(test) {
 }
 
 function thenOnce(test) {
-	test.expect(4);
+	test.expect(5);
 
 	var events = require('events'),
 		emitter = new events.EventEmitter();
 
 	var chain = promix.chain();
 
+	var flag = false;
+
 	chain.and(function(dummy, callback) {
 		setTimeout(function() {
+			// Set the flag indicating that this setTimeout() call was
+			// invoked before the subsequent andCall() callback.
+			flag = true;
 			callback(null, 'asdf');
 		}, 10);
 	}, null).as('delay');
 
 	chain.thenOnce(emitter, 'foo').as('foo');
+
+	chain.andCall(function(callback) {
+		test.equals(flag, true);
+
+		callback(null);
+	});
 
 	chain.then(function(results) {
 		test.equals(results.delay, 'asdf');
