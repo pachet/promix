@@ -42,6 +42,10 @@ var tests = {
 	each:                       each,
 	thenEach:                   thenEach,
 	eachRecursive:              eachRecursive,
+	eachBound:                  eachBound,
+	thenEachBound:              thenEachBound,
+    eachPromiseBound:           eachPromiseBound,
+	thenEachPromiseBound:       thenEachPromiseBound,
 	end:                        end,
 	name:                       name,
 	time:                       time,
@@ -627,6 +631,115 @@ function eachRecursive(test) {
 
 		test.done();
 	});
+}
+
+function eachBound(test) {
+	test.expect(3);
+
+	var chain = promix.chain();
+
+	var context = { };
+
+	var array = [
+		'foo',
+		'bar',
+		'baz'
+	];
+
+	function doSomething(value, callback) {
+		test.equals(this, context);
+
+		callback(null);
+	}
+
+	chain.each(array, doSomething).bind(context);
+	chain.then(function finisher() {
+		test.done();
+	});
+}
+
+function thenEachBound(test) {
+	test.expect(3);
+
+	var chain = promix.chain();
+
+	var context = { };
+
+	var array = [
+		'foo',
+		'bar',
+		'baz'
+	];
+
+	function doSomething(value, callback) {
+		test.equals(this, context);
+
+		callback(null);
+	}
+
+	chain.thenEach(array, doSomething).bind(context);
+	chain.then(function finisher() {
+		test.done();
+	});
+}
+
+function eachPromiseBound(test) {
+	test.expect(3);
+
+	var chain = promix.chain();
+
+	var context = { };
+
+	var array = [
+		'foo',
+		'bar',
+		'baz'
+	];
+
+	var promise = promix.next(array);
+
+	function doSomething(value, callback) {
+		test.equals(this, context);
+
+		callback(null);
+	}
+
+	chain.each(promise, doSomething).bind(context);
+	chain.then(function finisher() {
+		test.done();
+	});
+}
+
+function thenEachPromiseBound(test) {
+	test.expect(3);
+
+	var chain = promix.chain();
+
+	var context = { };
+
+	var array = [
+		'foo',
+		'bar',
+		'baz'
+	];
+
+	var promise = promix.next(array);
+
+	var completed_count = 0;
+
+	function doSomething(value, callback) {
+		test.equals(this, context);
+
+		callback(null);
+
+		completed_count++;
+
+		if (completed_count === 3) {
+			test.done();
+		}
+	}
+
+	chain.thenEach(promise, doSomething).bind(context);
 }
 
 function omit(test) {
