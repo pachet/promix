@@ -42,6 +42,7 @@ var tests = {
 	each:                       each,
 	thenEach:                   thenEach,
 	thenEachError:              thenEachError,
+	thenEachEmptyPromise:       thenEachEmptyPromise,
 	eachRecursive:              eachRecursive,
 	eachBound:                  eachBound,
 	thenEachBound:              thenEachBound,
@@ -1101,22 +1102,22 @@ function thenEachError(test) {
 		}, 1000);
 	}
 
-	var has_called_apply_linkages = false;
+	var has_called_find_trainer = false;
 
 	var error_to_throw = new Error('some error');
 
-	function applyLinkages(pokemon, callback) {
-		// Ensure that applyLinkages() is only invoked once,
+	function findTrainer(pokemon, callback) {
+		// Ensure that findTrainer() is only invoked once,
 		// then halted after the first error occurs:
-		test.equals(has_called_apply_linkages, false);
-		has_called_apply_linkages = true;
+		test.equals(has_called_find_trainer, false);
+		has_called_find_trainer = true;
 
 		throw error_to_throw;
 	}
 
 	chain.thenCall(collectPokemon).as('pokemon');
 
-	chain.thenEach(chain.pokemon, applyLinkages);
+	chain.thenEach(chain.pokemon, findTrainer);
 
 	chain.then(function finisher(results) {
 		test.ok(false, 'We should not be here');
@@ -1128,6 +1129,32 @@ function thenEachError(test) {
 	});
 }
 
+function thenEachEmptyPromise(test) {
+
+	var chain = promix.chain();
+
+	function collectPokemon(callback) {
+		setTimeout(function deferred() {
+			return void callback(null, [ ]);
+		}, 1000);
+	}
+
+	function findTrainer(pokemon, callback) {
+		test.ok(false, 'We should not be here');
+	}
+
+	chain.thenCall(collectPokemon).as('pokemon');
+	chain.thenEach(chain.pokemon, findTrainer);
+
+	chain.then(function finisher(results) {
+		test.done();
+	});
+
+	chain.otherwise(function failure(error) {
+		test.ok(false, error.toString());
+	});
+
+}
 
 function pipe(test) {
 	test.expect(6);
