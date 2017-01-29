@@ -41,6 +41,7 @@ var tests = {
 	omit:                       omit,
 	each:                       each,
 	thenEach:                   thenEach,
+	thenEachError:              thenEachError,
 	eachRecursive:              eachRecursive,
 	eachBound:                  eachBound,
 	thenEachBound:              thenEachBound,
@@ -71,6 +72,7 @@ var tests = {
 };
 
 module.exports = tests;
+
 
 function ensurePublicMethodCoverage(test) {
 	test.expect(public_methods.length);
@@ -1034,7 +1036,7 @@ function promise_compose_failure(test) {
 }
 
 
-function thenEach( test ) {
+function thenEach(test) {
 	test.expect(7);
 
 	var index = 0;
@@ -1084,6 +1086,47 @@ function thenEach( test ) {
 
 }
 
+function thenEachError(test) {
+	test.expect(2);
+
+	var chain = promix.chain();
+
+	function collectPokemon(callback) {
+		setTimeout(function deferred() {
+			return void callback(null, [
+				'venusaur',
+				'charizard',
+				'blastoise'
+			]);
+		}, 1000);
+	}
+
+	var has_called_apply_linkages = false;
+
+	var error_to_throw = new Error('some error');
+
+	function applyLinkages(pokemon, callback) {
+		// Ensure that applyLinkages() is only invoked once,
+		// then halted after the first error occurs:
+		test.equals(has_called_apply_linkages, false);
+		has_called_apply_linkages = true;
+
+		throw error_to_throw;
+	}
+
+	chain.thenCall(collectPokemon).as('pokemon');
+
+	chain.thenEach(chain.pokemon, applyLinkages);
+
+	chain.then(function finisher(results) {
+		test.ok(false, 'We should not be here');
+	});
+
+	chain.otherwise(function failure(error) {
+		test.equals(error, error_to_throw);
+		test.done();
+	});
+}
 
 
 function pipe(test) {
