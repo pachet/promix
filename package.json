@@ -29,8 +29,7 @@
 		"promises-aplus-tests": "2.1.x"
 	},
 	"scripts": {
-		"test" : "nodeunit test",
-		"prepublish" : "browserify index.js > promix.min.js && uglifyjs promix.min.js -o promix.min.js"
+		"test" : "nodeunit test"
 	},
 	"readmeFilename": "README.md"
 }
