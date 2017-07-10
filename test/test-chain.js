@@ -38,6 +38,7 @@ var tests = {
 	bind:                       bind,
 	bindAll:                    bindAll,
 	bindWithCallback:           bindWithCallback,
+	bindWithFailureAction:      bindWithFailureAction,
 	callback:                   callback,
 	omit:                       omit,
 	each:                       each,
@@ -551,6 +552,33 @@ function bindWithCallback(test) {
 	});
 
 	chain.bind(context);
+}
+
+function bindWithFailureAction(test) {
+	test.expect(1);
+
+	var context_one = {
+		name: 'pikachu'
+	};
+
+	var context_two = {
+		name: 'charizard'
+	};
+
+	var chain = promix.chain();
+
+	chain.andCall(function a(callback) {
+		callback(null);
+	});
+
+	chain.then(function finisher() {
+		test.equals(this.name, 'pikachu');
+		test.done();
+	});
+	chain.bind(context_one);
+
+	chain.otherwise(function noop() { });
+	chain.bind(context_two);
 }
 
 function last(test) {
