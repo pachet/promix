@@ -37,6 +37,7 @@ var tests = {
 	as:                         as,
 	bind:                       bind,
 	bindAll:                    bindAll,
+	bindWithCallback:           bindWithCallback,
 	callback:                   callback,
 	omit:                       omit,
 	each:                       each,
@@ -528,6 +529,28 @@ function bindAll(test) {
 	});
 
 	chain.bindAll(context);
+}
+
+function bindWithCallback(test) {
+	test.expect(2);
+
+	var context = {
+		name: 'pikachu'
+	};
+
+	var chain = promix.chain();
+
+	chain.andCall(function a(callback) {
+		callback(null);
+	});
+
+	chain.callback(function finisher(error) {
+		test.equals(error, null);
+		test.equals(this.name, 'pikachu');
+		test.done();
+	});
+
+	chain.bind(context);
 }
 
 function last(test) {
