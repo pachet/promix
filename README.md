@@ -6,23 +6,26 @@ Promix is a way to regain control of asynchronous code.
 **Before:**
 `````javascript
 function doAsyncStuff(a, b, c, callback) {
-    asyncAdd(a, function(error, responseA) {
-        if(error) {
+    asyncOne(a, function(error, result_a) {
+        if (error) {
             return callback(error);
         }
-        asyncMultiply(b, function(error, responseB) {
-            if(error) {
+
+        asyncTwo(b, function(error, result_b) {
+            if (error) {
                 return callback(error);
             }
-            asyncThree(c, function(error, responseC) {
-                if(error) {
+
+            asyncThree(c, function(error, result_c) {
+                if (error) {
                     return callback(error);
                 }
+
                 //All done!
                 return callback(null, [
-                    responseA,
-                    responseB,
-                    responseC
+                    result_a,
+                    result_b,
+                    result_c
                 ]);
             });
         });
@@ -461,10 +464,9 @@ Promix will fork it into a `.then(results) { }` success handler and a `.otherwis
 
 `````javascript
 function typicalCallback(error, result) {
-    if(error) {
+    if (error) {
         throw error;
-    }
-    else {
+    } else {
         console.log(result);
 
         //[3, 12]
