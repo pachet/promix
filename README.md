@@ -6,11 +6,11 @@ Promix is a way to regain control of asynchronous code.
 **Before:**
 `````javascript
 function doAsyncStuff(a, b, c, callback) {
-    asyncOne(a, function(error, responseA) {
+    asyncAdd(a, function(error, responseA) {
         if(error) {
             return callback(error);
         }
-        asyncTwo(b, function(error, responseB) {
+        asyncMultiply(b, function(error, responseB) {
             if(error) {
                 return callback(error);
             }
@@ -32,8 +32,8 @@ function doAsyncStuff(a, b, c, callback) {
 **After:**
 `````javascript
 function doAsyncStuff(a, b, c, callback) {
-    promix.chain(asyncOne, a)
-        .and(asyncTwo, b)
+    promix.chain(asyncAdd, a)
+        .and(asyncMultiply, b)
         .and(asyncThree, c)
         .end(callback);
 }
@@ -135,13 +135,13 @@ router.get('/news/:category/entries/', function(request, response, next) {
 **NOTE:** The API examples in this section use the following functions in order to illustrate asynchronous behavior:
 
 `````javascript
-function asyncOne(a, b, callback) {
+function asyncAdd(a, b, callback) {
     setTimeout(function() {
         return callback(null, a + b);
     }, 10);
 }
 
-function asyncTwo(c, d, callback) {
+function asyncMultiply(c, d, callback) {
     setTimeout(function() {
         return callback(null, c * d);
     }, 20);
@@ -149,7 +149,7 @@ function asyncTwo(c, d, callback) {
 
 function errorFn(label, callback) {
     setTimeout(function() {
-        return callback(new Error('This function throws errors (' + label + ')'));
+        return callback(new Error('This function returns errors (' + label + ')'));
     }, 30);
 }
 `````
@@ -174,7 +174,7 @@ Usage:
 
 Pass a callback-accepting function, with whatever arguments you want to supply (Promix creates the trailing callback argument for you):
 `````javascript
-var chain = promix.chain(asyncOne, 1, 2);
+var chain = promix.chain(asyncAdd, 1, 2);
 `````
 
 Or just pass in a preexisting promise:
@@ -326,8 +326,8 @@ Usage:
 
 `````javascript
 var promise = promix.promise();
-promix.chain(asyncOne, 1, 2)
-    .and(asyncTwo, 3, 4)
+promix.chain(asyncAdd, 1, 2)
+    .and(asyncMultiply, 3, 4)
     .and(promise)
     .and(...)
     //continue adding things as need be
@@ -346,7 +346,7 @@ If you pass a function to `chain.then()` as the only argument,
 the function will be passed an array of results from all earlier steps in the chain:
 
 `````javascript
-var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function(results) {
+var chain = promix.chain(asyncAdd, 1, 2).and(asyncMultiply, 3, 4).then(function(results) {
     console.log(results);
 
     //[3, 12]
@@ -362,7 +362,7 @@ function someFn(v1, v2, callback) {
     }, 50);
 }
 
-promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn, 'a', 'b').then(function(results) {
+promix.chain(asyncAdd, 1, 2).and(asyncMultiply, 3, 4).then(someFn, 'a', 'b').then(function(results) {
     console.log(results);
 
     //[3, 12, 'aaa bbb']
@@ -379,7 +379,7 @@ setTimeout(function() {
     promise.fulfill(5000);
 }, 40);
 
-var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(promise).then(function(results) {
+var chain = promix.chain(asyncAdd, 1, 2).and(asyncMultiply, 3, 4).then(promise).then(function(results) {
     console.log(results);
 
     //[3, 12, 5000]
@@ -400,7 +400,7 @@ function someOtherfn(results, callback) {
     return promise;
 }
 
-promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn).then(function(results) {
+promix.chain(asyncAdd, 1, 2).and(asyncMultiply, 3, 4).then(someFn).then(function(results) {
     console.log(results);
 
     //[3, 12, 9]
@@ -415,7 +415,7 @@ Usage:
 
 Any errors that occur will break the chain, preventing execution of further steps, and pass to the nearest handler.
 `````javascript
-var chain = promix.chain(asyncOne, 1, 2).and(errorFn, 'foo').then(function(results) {
+var chain = promix.chain(asyncAdd, 1, 2).and(errorFn, 'foo').then(function(results) {
     //we will never reach this point, because errorFn threw an error
 }).otherwise(function(error) {
     console.log(error);
@@ -440,7 +440,7 @@ Usage:
 If a callback is supplied, it will not be passed a trailing callback parameter, as is normally done when adding a function as a new step in the chain:
 
 `````javascript
-when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(function(a, b, callback) {
+when(asyncAdd, 1, 2).and(asyncMultiply, 3, 4).end(function(a, b, callback) {
     console.log(arguments);
     console.log(callback);
 
@@ -471,7 +471,7 @@ function typicalCallback(error, result) {
     }
 }
 
-promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).callback(typicalCallback);
+promix.chain(asyncAdd, 1, 2).and(asyncMultiply, 3, 4).callback(typicalCallback);
 `````
 
 ### chain.as()
@@ -501,16 +501,16 @@ If you call `chain.as()` after an `.assert()`, you will label that assertion.
 If the assertion returns false, the error that Promix creates from the failed assertion will be given the label that you passed into `.as()`:
 
 `````javascript
-var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4);
+var chain = promix.chain(asyncAdd, 1, 2).and(asyncMultiply, 3, 4);
 
 chain.assert(function(results) {
     return results [1] === 14;
-}).as('Checking to make sure asyncTwo returned 14');
+}).as('Checking to make sure asyncMultiply returned 14');
 
 chain.otherwise(function(error) {
     console.log(error);
 
-    //Error: Chain failed assertion: Checking to make sure asyncTwo returned 14
+    //Error: Chain failed assertion: Checking to make sure asyncMultiply returned 14
 });
 `````
 
@@ -521,8 +521,8 @@ An alias to a promise representing the state of a specific step in the chain, as
 
 When a step in the chain is either fulfilled or rejected, the promise stored at this property will be completed with the result (or error) from that step:
 `````javascript
-var chain = when(asyncOne, 1, 2).as('foo');
-chain.and(asyncTwo, 3, 4).as('bar');
+var chain = when(asyncAdd, 1, 2).as('foo');
+chain.and(asyncMultiply, 3, 4).as('bar');
 
 
 //chain.bar is now a standard promise:
