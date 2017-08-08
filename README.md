@@ -35,10 +35,10 @@ function doAsyncStuff(a, b, c, callback) {
 **After:**
 `````javascript
 function doAsyncStuff(a, b, c, callback) {
-    promix.chain(asyncAdd, a)
-        .and(asyncMultiply, b)
+    promix.chain(asyncOne, a)
+        .and(asyncTwo, b)
         .and(asyncThree, c)
-        .end(callback);
+        .callback(callback);
 }
 `````
 
