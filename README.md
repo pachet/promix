@@ -6,36 +6,36 @@ Promix is a way to regain control of asynchronous code.
 **Before:**
 `````javascript
 function doAsyncStuff ( a, b, c, callback ) {
-	asyncOne(a, function ( error, responseA ) {
-		if ( error ) {
-			return callback(error);
-		}
-		asyncTwo(b, function ( error, responseB ) {
-			if ( error ) {
-				return callback(error);
-			}
-			asyncThree(c, function ( error, responseC ) {
-				if ( error ) {
-					return callback(error);
-				}
-				//All done!
-				return callback(null, [
-					responseA,
-					responseB,
-					responseC
-				]);
-			});
-		});
-	});
+    asyncOne(a, function ( error, responseA ) {
+        if ( error ) {
+            return callback(error);
+        }
+        asyncTwo(b, function ( error, responseB ) {
+            if ( error ) {
+                return callback(error);
+            }
+            asyncThree(c, function ( error, responseC ) {
+                if ( error ) {
+                    return callback(error);
+                }
+                //All done!
+                return callback(null, [
+                    responseA,
+                    responseB,
+                    responseC
+                ]);
+            });
+        });
+    });
 }
 `````
 **After:**
 `````javascript
 function doAsyncStuff ( a, b, c, callback ) {
-	promix.chain(asyncOne, a)
-		.and(asyncTwo, b)
-		.and(asyncThree, c)
-		.end(callback);
+    promix.chain(asyncOne, a)
+        .and(asyncTwo, b)
+        .and(asyncThree, c)
+        .end(callback);
 }
 `````
 
@@ -72,35 +72,35 @@ var loading = false;
 var wrapperHeight = 0;
 
 function loadEntries ( category, start ) {
-	return $.get('/news/' + category + '/entries/?start=' + start);
+    return $.get('/news/' + category + '/entries/?start=' + start);
 }
 
 function loadImageFor ( entry ) {
-	var promise = promix.promise();
-	var image = new Image();
-	image.onload = function ( ) {
-		promise.fulfill();
-	};
-	image.src = '/images/' + entry.thumbnail;
+    var promise = promix.promise();
+    var image = new Image();
+    image.onload = function ( ) {
+        promise.fulfill();
+    };
+    image.src = '/images/' + entry.thumbnail;
 
-	return promise;
+    return promise;
 }
 
 function addEntries ( entries ) {
-	$wrapper.append(Handlebars.templates.entries(entries));
-	loading = false;
-	wrapperHeight = $wrapper.height();
+    $wrapper.append(Handlebars.templates.entries(entries));
+    loading = false;
+    wrapperHeight = $wrapper.height();
 }
 
 //Load the list of entries from the server,
 //wait for the first image to load, then show the list:
 function showNextEntries ( ) {
-	loading = true;
-	offset += 10;
-	var chain = promix.chain(loadEntries, 'javascript', offset).as('entries');
-	chain.then(loadImageFor, chain.entries(0));
-	chain.then(addEntries, chain.entries());
-	chain.then($.fn.fadeIn).bind($wrapper).otherwise(showError);
+    loading = true;
+    offset += 10;
+    var chain = promix.chain(loadEntries, 'javascript', offset).as('entries');
+    chain.then(loadImageFor, chain.entries(0));
+    chain.then(addEntries, chain.entries());
+    chain.then($.fn.fadeIn).bind($wrapper).otherwise(showError);
 }
 
 showNextEntries();
@@ -111,12 +111,12 @@ showNextEntries();
 `````javascript
 //Return the 10 most recent entries:
 function getEntries ( category, offset, callback ) {
-	var query = [
-		'SELECT uuid, title, thumbnail, author, description, body, date',
-		'FROM Entries WHERE active = 1 AND category = ?',
-		'ORDER BY date DESC LIMIT 10 OFFSET ?'
-	];
-	promix.chain(sql.query, query.join(' '), [category, offset]).end(callback);
+    var query = [
+        'SELECT uuid, title, thumbnail, author, description, body, date',
+        'FROM Entries WHERE active = 1 AND category = ?',
+        'ORDER BY date DESC LIMIT 10 OFFSET ?'
+    ];
+    promix.chain(sql.query, query.join(' '), [category, offset]).end(callback);
 }
 `````
 
@@ -124,9 +124,9 @@ function getEntries ( category, offset, callback ) {
 `````javascript
 //Request entries and send them back as JSON:
 router.get('/news/:category/entries/', function ( request, response, next ) {
-	promix.chain(getEntries, request.params.category, request.query.offset)
-		.then(response.send).as('json')
-		.otherwise(next);
+    promix.chain(getEntries, request.params.category, request.query.offset)
+        .then(response.send).as('json')
+        .otherwise(next);
 });
 `````
 
@@ -136,21 +136,21 @@ router.get('/news/:category/entries/', function ( request, response, next ) {
 
 `````javascript
 function asyncOne ( a, b, callback ) {
-	setTimeout(function ( ) {
-		return callback(null, a + b);
-	}, 10);
+    setTimeout(function ( ) {
+        return callback(null, a + b);
+    }, 10);
 }
 
 function asyncTwo ( c, d, callback ) {
-	setTimeout(function ( ) {
-		return callback(null, c * d);
-	}, 20);
+    setTimeout(function ( ) {
+        return callback(null, c * d);
+    }, 20);
 }
 
 function errorFn ( label, callback ) {
-	setTimeout(function ( ) {
-		return callback(new Error('This function throws errors (' + label + ')'));
-	}, 30);
+    setTimeout(function ( ) {
+        return callback(new Error('This function throws errors (' + label + ')'));
+    }, 30);
 }
 `````
 
@@ -194,14 +194,14 @@ This promise is Promises/A+ compliant, meaning it exposes a `.then()` method tha
 var promise = promix.promise();
 
 function success ( result ) {
-	console.log(result);
+    console.log(result);
 
-	//vaporeon
+    //vaporeon
 }
 
 function failure ( error ) {
-	//our promise wasn't rejected,
-	//so we won't reach this
+    //our promise wasn't rejected,
+    //so we won't reach this
 }
 
 promise.then(success, failure);
@@ -211,21 +211,21 @@ promise.fulfill('vaporeon');
 You can pass an optional object to `.promise()`, and that object will inherit the `.then()`, `.fulfill()`, and `.reject()` methods.
 `````javascript
 var promise = promix.promise({
-	foo : 'foo',
-	bar : 'bar',
-	baz : 'baz'
+    foo : 'foo',
+    bar : 'bar',
+    baz : 'baz'
 });
 
 console.log(promise);
 
-//	{
-//		foo : 'foo',
-//		bar : 'bar',
-//		baz : 'baz',
-//		then : [function then],
-//		fulfill : [function fulfill],
-//		reject : [function reject]
-//	}
+//    {
+//        foo : 'foo',
+//        bar : 'bar',
+//        baz : 'baz',
+//        then : [function then],
+//        fulfill : [function fulfill],
+//        reject : [function reject]
+//    }
 `````
 
 ###promix.toString()
@@ -238,13 +238,13 @@ Usage:
 var promise = promix.promise();
 
 setTimeout(function ( ) {
-	promise.fulfill('foobarfoobaz');
+    promise.fulfill('foobarfoobaz');
 }, 10);
 
 promix.toString(promise).replace(/foo/g, 'wat').then(function ( result ) {
-	console.log(result);
+    console.log(result);
 
-	//watbarwatbaz
+    //watbarwatbaz
 });
 `````
 
@@ -258,13 +258,13 @@ Usage:
 var promise = promix.promise();
 
 setTimeout(function ( ) {
-	promise.fulfill(26.56);
+    promise.fulfill(26.56);
 }, 10);
 
 promix.toNumber(promise).round().then(function ( result ) {
-	console.log(result);
+    console.log(result);
 
-	//27
+    //27
 });
 `````
 
@@ -279,13 +279,13 @@ Usage:
 var promise = promix.promise();
 
 setTimeout(function ( ) {
-	promise.fulfill(['foo', 'wat', 'baz', 'bar']);
+    promise.fulfill(['foo', 'wat', 'baz', 'bar']);
 }, 10);
 
 promix.toArray(promise).sort().join('-').then(function ( result ) {
-	console.log(result);
+    console.log(result);
 
-	//bar-baz-foo-wat
+    //bar-baz-foo-wat
 });
 `````
 
@@ -299,16 +299,16 @@ Usage:
 var promise = promix.promise();
 
 setTimeout(function ( ) {
-	promise.fulfill({
-		foo : 1,
-		bar : 2
-	});
+    promise.fulfill({
+        foo : 1,
+        bar : 2
+    });
 }, 10);
 
 promix.toObject(promise).get('foo').toNumber().add(5).then(function ( result ) {
-	console.log(result);
+    console.log(result);
 
-	//7
+    //7
 });
 `````
 
@@ -327,10 +327,10 @@ Usage:
 `````javascript
 var promise = promix.promise();
 promix.chain(asyncOne, 1, 2)
-	.and(asyncTwo, 3, 4)
-	.and(promise)
-	.and(...)
-	//continue adding things as need be
+    .and(asyncTwo, 3, 4)
+    .and(promise)
+    .and(...)
+    //continue adding things as need be
 `````
 
 ###chain.then() [\*](#breakpoints)
@@ -347,9 +347,9 @@ the function will be passed an array of results from all earlier steps in the ch
 
 `````javascript
 var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function ( results ) {
-	console.log(results);
+    console.log(results);
 
-	//[3, 12]
+    //[3, 12]
 });
 `````
 
@@ -357,15 +357,15 @@ If you supply additional arguments to `.then()`, those arguments, as well as a t
 
 `````javascript
 function someFn ( v1, v2, callback ) {
-	setTimeout(function ( ) {
-		return callback(v1 + v1 + v1 + ' ' + v2 + v2 + v2);
-	}, 50);
+    setTimeout(function ( ) {
+        return callback(v1 + v1 + v1 + ' ' + v2 + v2 + v2);
+    }, 50);
 }
 
 promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn, 'a', 'b').then(function ( results ) {
-	console.log(results);
+    console.log(results);
 
-	//[3, 12, 'aaa bbb']
+    //[3, 12, 'aaa bbb']
 });
 `````
 In the above case, the chain continues because `someOtherFn` calls the `callback` argument supplied by Promix.
@@ -376,13 +376,13 @@ If you pass a promise to `chain.then()`, the chain will wait until that promise 
 var promise = promix.promise();
 
 setTimeout(function ( ) {
-	promise.fulfill(5000);
+    promise.fulfill(5000);
 }, 40);
 
 var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(promise).then(function ( results ) {
-	console.log(results);
+    console.log(results);
 
-	//[3, 12, 5000]
+    //[3, 12, 5000]
 });
 `````
 
@@ -391,19 +391,19 @@ A function passed to `chain.then()` can also directly return a promise in order 
 For example:
 ````javascript
 function someOtherfn ( results, callback ) {
-	var promise = promix.promise();
+    var promise = promix.promise();
 
-	setTimeout(function ( ) {
-		promise.fulfill(results [1] - results [0]);
-	}, 50);
+    setTimeout(function ( ) {
+        promise.fulfill(results [1] - results [0]);
+    }, 50);
 
-	return promise;
+    return promise;
 }
 
 promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn).then(function ( results ) {
-	console.log(results);
+    console.log(results);
 
-	//[3, 12, 9]
+    //[3, 12, 9]
 });
 `````
 
@@ -416,11 +416,11 @@ Usage:
 Any errors that occur will break the chain, preventing execution of further steps, and pass to the nearest handler.
 `````javascript
 var chain = promix.chain(asyncOne, 1, 2).and(errorFn, 'foo').then(function ( results ) {
-	//we will never reach this point, because errorFn threw an error
+    //we will never reach this point, because errorFn threw an error
 }).otherwise(function ( error ) {
-	console.log(error);
+    console.log(error);
 
-	//Error: This function throws errors (foo)
+    //Error: This function throws errors (foo)
 });
 `````
 
@@ -441,11 +441,11 @@ If a callback is supplied, it will not be passed a trailing callback parameter, 
 
 `````javascript
 when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(function ( a, b, callback ) {
-	console.log(arguments);
-	console.log(callback);
+    console.log(arguments);
+    console.log(callback);
 
-	//5, 6
-	//undefined
+    //5, 6
+    //undefined
 }, 5, 6);
 `````
 
@@ -461,14 +461,14 @@ Promix will fork it into a `.then ( results ) { }` success handler and a `.other
 
 `````javascript
 function typicalCallback ( error, result ) {
-	if ( error ) {
-		throw error;
-	}
-	else {
-		console.log(result);
+    if ( error ) {
+        throw error;
+    }
+    else {
+        console.log(result);
 
-		//[3, 12]
-	}
+        //[3, 12]
+    }
 }
 
 promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).callback(typicalCallback);
@@ -488,12 +488,12 @@ results from steps labelled with `.as()` will be aliased as a property on the re
 `````javascript
 var chain = promise.when(foo, 1, 2).as('foo');
 chain.then(function ( results ) {
-	//results [0] === results.foo
-	console.log(results [0]);
-	console.log(results.foo);
+    //results [0] === results.foo
+    console.log(results [0]);
+    console.log(results.foo);
 
-	//3
-	//3
+    //3
+    //3
 });
 `````
 
@@ -504,13 +504,13 @@ If the assertion returns false, the error that Promix creates from the failed as
 var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4);
 
 chain.assert(function ( results ) {
-	return results [1] === 14;
+    return results [1] === 14;
 }).as('Checking to make sure asyncTwo returned 14');
 
 chain.otherwise(function ( error ) {
-	console.log(error);
+    console.log(error);
 
-	//Error: Chain failed assertion: Checking to make sure asyncTwo returned 14
+    //Error: Chain failed assertion: Checking to make sure asyncTwo returned 14
 });
 `````
 
@@ -527,11 +527,11 @@ chain.and(asyncTwo, 3, 4).as('bar');
 
 //chain.bar is now a standard promise:
 chain.bar.then(function ( result ) {
-	console.log(result);
+    console.log(result);
 
-	//12
+    //12
 }, function ( error ) {
-	//We won't reach this
+    //We won't reach this
 });
 `````
 
@@ -544,31 +544,31 @@ Usage:
 Some functions depend on the context on which they are called. Using `chain.bind()`, we can supply this execution context for specific steps in the chain:
 `````javascript
 var someObj = {
-	transform : function ( text, callback ) {
-		setTimeout(function ( ) {
-			return callback(null, text.split('').reverse().join(''));
-		}, 50);
-	},
-	getName : function ( text, callback ) {
-		this.transform(text, callback);
-	}
+    transform : function ( text, callback ) {
+        setTimeout(function ( ) {
+            return callback(null, text.split('').reverse().join(''));
+        }, 50);
+    },
+    getName : function ( text, callback ) {
+        this.transform(text, callback);
+    }
 };
 
 when(someObj.getName, 'pikachu').then(function ( results ) {
-	//we will not reach this
+    //we will not reach this
 }).otherwise(function ( error ) {
-	console.log(Error);
+    console.log(Error);
 
-	//Uncaught TypeError: Object [Object] has no method 'transform'
+    //Uncaught TypeError: Object [Object] has no method 'transform'
 });
 
 //let's try again, using chain.bind():
 when(someObj.getName, 'pikachu').bind(someObj).then(function ( results ) {
-	console.log(results);
+    console.log(results);
 
-	//['uhcakip']
+    //['uhcakip']
 }).otherwise(function ( error ) {
-	//we will not reach this
+    //we will not reach this
 });
 
 `````
@@ -585,11 +585,11 @@ Usage:
 
 `````javascript
 function oneSecond ( callback ) {
-	setTimeout(callback, 1000);
+    setTimeout(callback, 1000);
 }
 
 function twoSeconds ( callback ) {
-	setTimeout(callback, 2000);
+    setTimeout(callback, 2000);
 }
 
 var chain = promix.chain();
@@ -599,33 +599,33 @@ chain.and(oneSecond).as('foo');
 chain.and(oneSecond).as('foo');
 chain.and(twoSeconds).as('bar');
 chain.then(function(results) {
-	chain.done();
+    chain.done();
 
-	console.log(promix.stats('bowser'));
+    console.log(promix.stats('bowser'));
 
-	// The above would output the following metrics
-	// (note that the total time for the chain is 2000,
-	//  because the steps are executed in parallel):
+    // The above would output the following metrics
+    // (note that the total time for the chain is 2000,
+    //  because the steps are executed in parallel):
 
-	/*
-	{
-		count: 1,
-		total: 2000,
-		average: 2000
-	}
-	*/
+    /*
+    {
+        count: 1,
+        total: 2000,
+        average: 2000
+    }
+    */
 
-	// We can retrieve the child steps as follows
-	// (incorporates two steps, each one second in length):
+    // We can retrieve the child steps as follows
+    // (incorporates two steps, each one second in length):
 
-	console.log(promix.stats('bowser.foo'));
+    console.log(promix.stats('bowser.foo'));
 
-	/*
-	{
-		count: 2,
-		total: 2000,
-		average: 1000
-	}
+    /*
+    {
+        count: 2,
+        total: 2000,
+        average: 1000
+    }
 });
 `````
 
