@@ -5,17 +5,17 @@ Promix is a way to regain control of asynchronous code.
 
 **Before:**
 `````javascript
-function doAsyncStuff ( a, b, c, callback ) {
-    asyncOne(a, function ( error, responseA ) {
-        if ( error ) {
+function doAsyncStuff(a, b, c, callback) {
+    asyncOne(a, function(error, responseA) {
+        if(error) {
             return callback(error);
         }
-        asyncTwo(b, function ( error, responseB ) {
-            if ( error ) {
+        asyncTwo(b, function(error, responseB) {
+            if(error) {
                 return callback(error);
             }
-            asyncThree(c, function ( error, responseC ) {
-                if ( error ) {
+            asyncThree(c, function(error, responseC) {
+                if(error) {
                     return callback(error);
                 }
                 //All done!
@@ -31,7 +31,7 @@ function doAsyncStuff ( a, b, c, callback ) {
 `````
 **After:**
 `````javascript
-function doAsyncStuff ( a, b, c, callback ) {
+function doAsyncStuff(a, b, c, callback) {
     promix.chain(asyncOne, a)
         .and(asyncTwo, b)
         .and(asyncThree, c)
@@ -71,14 +71,14 @@ var offset = 0;
 var loading = false;
 var wrapperHeight = 0;
 
-function loadEntries ( category, start ) {
+function loadEntries(category, start) {
     return $.get('/news/' + category + '/entries/?start=' + start);
 }
 
-function loadImageFor ( entry ) {
+function loadImageFor(entry) {
     var promise = promix.promise();
     var image = new Image();
-    image.onload = function ( ) {
+    image.onload = function() {
         promise.fulfill();
     };
     image.src = '/images/' + entry.thumbnail;
@@ -86,7 +86,7 @@ function loadImageFor ( entry ) {
     return promise;
 }
 
-function addEntries ( entries ) {
+function addEntries(entries) {
     $wrapper.append(Handlebars.templates.entries(entries));
     loading = false;
     wrapperHeight = $wrapper.height();
@@ -94,7 +94,7 @@ function addEntries ( entries ) {
 
 //Load the list of entries from the server,
 //wait for the first image to load, then show the list:
-function showNextEntries ( ) {
+function showNextEntries() {
     loading = true;
     offset += 10;
     var chain = promix.chain(loadEntries, 'javascript', offset).as('entries');
@@ -110,7 +110,7 @@ showNextEntries();
 
 `````javascript
 //Return the 10 most recent entries:
-function getEntries ( category, offset, callback ) {
+function getEntries(category, offset, callback) {
     var query = [
         'SELECT uuid, title, thumbnail, author, description, body, date',
         'FROM Entries WHERE active = 1 AND category = ?',
@@ -123,7 +123,7 @@ function getEntries ( category, offset, callback ) {
 ###In a route
 `````javascript
 //Request entries and send them back as JSON:
-router.get('/news/:category/entries/', function ( request, response, next ) {
+router.get('/news/:category/entries/', function(request, response, next) {
     promix.chain(getEntries, request.params.category, request.query.offset)
         .then(response.send).as('json')
         .otherwise(next);
@@ -135,20 +135,20 @@ router.get('/news/:category/entries/', function ( request, response, next ) {
 **NOTE:** The API examples in this section use the following functions in order to illustrate asynchronous behavior:
 
 `````javascript
-function asyncOne ( a, b, callback ) {
-    setTimeout(function ( ) {
+function asyncOne(a, b, callback) {
+    setTimeout(function() {
         return callback(null, a + b);
     }, 10);
 }
 
-function asyncTwo ( c, d, callback ) {
-    setTimeout(function ( ) {
+function asyncTwo(c, d, callback) {
+    setTimeout(function() {
         return callback(null, c * d);
     }, 20);
 }
 
-function errorFn ( label, callback ) {
-    setTimeout(function ( ) {
+function errorFn(label, callback) {
+    setTimeout(function() {
         return callback(new Error('This function throws errors (' + label + ')'));
     }, 30);
 }
@@ -193,13 +193,13 @@ This promise is Promises/A+ compliant, meaning it exposes a `.then()` method tha
 `````javascript
 var promise = promix.promise();
 
-function success ( result ) {
+function success(result) {
     console.log(result);
 
     //vaporeon
 }
 
-function failure ( error ) {
+function failure(error) {
     //our promise wasn't rejected,
     //so we won't reach this
 }
@@ -237,11 +237,11 @@ Usage:
 `````javascript
 var promise = promix.promise();
 
-setTimeout(function ( ) {
+setTimeout(function() {
     promise.fulfill('foobarfoobaz');
 }, 10);
 
-promix.toString(promise).replace(/foo/g, 'wat').then(function ( result ) {
+promix.toString(promise).replace(/foo/g, 'wat').then(function(result) {
     console.log(result);
 
     //watbarwatbaz
@@ -257,11 +257,11 @@ Usage:
 `````javascript
 var promise = promix.promise();
 
-setTimeout(function ( ) {
+setTimeout(function() {
     promise.fulfill(26.56);
 }, 10);
 
-promix.toNumber(promise).round().then(function ( result ) {
+promix.toNumber(promise).round().then(function(result) {
     console.log(result);
 
     //27
@@ -278,11 +278,11 @@ Usage:
 `````javascript
 var promise = promix.promise();
 
-setTimeout(function ( ) {
+setTimeout(function() {
     promise.fulfill(['foo', 'wat', 'baz', 'bar']);
 }, 10);
 
-promix.toArray(promise).sort().join('-').then(function ( result ) {
+promix.toArray(promise).sort().join('-').then(function(result) {
     console.log(result);
 
     //bar-baz-foo-wat
@@ -298,14 +298,14 @@ Usage:
 `````javascript
 var promise = promix.promise();
 
-setTimeout(function ( ) {
+setTimeout(function() {
     promise.fulfill({
         foo : 1,
         bar : 2
     });
 }, 10);
 
-promix.toObject(promise).get('foo').toNumber().add(5).then(function ( result ) {
+promix.toObject(promise).get('foo').toNumber().add(5).then(function(result) {
     console.log(result);
 
     //7
@@ -346,7 +346,7 @@ If you pass a function to `chain.then()` as the only argument,
 the function will be passed an array of results from all earlier steps in the chain:
 
 `````javascript
-var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function ( results ) {
+var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function(results) {
     console.log(results);
 
     //[3, 12]
@@ -356,13 +356,13 @@ var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(function ( res
 If you supply additional arguments to `.then()`, those arguments, as well as a trailing callback created by promix, will be passed to the function **instead of** the results object:
 
 `````javascript
-function someFn ( v1, v2, callback ) {
-    setTimeout(function ( ) {
+function someFn(v1, v2, callback) {
+    setTimeout(function() {
         return callback(v1 + v1 + v1 + ' ' + v2 + v2 + v2);
     }, 50);
 }
 
-promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn, 'a', 'b').then(function ( results ) {
+promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn, 'a', 'b').then(function(results) {
     console.log(results);
 
     //[3, 12, 'aaa bbb']
@@ -375,11 +375,11 @@ If you pass a promise to `chain.then()`, the chain will wait until that promise 
 `````javascript
 var promise = promix.promise();
 
-setTimeout(function ( ) {
+setTimeout(function() {
     promise.fulfill(5000);
 }, 40);
 
-var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(promise).then(function ( results ) {
+var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(promise).then(function(results) {
     console.log(results);
 
     //[3, 12, 5000]
@@ -390,17 +390,17 @@ A function passed to `chain.then()` can also directly return a promise in order 
 
 For example:
 ````javascript
-function someOtherfn ( results, callback ) {
+function someOtherfn(results, callback) {
     var promise = promix.promise();
 
-    setTimeout(function ( ) {
+    setTimeout(function() {
         promise.fulfill(results [1] - results [0]);
     }, 50);
 
     return promise;
 }
 
-promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn).then(function ( results ) {
+promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn).then(function(results) {
     console.log(results);
 
     //[3, 12, 9]
@@ -415,9 +415,9 @@ Usage:
 
 Any errors that occur will break the chain, preventing execution of further steps, and pass to the nearest handler.
 `````javascript
-var chain = promix.chain(asyncOne, 1, 2).and(errorFn, 'foo').then(function ( results ) {
+var chain = promix.chain(asyncOne, 1, 2).and(errorFn, 'foo').then(function(results) {
     //we will never reach this point, because errorFn threw an error
-}).otherwise(function ( error ) {
+}).otherwise(function(error) {
     console.log(error);
 
     //Error: This function throws errors (foo)
@@ -440,7 +440,7 @@ Usage:
 If a callback is supplied, it will not be passed a trailing callback parameter, as is normally done when adding a function as a new step in the chain:
 
 `````javascript
-when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(function ( a, b, callback ) {
+when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(function(a, b, callback) {
     console.log(arguments);
     console.log(callback);
 
@@ -455,13 +455,13 @@ Add a single callback to the end of the chain. This callback also acts as an err
 Usage:
 > **chain.callback( function )**
 
-Callbacks in Node.js often take the form `function ( error, result ) { }`.
+Callbacks in Node.js often take the form `function(error, result) { }`.
 `chain.callback()` allows you to pass a single function of this signature into the chain;
-Promix will fork it into a `.then ( results ) { }` success handler and a `.otherwise ( error ) { }` error handler behind the scenes:
+Promix will fork it into a `.then(results) { }` success handler and a `.otherwise(error) { }` error handler behind the scenes:
 
 `````javascript
-function typicalCallback ( error, result ) {
-    if ( error ) {
+function typicalCallback(error, result) {
+    if(error) {
         throw error;
     }
     else {
@@ -487,7 +487,7 @@ In addition to living at the current step index on the results array,
 results from steps labelled with `.as()` will be aliased as a property on the results object passed to downstream functions:
 `````javascript
 var chain = promise.when(foo, 1, 2).as('foo');
-chain.then(function ( results ) {
+chain.then(function(results) {
     //results [0] === results.foo
     console.log(results [0]);
     console.log(results.foo);
@@ -503,11 +503,11 @@ If the assertion returns false, the error that Promix creates from the failed as
 `````javascript
 var chain = promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4);
 
-chain.assert(function ( results ) {
+chain.assert(function(results) {
     return results [1] === 14;
 }).as('Checking to make sure asyncTwo returned 14');
 
-chain.otherwise(function ( error ) {
+chain.otherwise(function(error) {
     console.log(error);
 
     //Error: Chain failed assertion: Checking to make sure asyncTwo returned 14
@@ -526,11 +526,11 @@ chain.and(asyncTwo, 3, 4).as('bar');
 
 
 //chain.bar is now a standard promise:
-chain.bar.then(function ( result ) {
+chain.bar.then(function(result) {
     console.log(result);
 
     //12
-}, function ( error ) {
+}, function(error) {
     //We won't reach this
 });
 `````
@@ -544,30 +544,30 @@ Usage:
 Some functions depend on the context on which they are called. Using `chain.bind()`, we can supply this execution context for specific steps in the chain:
 `````javascript
 var someObj = {
-    transform : function ( text, callback ) {
-        setTimeout(function ( ) {
+    transform: function(text, callback) {
+        setTimeout(function() {
             return callback(null, text.split('').reverse().join(''));
         }, 50);
     },
-    getName : function ( text, callback ) {
+    getName: function(text, callback) {
         this.transform(text, callback);
     }
 };
 
-when(someObj.getName, 'pikachu').then(function ( results ) {
+when(someObj.getName, 'pikachu').then(function(results) {
     //we will not reach this
-}).otherwise(function ( error ) {
+}).otherwise(function(error) {
     console.log(Error);
 
     //Uncaught TypeError: Object [Object] has no method 'transform'
 });
 
 //let's try again, using chain.bind():
-when(someObj.getName, 'pikachu').bind(someObj).then(function ( results ) {
+when(someObj.getName, 'pikachu').bind(someObj).then(function(results) {
     console.log(results);
 
     //['uhcakip']
-}).otherwise(function ( error ) {
+}).otherwise(function(error) {
     //we will not reach this
 });
 
@@ -584,11 +584,11 @@ Usage:
 > **chain.time( [namespace] )**
 
 `````javascript
-function oneSecond ( callback ) {
+function oneSecond(callback) {
     setTimeout(callback, 1000);
 }
 
-function twoSeconds ( callback ) {
+function twoSeconds(callback) {
     setTimeout(callback, 2000);
 }
 
