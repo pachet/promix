@@ -1,5 +1,5 @@
-#Promix
-###Mix promises with callbacks for improved control flow
+# Promix
+### Mix promises with callbacks for improved control flow
 
 Promix is a way to regain control of asynchronous code.
 
@@ -40,33 +40,33 @@ function doAsyncStuff(a, b, c, callback) {
 `````
 
 
-##Contents
+## Contents
 
-1. [Install](#install)
-2. [Introduction](#introduction)
-4. [Examples](#examples)
-3. [API](#api)
-5. [License](#license)
-6. [Notes](#notes)
+1. [Install](# install)
+2. [Introduction](# introduction)
+4. [Examples](# examples)
+3. [API](# api)
+5. [License](# license)
+6. [Notes](# notes)
 
-##Install
+## Install
 
 `````text
 npm install promix
 `````
 
-##Introduction
+## Introduction
 
 Promix is a control flow library for JavaScript that makes it easy to chain asynchronous operations together.
 If you pass in a function that accepts a trailing callback argument, Promix will transform it into a promise and add it to the chain.
 You can pass in your own promises, too, if that's your style. Promix lets you easily mix the two, and make it out of callback hell in one piece.
 
-##Examples
+## Examples
 
-###In the browser
+### In the browser
 
 `````javascript
-var $wrapper = $('#wrapper');
+var $wrapper = $('# wrapper');
 var offset = 0;
 var loading = false;
 var wrapperHeight = 0;
@@ -106,7 +106,7 @@ function showNextEntries() {
 showNextEntries();
 `````
 
-###In a service
+### In a service
 
 `````javascript
 //Return the 10 most recent entries:
@@ -120,7 +120,7 @@ function getEntries(category, offset, callback) {
 }
 `````
 
-###In a route
+### In a route
 `````javascript
 //Request entries and send them back as JSON:
 router.get('/news/:category/entries/', function(request, response, next) {
@@ -130,7 +130,7 @@ router.get('/news/:category/entries/', function(request, response, next) {
 });
 `````
 
-##API
+## API
 
 **NOTE:** The API examples in this section use the following functions in order to illustrate asynchronous behavior:
 
@@ -154,7 +154,7 @@ function errorFn(label, callback) {
 }
 `````
 
-##promix
+## promix
 The `promix` object exposes all of the functionality of the Promix library.
 
 Require it in Node.js:
@@ -163,7 +163,7 @@ Require it in Node.js:
 Or load it in your browser:
 > **&lt;script src="promix.min.js"&gt;&lt;/script&gt;**
 
-###promix.chain() [\*](#breakpoints)
+### promix.chain() [\*](# breakpoints)
 Accept an optional promise or callback-accepting function, and return a new chain.
 
 
@@ -183,7 +183,7 @@ var promise = promix.promise();
 var chain = promix.chain(promise);
 `````
 
-###promix.promise()
+### promix.promise()
 Create a new promise.
 
 Usage:
@@ -228,8 +228,8 @@ console.log(promise);
 //    }
 `````
 
-###promix.toString()
-Convert a standard promise to a StringPromise. A StringPromise allows you to manipulate a promise's eventual string value using familiar String methods. (See the [StringPromise API](#stringpromise) below.)
+### promix.toString()
+Convert a standard promise to a StringPromise. A StringPromise allows you to manipulate a promise's eventual string value using familiar String methods. (See the [StringPromise API](# stringpromise) below.)
 
 Usage:
 > **promix.toString( promise )**
@@ -248,8 +248,8 @@ promix.toString(promise).replace(/foo/g, 'wat').then(function(result) {
 });
 `````
 
-###promix.toNumber()
-Convert a standard promise to a NumberPromise. A NumberPromise allows you to manipulate a promise's eventual number value using familiar methods. (See the [NumberPromise API](#numberpromise) below.)
+### promix.toNumber()
+Convert a standard promise to a NumberPromise. A NumberPromise allows you to manipulate a promise's eventual number value using familiar methods. (See the [NumberPromise API](# numberpromise) below.)
 
 Usage:
 > **promix.toNumber( promise )**
@@ -269,8 +269,8 @@ promix.toNumber(promise).round().then(function(result) {
 `````
 
 
-###promix.toArray()
-Convert a standard promise to an ArrayPromise. An ArrayPromise allows you to manipulate a promise's eventual array value using familiar Array methods. (See the [NumberPromise API](#numberpromise) below.)
+### promix.toArray()
+Convert a standard promise to an ArrayPromise. An ArrayPromise allows you to manipulate a promise's eventual array value using familiar Array methods. (See the [NumberPromise API](# numberpromise) below.)
 
 Usage:
 > **promix.toArray( promise )**
@@ -289,8 +289,8 @@ promix.toArray(promise).sort().join('-').then(function(result) {
 });
 `````
 
-###promix.toObject()
-Convert a standard promise to an ObjectPromise. An ObjectPromise allows you to get and set properties, and transform the promise to other Promise types. (See the [ObjectPromise API](#objectpromise) below.)
+### promix.toObject()
+Convert a standard promise to an ObjectPromise. An ObjectPromise allows you to get and set properties, and transform the promise to other Promise types. (See the [ObjectPromise API](# objectpromise) below.)
 
 Usage:
 > **promix.toObject( promise )**
@@ -312,11 +312,11 @@ promix.toObject(promise).get('foo').toNumber().add(5).then(function(result) {
 });
 `````
 
-##Chain
+## Chain
 A chain is used to collect the eventual outcomes of asynchronous JavaScript actions. It consolidates the successful results of these actions, and notifies us of any error that occurs during completion of its steps.
 This allows us to assign one callback for the entire chain.
 
-###chain.and()
+### chain.and()
 Add a new promise or callback-accepting function as a parallel step in the chain.
 
 Usage:
@@ -333,7 +333,7 @@ promix.chain(asyncOne, 1, 2)
     //continue adding things as need be
 `````
 
-###chain.then() [\*](#breakpoints)
+### chain.then() [\*](# breakpoints)
 Add a new promise or function as a sequential step in the chain. All prior steps must complete before this step is evaluated.
 
 Usage:
@@ -407,7 +407,7 @@ promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn).then(function(resu
 });
 `````
 
-###chain.otherwise() [\*](#breakpoints)
+### chain.otherwise() [\*](# breakpoints)
 Add a new error handler to the chain.
 
 Usage:
@@ -426,10 +426,10 @@ var chain = promix.chain(asyncOne, 1, 2).and(errorFn, 'foo').then(function(resul
 
 **NOTE**
 
-If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](#chainend-)), the error will be thrown.
-You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress](#chainsuppress)).
+If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](# chainend-)), the error will be thrown.
+You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress](# chainsuppress)).
 
-###chain.end() [\*](#breakpoints)
+### chain.end() [\*](# breakpoints)
 Add a promise or callback-accepting function to the current chain.
 
 Usage:
@@ -449,7 +449,7 @@ when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(function(a, b, callback) {
 }, 5, 6);
 `````
 
-###chain.callback() [\*](#breakpoints)
+### chain.callback() [\*](# breakpoints)
 Add a single callback to the end of the chain. This callback also acts as an error handler.
 
 Usage:
@@ -474,7 +474,7 @@ function typicalCallback(error, result) {
 promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).callback(typicalCallback);
 `````
 
-###chain.as()
+### chain.as()
 Assign a label to the current step in the chain.
 
 Usage:
@@ -514,9 +514,9 @@ chain.otherwise(function(error) {
 });
 `````
 
-The `chain.as()` method will also assign a new promise property on the chain itself representing the state of the current step. See [chain \[label\]] below. You can also use this property to create promises that return results from the labelled step. See [chain \[label\]()](#label) below.
+The `chain.as()` method will also assign a new promise property on the chain itself representing the state of the current step. See [chain \[label\]] below. You can also use this property to create promises that return results from the labelled step. See [chain \[label\]()](# label) below.
 
-###chain \[label\]
+### chain \[label\]
 An alias to a promise representing the state of a specific step in the chain, as designated by `chain.as()`.
 
 When a step in the chain is either fulfilled or rejected, the promise stored at this property will be completed with the result (or error) from that step:
@@ -535,7 +535,7 @@ chain.bar.then(function(result) {
 });
 `````
 
-###chain.bind()
+### chain.bind()
 Bind the execution context of the current step in the chain.
 
 Usage:
@@ -573,7 +573,7 @@ when(someObj.getName, 'pikachu').bind(someObj).then(function(results) {
 
 `````
 
-###chain.time(namespace)
+### chain.time(namespace)
 Designate that the chain should be timed. When the chain is marked as complete
 via `chain.done()`, the time it took to complete will be stored under the
 designated namespace, and accessible via `promix.stats(namespace)`. If labels
@@ -629,24 +629,24 @@ chain.then(function(results) {
 });
 `````
 
-##StringPromise
+## StringPromise
 StringPromises allow us to mutate the eventual String result of a promise that has yet to complete.
 StringPromises are returned from calling `promix.toString()`, as well as from any method on the other promise types that implicitly casts the promise value to a String (eg, `ArrayPromise.join()`).
 
 StringPromises expose the methods common to all Promix typed promises
-([get](#objectpromiseget), [set](#objectpromiseset),
-[delete](#objectpromisedelete), [keys](#objectpromisekeys),
-[toJSON](#objectpromisetojson)).
+([get](# objectpromiseget), [set](# objectpromiseset),
+[delete](# objectpromisedelete), [keys](# objectpromisekeys),
+[toJSON](# objectpromisetojson)).
 
 StringPromises wrap all of the methods that exist on the native
 `String.prototype`. There are a few additional convenience methods, as well.
 Their documentation will be added shortly.
 
-##NumberPromise
+## NumberPromise
 NumberPromises allow us to mutate the eventual Number result of a promise that has yet to complete.
 NumberPromises are returned from calling `promix.toNumber()`, as well as from any method on the other promise types that implicitly casts the promise value to a Number (eg, `ArrayPromise.length()`).
 
-##ArrayPromise
+## ArrayPromise
 ArrayPromises allow us to mutate the eventual Array result of a promise that has yet to complete.
 ArrayPromises are returned from calling `promix.toArray()`, as well as from any method on the other promise types that implicitly casts the promise value to an Array (eg, `StringPromise.split()`).
 
@@ -654,13 +654,13 @@ ArrayPromises wrap all of the methods that exist on the native
 `Array.prototype`. There are a few additional convenience methods, as well.
 Their documentation will be added shortly.
 
-##ObjectPromise
+## ObjectPromise
 ObjectPromises allow us to perform generic object mutations on a promise that has yet to complete.
 ObjectPromises are returned from any method on the other promise types with an indeterminate return type (eg `ArrayPromise.pop()`, where we are unsure what type of value exists at index 0).
 
 ObjectPromises expose the following methods:
 
-###ObjectPromise.get()
+### ObjectPromise.get()
 Promise to get the value of the given property.
 
 Usage:
@@ -670,7 +670,7 @@ Returns:
 >**ObjectPromise**
 
 
-###ObjectPromise.set()
+### ObjectPromise.set()
 Promise to set the property name to the given value.
 
 Usage:
@@ -680,7 +680,7 @@ Returns:
 >**ObjectPromise**
 
 
-###ObjectPromise.delete()
+### ObjectPromise.delete()
 Promise to delete the property at the supplied identifier.
 
 Usage:
@@ -690,7 +690,7 @@ Returns:
 >**ObjectPromise**
 
 
-###ObjectPromise.keys()
+### ObjectPromise.keys()
 Promise to return an array of the property identifiers belonging to the promise result.
 
 Usage:
@@ -700,7 +700,7 @@ Returns:
 >**ArrayPromise**
 
 
-###ObjectPromise.toJSON()
+### ObjectPromise.toJSON()
 Promise to return a serialized JSON representation of the current promise.
 
 Usage:
@@ -710,12 +710,12 @@ Returns:
 >**StringPromise**
 
 
-##License
+## License
 
 Promix is MIT licensed. You can read the license [here](https://raw.github.com/reflex/promix/master/license).
 
-##Notes
-###Breakpoints
+## Notes
+### Breakpoints
 
 Certain Promix chain methods act as chain breakpoints.
 These methods are designated with an asterisk (\*) throughout this documentation.
