@@ -42,12 +42,12 @@ function doAsyncStuff(a, b, c, callback) {
 
 ## Contents
 
-1. [Install](# install)
-2. [Introduction](# introduction)
-4. [Examples](# examples)
-3. [API](# api)
-5. [License](# license)
-6. [Notes](# notes)
+1. [Install](#install)
+2. [Introduction](#introduction)
+4. [Examples](#examples)
+3. [API](#api)
+5. [License](#license)
+6. [Notes](#notes)
 
 ## Install
 
@@ -163,7 +163,7 @@ Require it in Node.js:
 Or load it in your browser:
 > **&lt;script src="promix.min.js"&gt;&lt;/script&gt;**
 
-### promix.chain() [\*](# breakpoints)
+### promix.chain() [\*](#breakpoints)
 Accept an optional promise or callback-accepting function, and return a new chain.
 
 
@@ -229,7 +229,7 @@ console.log(promise);
 `````
 
 ### promix.toString()
-Convert a standard promise to a StringPromise. A StringPromise allows you to manipulate a promise's eventual string value using familiar String methods. (See the [StringPromise API](# stringpromise) below.)
+Convert a standard promise to a StringPromise. A StringPromise allows you to manipulate a promise's eventual string value using familiar String methods. (See the [StringPromise API](#stringpromise) below.)
 
 Usage:
 > **promix.toString( promise )**
@@ -249,7 +249,7 @@ promix.toString(promise).replace(/foo/g, 'wat').then(function(result) {
 `````
 
 ### promix.toNumber()
-Convert a standard promise to a NumberPromise. A NumberPromise allows you to manipulate a promise's eventual number value using familiar methods. (See the [NumberPromise API](# numberpromise) below.)
+Convert a standard promise to a NumberPromise. A NumberPromise allows you to manipulate a promise's eventual number value using familiar methods. (See the [NumberPromise API](#numberpromise) below.)
 
 Usage:
 > **promix.toNumber( promise )**
@@ -270,7 +270,7 @@ promix.toNumber(promise).round().then(function(result) {
 
 
 ### promix.toArray()
-Convert a standard promise to an ArrayPromise. An ArrayPromise allows you to manipulate a promise's eventual array value using familiar Array methods. (See the [NumberPromise API](# numberpromise) below.)
+Convert a standard promise to an ArrayPromise. An ArrayPromise allows you to manipulate a promise's eventual array value using familiar Array methods. (See the [NumberPromise API](#numberpromise) below.)
 
 Usage:
 > **promix.toArray( promise )**
@@ -290,7 +290,7 @@ promix.toArray(promise).sort().join('-').then(function(result) {
 `````
 
 ### promix.toObject()
-Convert a standard promise to an ObjectPromise. An ObjectPromise allows you to get and set properties, and transform the promise to other Promise types. (See the [ObjectPromise API](# objectpromise) below.)
+Convert a standard promise to an ObjectPromise. An ObjectPromise allows you to get and set properties, and transform the promise to other Promise types. (See the [ObjectPromise API](#objectpromise) below.)
 
 Usage:
 > **promix.toObject( promise )**
@@ -333,7 +333,7 @@ promix.chain(asyncOne, 1, 2)
     //continue adding things as need be
 `````
 
-### chain.then() [\*](# breakpoints)
+### chain.then() [\*](#breakpoints)
 Add a new promise or function as a sequential step in the chain. All prior steps must complete before this step is evaluated.
 
 Usage:
@@ -407,7 +407,7 @@ promix.chain(asyncOne, 1, 2).and(asyncTwo, 3, 4).then(someFn).then(function(resu
 });
 `````
 
-### chain.otherwise() [\*](# breakpoints)
+### chain.otherwise() [\*](#breakpoints)
 Add a new error handler to the chain.
 
 Usage:
@@ -426,10 +426,10 @@ var chain = promix.chain(asyncOne, 1, 2).and(errorFn, 'foo').then(function(resul
 
 **NOTE**
 
-If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](# chainend-)), the error will be thrown.
-You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress](# chainsuppress)).
+If you do not attach an error handler using `chain.otherwise()` or `chain.end()` (see [chain.end](#chainend-)), the error will be thrown.
+You can disable this feature by explicitly suppressing errors for your chain (see [chain.suppress](#chainsuppress)).
 
-### chain.end() [\*](# breakpoints)
+### chain.end() [\*](#breakpoints)
 Add a promise or callback-accepting function to the current chain.
 
 Usage:
@@ -449,7 +449,7 @@ when(asyncOne, 1, 2).and(asyncTwo, 3, 4).end(function(a, b, callback) {
 }, 5, 6);
 `````
 
-### chain.callback() [\*](# breakpoints)
+### chain.callback() [\*](#breakpoints)
 Add a single callback to the end of the chain. This callback also acts as an error handler.
 
 Usage:
@@ -514,7 +514,7 @@ chain.otherwise(function(error) {
 });
 `````
 
-The `chain.as()` method will also assign a new promise property on the chain itself representing the state of the current step. See [chain \[label\]] below. You can also use this property to create promises that return results from the labelled step. See [chain \[label\]()](# label) below.
+The `chain.as()` method will also assign a new promise property on the chain itself representing the state of the current step. See [chain \[label\]] below. You can also use this property to create promises that return results from the labelled step. See [chain \[label\]()](#label) below.
 
 ### chain \[label\]
 An alias to a promise representing the state of a specific step in the chain, as designated by `chain.as()`.
@@ -634,9 +634,9 @@ StringPromises allow us to mutate the eventual String result of a promise that h
 StringPromises are returned from calling `promix.toString()`, as well as from any method on the other promise types that implicitly casts the promise value to a String (eg, `ArrayPromise.join()`).
 
 StringPromises expose the methods common to all Promix typed promises
-([get](# objectpromiseget), [set](# objectpromiseset),
-[delete](# objectpromisedelete), [keys](# objectpromisekeys),
-[toJSON](# objectpromisetojson)).
+([get](#objectpromiseget), [set](#objectpromiseset),
+[delete](#objectpromisedelete), [keys](#objectpromisekeys),
+[toJSON](#objectpromisetojson)).
 
 StringPromises wrap all of the methods that exist on the native
 `String.prototype`. There are a few additional convenience methods, as well.
