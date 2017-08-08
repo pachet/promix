@@ -211,20 +211,20 @@ promise.fulfill('vaporeon');
 You can pass an optional object to `.promise()`, and that object will inherit the `.then()`, `.fulfill()`, and `.reject()` methods.
 `````javascript
 var promise = promix.promise({
-    foo : 'foo',
-    bar : 'bar',
-    baz : 'baz'
+    foo: 'foo',
+    bar: 'bar',
+    baz: 'baz'
 });
 
 console.log(promise);
 
 //    {
-//        foo : 'foo',
-//        bar : 'bar',
-//        baz : 'baz',
-//        then : [function then],
-//        fulfill : [function fulfill],
-//        reject : [function reject]
+//        foo: 'foo',
+//        bar: 'bar',
+//        baz: 'baz',
+//        then: [function then],
+//        fulfill: [function fulfill],
+//        reject: [function reject]
 //    }
 `````
 
@@ -300,8 +300,8 @@ var promise = promix.promise();
 
 setTimeout(function() {
     promise.fulfill({
-        foo : 1,
-        bar : 2
+        foo: 1,
+        bar: 2
     });
 }, 10);
 
