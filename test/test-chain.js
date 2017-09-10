@@ -765,7 +765,7 @@ function eachPromiseBound(test) {
 }
 
 function thenEachPromiseBound(test) {
-	test.expect(3);
+	test.expect(7);
 
 	var chain = promix.chain();
 
@@ -779,21 +779,28 @@ function thenEachPromiseBound(test) {
 
 	var promise = promix.next(array);
 
-	var completed_count = 0;
+	var index = 0;
 
 	function doSomething(value, callback) {
 		test.equals(this, context);
 
-		callback(null);
+		var expected_value = array[index];
 
-		completed_count++;
+		index++;
 
-		if (completed_count === 3) {
-			test.done();
-		}
+		test.equals(value, expected_value);
+
+		setTimeout(function deferred() {
+			callback(null);
+		}, 0);
 	}
 
 	chain.thenEach(promise, doSomething).bind(context);
+
+	chain.then(function finisher() {
+		test.equals(index, 3);
+		test.done();
+	});
 }
 
 function omit(test) {
