@@ -39,6 +39,7 @@ var tests = {
 	bindAll:                    bindAll,
 	bindWithCallback:           bindWithCallback,
 	bindWithFailureAction:      bindWithFailureAction,
+	bindWithNoInsertionStep:    bindWithNoInsertionStep,
 	callback:                   callback,
 	omit:                       omit,
 	each:                       each,
@@ -579,6 +580,20 @@ function bindWithFailureAction(test) {
 
 	chain.otherwise(function noop() { });
 	chain.bind(context_two);
+}
+
+function bindWithNoInsertionStep(test) {
+	test.expect(1);
+
+	var chain = Promix.chain();
+
+	chain.thenEach(empty_array, doSomething).bind(context);
+
+	test.ok(
+		true,
+		'bind() did not throw an error when called on an empty chain'
+	);
+	test.done();
 }
 
 function last(test) {
