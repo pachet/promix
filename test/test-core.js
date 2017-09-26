@@ -40,10 +40,10 @@ function compose(test) {
 	test.expect(4);
 
 	promix.compose({
-		one: promix.next(1),
-		two: promix.next(2),
+		one:   promix.next(1),
+		two:   promix.next(2),
 		three: promix.next(3),
-		four: promix.next(4)
+		four:  promix.next(4)
 	}).then(function resolve(result) {
 		test.equals(result.one, 1);
 		test.equals(result.two, 2);
@@ -80,8 +80,27 @@ function concat(test) {
 	);
 }
 
+function filter(test) {
+	test.expect(2);
+
+	var input_array = promix.next([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+	function filterFn(element, callback) {
+		return void callback(null, element % 2 === 0);
+	}
+
+	function handler(error, results) {
+		test.equals(error, null);
+		test.deepEqual(results, [2, 4, 6, 8]);
+		test.done();
+	}
+
+	promix.filter(input_array, filterFn).callback(handler);
+}
+
 module.exports = {
-	join: join,
+	join:    join,
 	compose: compose,
-	concat: concat
+	concat:  concat,
+	filter:  filter
 };

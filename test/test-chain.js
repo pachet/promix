@@ -585,9 +585,15 @@ function bindWithFailureAction(test) {
 function bindWithNoInsertionStep(test) {
 	test.expect(1);
 
-	var chain = Promix.chain();
+	var chain = promix.chain();
 
-	chain.thenEach(empty_array, doSomething).bind(context);
+	function doSomething() {
+		test.ok(false, 'We should not be here');
+	}
+
+	var context = { };
+
+	chain.thenEach([ ], doSomething).bind(context);
 
 	test.ok(
 		true,

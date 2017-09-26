@@ -97,6 +97,34 @@ function concat() {
 	return promise;
 }
 
+function filter(array, filter_callback) {
+	var
+		chain   = new Chain(),
+		promise = new Promise(),
+		results = [ ];
+
+	chain.thenEach(array, function each(element, chain_callback) {
+		filter_callback(element, function handler(error, should_include) {
+			if (error) {
+				return void chain_callback(error);
+			}
+
+			if (should_include) {
+				results.push(element);
+			}
+
+			return void chain_callback(null);
+		});
+	});
+
+	chain.then(function then(chain_results) {
+		promise.fulfill(results);
+	});
+	chain.otherwise(promise.break);
+
+	return promise;
+}
+
 function getStats(name) {
 	return Stats.get(name);
 }
@@ -153,6 +181,7 @@ module.exports = {
 	join:           join,
 	next:           next,
 	concat:         concat,
+	filter:         filter,
 	getStats:       getStats,
 	printStats:     printStats,
 	toString:       toString,
