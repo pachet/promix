@@ -31,8 +31,10 @@ var tests = {
 	andRecursive:               andRecursive,
 	andSyncVsAsync:             andSyncVsAsync,
 	andCall:                    andCall,
+	andCallWithPromise:         andCallWithPromise,
 	then:                       then,
 	thenCall:                   thenCall,
+	andSync:                    andSync,
 	otherwise:                  otherwise,
 	as:                         as,
 	bind:                       bind,
@@ -216,7 +218,7 @@ function andCall(test) {
 	test.expect(3);
 
 	chain.and(async, 'foo').as('foo');
-	chain.andCall(monotonic, context).as('bar');
+	chain.andCall(monotonic).as('bar').bind(context);
 	chain.then(function finisher(results) {
 		run(test, function(test) {
 			// Straightforward test to make sure
@@ -227,6 +229,28 @@ function andCall(test) {
 
 		test.done();
 	});
+}
+
+function andCallWithPromise(test) {
+	test.expect(1);
+
+	var chain = promix.when();
+
+	function doSomething(callback) {
+		var promise = promix.promise();
+
+		setTimeout(function deferred() {
+			promise.fulfill('pikachu');
+		}, 10);
+
+		return void callback(null, promise);
+	}
+
+	chain.andCall(doSomething);
+	chain.end(function finisher(value) {
+		test.equals(value, 'pikachu');
+		test.done();
+	}, chain.last);
 }
 
 function then(test) {
@@ -317,7 +341,7 @@ function thenCall(test) {
 	}
 
 	chain.and(async, 'foo').as('foo');
-	chain.thenCall(monotonic, context).as('bar');
+	chain.thenCall(monotonic).as('bar').bind(context);
 	chain.then(function finisher(results) {
 		run(test, function(test) {
 			// The value returned from the monotonic handler
@@ -327,6 +351,39 @@ function thenCall(test) {
 
 		test.done();
 	});
+}
+
+function andSync(test) {
+	test.expect(2);
+
+	var chain = promix.chain();
+
+	function doSomething(callback) {
+		setTimeout(function deferred() {
+			return void callback(null, 123);
+		}, 10);
+	}
+
+	function doSomethingSync(value) {
+		test.equals(value, 123);
+
+		var promise = promix.promise();
+
+		setTimeout(function deferred() {
+			promise.fulfill(value * 2);
+		}, 10);
+
+		return promise;
+	}
+
+	function finisher(result) {
+		test.equals(result, 246);
+		test.done();
+	}
+
+	chain.andCall(doSomething);
+	chain.andSync(doSomethingSync, chain.last);
+	chain.thenSync(finisher, chain.last);
 }
 
 function otherwise(test) {
