@@ -309,7 +309,81 @@ function toLocaleString ( test ) {
 	}, 0);
 }
 
+function greaterThan ( test ) {
+	var
+		promise = promix.promise();
 
+	test.expect(1);
+
+	promix.toNumber(promise).greaterThan(5).then(function ( result ) {
+		test.equals(result, true);
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	setTimeout(function ( ) {
+		promise.fulfill(10);
+	}, 0);
+}
+
+function greaterThanOrEqualTo ( test ) {
+	var
+		promise = promix.promise();
+
+	test.expect(1);
+
+	promix.toNumber(promise).greaterThanOrEqualTo(5).then(function ( result ) {
+		test.equals(result, true);
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	setTimeout(function ( ) {
+		promise.fulfill(5);
+	}, 0);
+}
+
+function lessThan ( test ) {
+	var
+		promise = promix.promise();
+
+	test.expect(1);
+
+	promix.toNumber(promise).lessThan(10).then(function ( result ) {
+		test.equals(result, true);
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	setTimeout(function ( ) {
+		promise.fulfill(5);
+	}, 0);
+}
+
+function lessThanOrEqualTo ( test ) {
+	var
+		promise = promix.promise();
+
+	test.expect(1);
+
+	promix.toNumber(promise).lessThanOrEqualTo(5).then(function ( result ) {
+		test.equals(result, true);
+		test.done();
+	}, function ( error ) {
+		test.ok(false, 'We should not be here');
+		test.done();
+	});
+
+	setTimeout(function ( ) {
+		promise.fulfill(5);
+	}, 0);
+}
 
 
 
@@ -331,5 +405,10 @@ module.exports = {
 	toPrecision : toPrecision,
 	toString : toString,
 	toExponential : toExponential,
-	toLocaleString : toLocaleString
+	toLocaleString : toLocaleString,
+	greaterThan : greaterThan,
+	greaterThanOrEqualTo : greaterThanOrEqualTo,
+	lessThan: lessThan,
+	lessThanOrEqualTo: lessThanOrEqualTo
+
 };
