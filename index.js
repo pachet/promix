@@ -7,6 +7,7 @@ var Chain = require('./lib/chain'),
 	StringPromise = require('./lib/types/string'),
 	ObjectPromise = require('./lib/types/object'),
 	BooleanPromise = require('./lib/types/boolean'),
+	FunctionPromise = require('./lib/types/function'),
 	Logger = require('./lib/logger'),
 	slice = require('./lib/util/slice');
 
@@ -149,6 +150,10 @@ function toBoolean(promise) {
 	return new BooleanPromise(promise);
 }
 
+function toFunction(promise) {
+	return new FunctionPromise(promise);
+}
+
 function toJSON(promise) {
 	var json_promise = new Promise();
 
@@ -188,6 +193,7 @@ module.exports = {
 	toNumber:       toNumber,
 	toArray:        toArray,
 	toBoolean:      toBoolean,
+	toFunction:     toFunction,
 	toJSON:         toJSON,
 	toObject:       toObject,
 	enableLogging:  Settings.enableLogging,
